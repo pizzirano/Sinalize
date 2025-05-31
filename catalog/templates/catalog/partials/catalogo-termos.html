@@ -1,0 +1,34 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Termos{% endblock title %}
+
+{% block header %}
+<header class="main-header-container destaque">
+  <div class="main-header container">
+    <h1>
+      <a class="main-logo" href="/">
+        <span class="main-logo-text">Termos</span>
+      </a>
+    </h1>
+  </div>
+</header>
+{% endblock header %}
+
+{% block content %}
+<div class="main-content container">
+  <div class="catalogo-grid">
+    {% for i in "123456"|make_list %}
+      <div class="signal-list-item-termos">
+        <div class="signal-cover">
+          <img src="https://placehold.co/1280x720/269fe6/ffffff?text=Termo" alt="Capa do termo ">
+        </div>
+        <div class="signal-title-container">
+          <h2 class="signal-title">Termo {{ i }}</h2>
+          <p class="signal-subcategoria">Subcategoria: Subcategoria {{ i }}</p>
+        </div>
+        <a class="button" href="#">Ver detalhes</a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock content %}

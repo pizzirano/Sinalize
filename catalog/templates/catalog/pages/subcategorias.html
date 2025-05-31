@@ -1,0 +1,39 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Subcategorias{% endblock title %}
+
+{% block header %}
+<header class="main-header-container destaque">
+  <div class="main-header container">
+    <h1>
+      <a class="main-logo" href="/">
+        <span class="main-logo-text">Subcategorias</span>
+      </a>
+    </h1>
+  </div>
+</header>
+{% endblock header %}
+
+{% block content %}
+<div class="main-content main-content-subcategorias container">
+  <div class="main-content-list">
+    {% for i in "123456"|make_list %}
+      <div class="signal signal-list-item-subcategorias">
+        <div class="signal-cover">
+          <img src="https://placehold.co/1280x720/52b788/ffffff?text=Subcategoria+{{ i }}" alt="Capa da subcategoria {{ i }}">
+        </div>
+        <div class="signal-title-container">
+          <h2 class="signal-title">Subcategoria {{ i }}</h2>
+        </div>
+           <footer class="signal-footer">
+        <a class="signal-read-more button button-dark button-full-width"
+          href="{% url 'termo-list' dominio_id=dominio_id categoria_id=categoria_id subcategoria_id=i %}">
+          <i class="fas fa-eye"></i>
+          <span>Ver termos</span>
+        </a>
+      </footer>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock content %}

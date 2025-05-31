@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    {% include 'catalog/partials/head.html' %}
+    <title>{% block title %}{% endblock title %} Sinalario</title>
+</head>
+
+<body>
+    {% block header %}
+        {% include 'catalog/partials/header.html' %}
+    {% endblock header %}
+
+    {% include 'catalog/partials/search.html' %}
+
+    <main class="main-content-container">
+        {% block content %}{% endblock content %}
+    </main>
+
+    {% include 'catalog/partials/footer.html' %}
+</body>
+
+</html>

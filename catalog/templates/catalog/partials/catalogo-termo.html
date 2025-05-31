@@ -1,0 +1,16 @@
+{% if nivel == 'termo_detail' %}
+  <div class="signal signal-list-item-termo">
+    <div class="signal-cover">
+      <img src="https://placehold.co/320x320/e76f51/ffffff?text=Termo+{{ termo_id }}" alt="Imagem do termo {{ termo_id }}">
+    </div>
+    <div class="signal-title-container">
+      <h2 class="signal-title">Detalhes do Termo {{ termo_id }}</h2>
+      <ul>
+        <li><strong>Domínio:</strong> {{ dominio_id }}</li>
+        <li><strong>Categoria:</strong> {{ categoria_id }}</li>
+        <li><strong>Subcategoria:</strong> {{ subcategoria_id }}</li>
+        <li><strong>ID do Termo:</strong> {{ termo_id }}</li>
+      </ul>
+      <a class="button" href="{% url 'termo-list' dominio_id=dominio_id categoria_id=categoria_id subcategoria_id=subcategoria_id %}">← Voltar aos termos</a>
+    </div>
+</div>

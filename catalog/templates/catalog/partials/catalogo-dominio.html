@@ -1,0 +1,39 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Domínios{% endblock title %}
+
+{% block header %}
+<header class="main-header-container destaque">
+  <div class="main-header container">
+    <h1>
+      <a class="main-logo" href="/">
+        <span class="main-logo-text">Domínios</span>
+      </a>
+    </h1>
+  </div>
+</header>
+{% endblock header %}
+
+{% block content %}
+<div class="main-content container">
+  <div class="main-content-list catalogo-grid">
+    {% for d in dominios %}
+      <div class="signal signal-list-item-categorias">
+        <div class="signal-cover">
+          <img src="https://placehold.co/600x400/269fe6/ffffff?text={{ d.nome|urlencode }}" alt="Capa do domínio {{ d.nome }}">
+        </div>
+        <div class="signal-title-container">
+          <h2 class="signal-title">{{ d.nome }}</h2>
+        </div>
+        <div class="signal-footer">
+          <a class="button" href="{% url 'categorias_por_dominio' d.id %}">
+            Ver categorias
+          </a>
+        </div>
+      </div>
+    {% empty %}
+      <p>Nenhum domínio encontrado.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock content %}
