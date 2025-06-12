@@ -1,0 +1,57 @@
+.carousel {
+  width: 100vw;
+  margin-top:3_rem;
+  overflow: hidden;
+}
+
+/* Track do carrossel */
+.carousel-track {
+  display: flex;
+  gap: 2rem;
+  animation: scroll-carousel 20s linear infinite;
+}
+
+/* Itens do carrossel */
+.carousel-item {
+  flex: 0 0 90%;
+  scroll-snap-align: start;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.carousel-item:hover {
+  transform: scale(1.02);
+}
+
+/* Imagens com altura proporcional à tela */
+.carousel-item img {
+  width: 100%;
+  height: 60vh;
+  object-fit: cover;
+  border-radius: 1rem;
+}
+
+/* Responsivo */
+@media (min-width: 768px) {
+  .carousel-item {
+    flex: 0 0 45%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .carousel-item {
+    flex: 0 0 30%;
+  }
+}
+
+/* Animação */
+@keyframes scroll-carousel {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}

@@ -1,0 +1,35 @@
+{% extends 'global/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main-content main-content-termos container">
+  <h2 class="section-title">{{ termo.nome_termo }}</h2>
+
+  <div class="main-content-list">
+    {% for video in videos %}
+      <div class="signal signal-list-item">
+        <div class="signal-cover">
+          {% if video.video %}
+            <video width="100%" height="auto" controls>
+              <source src="{{ video.video.url }}" type="video/{{ video.video.url|slice:"-3"|lower }}">
+              Seu navegador não suporta vídeo.
+            </video>
+          {% else %}
+            <div class="placeholder-img">
+              <span>Sem vídeo</span>
+            </div>
+          {% endif %}
+        </div>
+        <div class="signal-title-container">
+          <h2 class="signal-title">{{ video.titulo }}</h2>
+        </div>
+        <footer class="signal-footer">
+          <p class="signal-meta">Tipo: {{ video.tipo_video }}</p>
+        </footer>
+      </div>
+    {% empty %}
+      <p>Não há vídeos cadastrados para este termo.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock content %}

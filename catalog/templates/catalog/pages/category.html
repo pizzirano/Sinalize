@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home</title>
+
+  <!-- Fontes -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Open+Sans:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="{% static 'catalog/css/elements.css' %}">
+  <link rel="stylesheet" href="{% static 'catalog/css/classes.css' %}">
+  <link rel="stylesheet" href="{% static 'catalog/css/menu.css' %}">
+  <link rel="stylesheet" href="{% static 'catalog/css/styles.css' %}">
+  <link rel="stylesheet" href="{% static 'catalog/css/variables.css' %}">
+  <link rel="stylesheet" href="{% static 'catalog/css/carousel.css' %}">
+</head>
+
+<body class="main-bg">
+
+  <!-- Menu -->
+  <aside class="menu white-bg">
+    <div class="main-content menu-content">
+      <h1>
+        <a href="#">LOGO</a>
+      </h1>
+      <nav>
+        <ul>
+          <li><a href="#">Contato</a></li>
+          <li><a href="#">Sobre</a></li>
+          <li><a href="#">Ajuda</a></li>
+        </ul>
+      </nav>
+    </div>
+  </aside>
+
+  <div class="menu-spacing"></div>
+
+  <!-- Seção de Introdução -->
+  <section id= "intro" class="intro main-bg section">
+    <div class="main-content intro-content">
+      <div class="intro-text-content">
+        <h2>Bem-vindo ao Sinalize</h2>
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellendus consequuntur iure aspernatur nihil est. Earum tempora vitae voluptates velit voluptatibus quae ipsum eligendi, et veritatis, molestias molestiae architecto aut harum!</p>
+      </div>
+      <div class="intro-img">
+        <img src="{% static 'catalog/img/sinal.svg' %}" alt="Logo de HTML, CSS e JS.">
+      </div>
+    </div>
+  </section>
+    
+</body>
+</html>

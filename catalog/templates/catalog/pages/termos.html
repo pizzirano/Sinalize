@@ -1,5 +1,9 @@
 {% extends 'global/base.html' %}
 
+{%load static%}
+
+
+
 {% block title %}Termos{% endblock title %}
 
 {% block header %}
@@ -16,47 +20,32 @@
 
 {% block content %}
 <div class="main-content main-content-termos container">
+  <h2 class="section-title"> {{ subcategoria.nome_subcategoria }}</h2>
+
   <div class="main-content-list">
-    {% for i in "123456"|make_list %}
+    {% for termo in termos %}
       <div class="signal signal-list-item">
         <div class="signal-cover">
-          <img src="https://placehold.co/1280x720/269fe6/ffffff?text=Termo+{{ i }}" alt="Capa do termo {{ i }}">
+          {% if termo.t_imagem %}
+            <img src="{{ termo.t_imagem.url }}" alt="Imagem de {{ termo.nome_termo }}">
+          {% else %}
+            <img src="{% static 'catalog/img/placeholder.jpg' %}" alt="Imagem não disponível">
+          {% endif %}
         </div>
         <div class="signal-title-container">
-          <h2 class="signal-title">Termo {{ i }}</h2>
-        </div>
-        <div class="signal-author">
-          <span class="signal-author-item">
-            <i class="fas fa-user"></i>
-            Autor {{ i }} Sobrenome {{ i }}
-          </span>
-          <span class="signal-author-item">
-            <i class="fas fa-calendar-alt"></i>
-            {{ "2025-05-29 14:3"|date:"d/m/Y à\s H:i" }}
-          </span>
-        </div>
-        <div class="signal-content">
-          <p>Descrição fictícia do termo número {{ i }} para testes.</p>
-        </div>
-        <div class="signal-meta-container">
-          <div class="signal-meta signal-preparation">
-            <h3 class="signal-meta-title"><i class="fas fa-folder"></i> Categoria</h3>
-            <div class="signal-meta-text">Categoria {{ i }}</div>
-          </div>
-          <div class="signal-meta signal-servings">
-            <h3 class="signal-meta-title"><i class="fas fa-tag"></i> Subcategoria</h3>
-            <div class="signal-meta-text">Subcategoria {{ i }}</div>
-          </div>
+          <h2 class="signal-title">{{ termo.nome_termo }}</h2>
         </div>
         <footer class="signal-footer">
-        <a class="signal-read-more button button-dark button-full-width"
-          <a class="button" href="{% url 'termo-detail' dominio_id=dominio_id categoria_id=categoria_id subcategoria_id=subcategoria_id termo_id=i %}">
+          <a class="signal-read-more button button-dark button-full-width"
+          href="{% url 'sinal_list' termo.id_termo %}">
           <i class="fas fa-eye"></i>
           <span>Ver mais</span>
         </a>
-      </footer>
+        </footer>
       </div>
+    {% empty %}
+      <p>Não há termos cadastrados para esta subcategoria.</p>
     {% endfor %}
-</div>
+  </div>
 </div>
 {% endblock content %}

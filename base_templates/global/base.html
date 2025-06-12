@@ -7,6 +7,9 @@
 </head>
 
 <body>
+
+    {% include 'catalog/partials/menu.html' %}  <!-- SEM estar dentro de um block -->
+
     {% block header %}
         {% include 'catalog/partials/header.html' %}
     {% endblock header %}
@@ -18,6 +21,6 @@
     </main>
 
     {% include 'catalog/partials/footer.html' %}
-</body>
 
+</body>
 </html>

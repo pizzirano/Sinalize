@@ -1,0 +1,27 @@
+{%load  static  %}
+<button class="button-show-menu button-show-menu-visible">
+  <i class="fas fa-bars"></i>
+  <span class="hidden-text">Show menu</span>
+</button>
+
+<div class="menu-container menu-hidden">
+  <button class="button-close-menu button-close-menu-visible">
+    <i class="fas fa-times-circle"></i>
+    <span class="hidden-text">Close menu</span>
+  </button>
+
+  <div class="menu-content">
+    <nav class="menu-nav">
+      {% if subcategorias %}
+        {% for sub in subcategorias %}
+          <a href="{% url 'termos_por_subcategoria' sub.id_subcategoria %}">
+            {{ sub.nome_subcategoria }}
+          </a>
+        {% endfor %}
+      {% else %}
+        <p>Nenhuma subcategoria encontrada</p>
+      {% endif %}
+    </nav>
+  </div>
+</div>
+<script src="{% static 'global/js/scripts.js' %}"></script>
