@@ -1,34 +1,74 @@
 {% extends 'global/base.html' %}
 {% load static %}
 
-{% block content %}
-<div class="main-content main-content-termos container">
-  <h2 class="section-title">{{ termo.nome_termo }}</h2>
+{% block title %}{{ termo.nome_termo }} | Sinais{% endblock title %}
 
-  <div class="main-content-list">
+{% block content %}
+<div class="container py-5">
+
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb bg-white p-3 shadow-sm rounded">
+      <li class="breadcrumb-item"><a href="{% url 'home' %}">Início</a></li>
+      {% for classificacao in classificacoes %}
+        <li class="breadcrumb-item">
+          <a href="{% url 'termo_list' classificacao.subcategoria.categoria.id_categoria %}">
+            {{ classificacao.subcategoria.categoria.nome_categoria }}
+          </a>
+        </li>
+        <li class="breadcrumb-item">
+          <a href="{% url 'termo_list' classificacao.subcategoria.categoria.id_categoria %}?sub={{ classificacao.subcategoria.id_subcategoria }}">
+            {{ classificacao.subcategoria.nome_subcategoria }}
+          </a>
+        </li>
+      {% endfor %}
+      <li class="breadcrumb-item active" aria-current="page">{{ termo.nome_termo }}</li>
+    </ol>
+  </nav>
+
+  <!-- Card do Termo -->
+  <div class="card shadow-lg border-0 mb-5 termo-card">
+    {% if termo.t_imagem %}
+      <img src="{{ termo.t_imagem.url }}" class="card-img-top termo-img" alt="{{ termo.nome_termo }}">
+    {% endif %}
+    <div class="card-body text-center">
+      <h2 class="fw-bold text-primary">{{ termo.nome_termo }}</h2>
+      <p class="text-muted">{{ termo.descricao|default:"Descrição não disponível." }}</p>
+    </div>
+  </div>
+
+  <!-- Lista de Vídeos -->
+  <div class="row">
     {% for video in videos %}
-      <div class="signal signal-list-item">
-        <div class="signal-cover">
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card h-100 shadow video-card border-0">
+        <div class="video-container">
           {% if video.video %}
-            <video width="100%" height="auto" controls>
-              <source src="{{ video.video.url }}" type="video/{{ video.video.url|slice:"-3"|lower }}">
-              Seu navegador não suporta vídeo.
-            </video>
+          <video class="w-100 rounded-top" controls poster="{% static 'images/video-placeholder.jpg' %}">
+            <source src="{{ video.video.url }}" type="video/mp4">
+            Seu navegador não suporta vídeo.
+          </video>
           {% else %}
-            <div class="placeholder-img">
-              <span>Sem vídeo</span>
-            </div>
+          <div class="placeholder-img text-center d-flex align-items-center justify-content-center bg-light">
+            <span class="text-muted">Sem vídeo</span>
+          </div>
           {% endif %}
         </div>
-        <div class="signal-title-container">
-          <h2 class="signal-title">{{ video.titulo }}</h2>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title text-primary fw-bold">{{ video.titulo }}</h5>
+          <p class="card-text">
+            <span class="badge bg-info">{{ video.get_tipo_video_display }}</span>
+          </p>
+          <div class="mt-auto">
+            <a href="{% url 'video_detail' video.id_video %}" class="btn btn-outline-primary w-100 btn-hover">
+              <i class="fas fa-eye"></i> Ver mais
+            </a>
+          </div>
         </div>
-        <footer class="signal-footer">
-          <p class="signal-meta">Tipo: {{ video.tipo_video }}</p>
-        </footer>
       </div>
+    </div>
     {% empty %}
-      <p>Não há vídeos cadastrados para este termo.</p>
+      <p class="text-muted text-center">Não há vídeos cadastrados para este termo.</p>
     {% endfor %}
   </div>
 </div>

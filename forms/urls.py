@@ -1,7 +1,6 @@
-from django.urls import path 
-from forms.views import form
+from django.urls import path
+from . import views
 
 urlpatterns = [
-    path('', form, name ='form'),
-
+    path('cadastrar-termo/', views.cadastrar_termo_e_videos, name='cadastrar_termo'),
 ]

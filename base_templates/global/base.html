@@ -3,24 +3,45 @@
 
 <head>
     {% include 'catalog/partials/head.html' %}
-    <title>{% block title %}{% endblock title %} Sinalario</title>
+    <title>{% block title %}{% endblock title %} | Sinalário</title>
 </head>
 
-<body>
+<body class="bg-light">
 
-    {% include 'catalog/partials/menu.html' %}  <!-- SEM estar dentro de um block -->
+    <!-- Menu -->
+    <header>
+        {% include 'catalog/partials/menu.html' %}
+    </header>
 
+    <!-- Cabeçalho -->
     {% block header %}
-        {% include 'catalog/partials/header.html' %}
+        <section class="py-5 bg-primary text-white text-center shadow-sm">
+            <div class="container">
+                {% include 'catalog/partials/header.html' %}
+            </div>
+        </section>
     {% endblock header %}
 
-    {% include 'catalog/partials/search.html' %}
 
-    <main class="main-content-container">
-        {% block content %}{% endblock content %}
+    <!-- Conteúdo Principal -->
+    <main class="container my-5">
+        <div class="row">
+            <div class="col-12">
+                {% block content %}{% endblock content %}
+            </div>
+        </div>
     </main>
 
-    {% include 'catalog/partials/footer.html' %}
+    {% block footer %}
+    <footer class="main-footer">
+      <div class="developer">
+        <a href="https://www.camboriu.ifc.edu.br/" target="_blank">By Sinalize</a>
+      </div>
+      <div class="powered">
+        <a href="https://www.djangoproject.com/" target="_blank">Powered by Django</a>
+      </div>
+    </footer>
+  {% endblock footer %}
 
 </body>
 </html>

@@ -7,7 +7,8 @@
   height: 100vh;
 }
 
-.intro-text-content, .intro-img {
+.intro-text-content,
+.intro-img {
   display: flex;
   flex-flow: column wrap;
   justify-content: center;
@@ -69,36 +70,25 @@
   transform: rotate(5deg);
 }
 
-.galery-img {
+.gallery-img {
   width: 100%;
-  max-width: 36rem ;
-  max-height: 36rem ;
+  max-width: 36rem;
+  aspect-ratio: 16 / 9; /* Mantém proporção ideal */
   overflow: hidden;
-
+  border-radius: 0.5rem; /* opcional, só para suavizar bordas */
+  position: relative;
 }
 
 .gallery-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Preenche sem distorcer */
   transition: all 300ms ease-in-out;
+  display: block;
 }
 
 .gallery-img img:hover {
   transform: translate(-3%, 3%) scale(1.2) rotate(5deg);
 }
 
-.footer {
-  text-align: center;
-  font-size: 1.6rem;
-}
 
-.footer a {
-  color: var(--primary-color);
-}
-
-.heart {
-  color: var(--secondary-color);
-}
-
-.footer p {
-  margin: 0;
-  padding: 3rem;
-}

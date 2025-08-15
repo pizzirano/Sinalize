@@ -1,6 +1,58 @@
-{% extends 'global/base.html' %}
+{% extends 'catalog/base.html' %}
+
 {% block content %}
-<div class="main-content main-content-detail container">
-    {% include 'catalog/partials/catalogo.html' %}
+<div class="container py-5">
+
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'home' %}">Início</a></li>
+      {% for classificacao in classificacoes %}
+        <li class="breadcrumb-item">
+          <a href="{% url 'termo_list' classificacao.subcategoria.categoria.id_categoria %}">
+            {{ classificacao.subcategoria.categoria.nome_categoria }}
+          </a>
+        </li>
+        <li class="breadcrumb-item">
+          <a href="{% url 'termo_list' classificacao.subcategoria.categoria.id_categoria %}?sub={{ classificacao.subcategoria.id_subcategoria }}">
+            {{ classificacao.subcategoria.nome_subcategoria }}
+          </a>
+        </li>
+      {% endfor %}
+      <li class="breadcrumb-item active" aria-current="page">{{ termo.nome_termo }}</li>
+    </ol>
+  </nav>
+
+  <!-- Card do Termo -->
+  <div class="card shadow-lg">
+    {% if termo.t_imagem %}
+      <img src="{{ termo.t_imagem.url }}" class="card-img-top" alt="{{ termo.nome_termo }}">
+    {% endif %}
+    <div class="card-body">
+      <h2 class="card-title">{{ termo.nome_termo }}</h2>
+      <p class="card-text">{{ termo.descricao|default:"Descrição não disponível." }}</p>
+    </div>
+  </div>
+
+  <!-- Vídeos -->
+  <div class="row mt-4">
+    {% for video in videos %}
+    <div class="col-md-6 mb-4">
+      <div class="card h-100 shadow-sm">
+        <video class="w-100 rounded" controls>
+          <source src="{{ video.video.url }}" type="video/mp4">
+          Seu navegador não suporta vídeos em HTML5.
+        </video>
+        <div class="card-body">
+          <h5 class="card-title">{{ video.titulo }}</h5>
+          <p class="card-text"><strong>Tipo:</strong> {{ video.get_tipo_video_display }}</p>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+      <p class="text-muted">Nenhum vídeo disponível para este termo.</p>
+    {% endfor %}
+  </div>
+
 </div>
-{% endblock content %}
+{% endblock %}

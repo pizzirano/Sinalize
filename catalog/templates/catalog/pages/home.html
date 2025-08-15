@@ -7,105 +7,153 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Home</title>
 
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
   <!-- Fontes -->
   <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Open+Sans:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Open+Sans:ital,wght@0,400;0,700;1,400&display=swap"
+    rel="stylesheet">
 
-  <!-- CSS -->
+  <!-- CSS Customizado -->
   <link rel="stylesheet" href="{% static 'catalog/css/elements.css' %}">
   <link rel="stylesheet" href="{% static 'catalog/css/classes.css' %}">
   <link rel="stylesheet" href="{% static 'catalog/css/menu.css' %}">
-  <link rel="stylesheet" href="{% static 'catalog/css/styles.css' %}">
+  <link rel="stylesheet" href="{% static 'catalog/css/style.css' %}">
   <link rel="stylesheet" href="{% static 'catalog/css/variables.css' %}">
-  <link rel="stylesheet" href="{% static 'catalog/css/carousel.css' %}">
+  <link rel="stylesheet" href="{% static 'catalog/css/styles.css' %}">
 </head>
 
 <body class="main-bg">
-
-  <!-- Menu -->
-  <aside class="menu white-bg">
-    <div class="main-content menu-content">
-      <h1>
-        <a href="#">LOGO</a>
-      </h1>
-      <nav>
-        <ul>
-          <li><a href="#">Contato</a></li>
-          <li><a href="#">Sobre</a></li>
-          <li><a href="#">Ajuda</a></li>
-        </ul>
-      </nav>
-    </div>
-  </aside>
+<!-- Menu -->
+<aside class="menu white-bg">
+  <div class="main-content menu-content d-flex justify-content-between align-items-center">
+    <h1 class="logo m-0">
+      <a href="/">
+        <img src="{% static 'catalog/img/logo1 (3).png' %}" alt="LOGO" style="height: 65px; width: 5%px; padding: 10px;">
+      </a>
+    </h1>
+    <!-- Aqui você coloca os links do menu -->
+    <nav>
+      <ul class="nav d-flex">
+        <li><a href="#">Início</a></li>
+        <li><a href="#">Sobre</a></li>
+       <li><a href="{% url 'cadastrar_termo' %}">formulario</a></li>
+      </ul>
+    </nav>
+  </div>
+</aside>
 
   <div class="menu-spacing"></div>
 
   <!-- Seção de Introdução -->
-  <section id= "intro" class="intro main-bg section">
-    <div class="main-content intro-content">
-      <div class="intro-text-content">
-        <h2>Bem-vindo ao Sinalize</h2>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellendus consequuntur iure aspernatur nihil est. Earum tempora vitae voluptates velit voluptatibus quae ipsum eligendi, et veritatis, molestias molestiae architecto aut harum!</p>
-      </div>
-      <div class="intro-img">
-        <img src="{% static 'catalog/img/sinal.svg' %}" alt="Logo de HTML, CSS e JS.">
+  <section id="intro" class="intro main-bg section">
+    <div class="container text-center py-5">
+      <div class="row align-items-center">
+        <div class="col-md-6 text-start">
+          <h2>Bem-vindo ao Sinalize</h2>
+          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellendus consequuntur iure aspernatur nihil est.</p>
+        </div>
+        <div class="col-md-6">
+          <img src="{% static 'catalog/img/sinal.svg' %}" class="img-fluid" alt="Sinalize ">
+        </div>
       </div>
     </div>
   </section>
-
-
-
+  <!-- Carrossel Moderno -->
 <section class="white-bg section">
-  <div class="main-content">
-    <h1>Descubra e inspire-se</h1>
+  <div class="container py-4">
+    <h1 class="text-center mb-4">Descubra e inspire-se</h1>
+
+    <div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
+      
+      <!-- Indicadores -->
+      <div class="carousel-indicators">
+        {% for termo in termos_carrossel %}
+        <button type="button" data-bs-target="#carouselExample" 
+          data-bs-slide-to="{{ forloop.counter0 }}"
+          class="{% if forloop.first %}active{% endif %}" 
+          aria-current="{% if forloop.first %}true{% endif %}" 
+          aria-label="Slide {{ forloop.counter }}"></button>
+        {% endfor %}
+      </div>
+
+      <!-- Slides -->
+      <div class="carousel-inner">
+        {% for termo in termos_carrossel %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+          <a href="{% url 'sinal_list' termo.id_termo %}">
+            {% if termo.t_imagem %}
+            <img src="{{ termo.t_imagem.url }}" 
+                 class="d-block w-100 carousel-img" 
+                 alt="{{ termo.nome_termo }}">
+            {% else %}
+            <img src="{% static 'catalog/img/placeholder.jpg' %}" 
+                 class="d-block w-100 carousel-img" 
+                 alt="Imagem padrão">
+            {% endif %}
+            <div class="custom-overlay">
+              <h5>{{ termo.nome_termo }}</h5>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Controles -->
+      <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Anterior</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Próximo</span>
+      </button>
+    </div>
   </div>
+</section>
+  <!-- Grid de Categorias -->
+ <section id="grid-one" class="grid-one main-bg section">
+  <div class="container py-5">
+    <h2 class="grid-main-heading text-center">Categorias</h2>
+    <p class="grid-description text-center">Uma breve descrição.</p>
 
-<div class="carousel-container">
-  <div class="carousel-track" id="carousel-track">
-    {% for termo in termos_carrossel %}
-      <a href="{% url 'sinal_list' termo.id_termo %}" class="carousel-item">
-        {% if termo.t_imagem %}
-          <img src="{{ termo.t_imagem.url }}" alt="{{ termo.nome_termo }}" />
-        {% else %}
-          <img src="{% static 'catalog/img/placeholder.jpg' %}" alt="Imagem padrão" />
-        {% endif %}
-      </a>
-    {% endfor %}
-  </div>
-</div>
-<script src="{% static 'catalog/js/carousel.js' %}"></script>
-
-<section id="grid-one" class="grid-one main-bg section">
-  <div class="main-content grid-one-content">
-    <h2 class="grid-main-heading">Categorias</h2>
-    <p class="grid-description">Uma breve descrição.</p>
-
-    <div class="grid">
+    <div class="row g-4 mt-4">
       {% for categoria in categorias_galeria %}
-        {% if categoria.c_imagem %}
-          <div class="gallery-img">
-            <a href="{% url 'termo_list' categoria.id_categoria %}">
-              <img src="{{ categoria.c_imagem.url }}" alt="{{ categoria.nome_categoria }}">
-            </a>
-          </div>
-        {% endif %}
+      {% if categoria.c_imagem %}
+      <div class="col-sm-6 col-md-4 col-lg-3">
+        <div class="gallery-img text-center position-relative">
+          <a href="{% url 'termo_list' categoria.id_categoria %}">
+            <img src="{{ categoria.c_imagem.url }}" class="img-fluid rounded shadow"
+                 alt="{{ categoria.nome_categoria }}">
+            <div class="overlay-text">
+              {{ categoria.nome_categoria }}
+            </div>
+          </a>
+        </div>
+      </div>
+      {% endif %}
       {% endfor %}
     </div>
   </div>
 </section>
 
-  <section id="gallery" class="section white-bg">
-    <div class="main-content">
-      <h1>teste</h1>
-    </div>
-  </section>
+  <!-- Rodapé -->
+<footer class="main-footer">
+  <div class="developer">
+    <a href="https://www.camboriu.ifc.edu.br/" target="_blank" rel="noreferrer noopener">
+      By Sinalize
+    </a>
+  </div>
 
-  
-  <footer id="footer" class="footer white-bg">
-  </footer>
-
- </body>
- </html>
-
-  
-  
+  <div class="powered">
+    <a href="https://www.djangoproject.com/" target="_blank" rel="noreferrer noopener">
+      Powered by Django
+    </a>
+  </div>
+</footer>
+  <!-- JS Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

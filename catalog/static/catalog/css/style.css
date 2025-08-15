@@ -1,7 +1,7 @@
 
         :root {
-            --color-primary: #269fe6;
-            --color-primary-hover: #2086c2;
+            --color-primary: #dfdfdf;
+            --color-primary-hover: #bad1deb8;
             --color-primary-dark: #13141f;
             --color-primary-dark-hover: #212336;
             --color-primary-light: #d4ecfa;
@@ -337,4 +337,198 @@
         .menu-nav a {
         width: 100%;
         padding: 1rem;
+        }
+     
+        .carousel {
+        border-radius: 1rem;
+        overflow: hidden;
+        }
+
+        .carousel-img {
+        height: 65vh;
+        object-fit: cover;
+        filter: brightness(0.8);
+        transition: transform 0.5s ease, filter 0.5s ease;
+        border-radius: 1rem;
+        }
+
+        /* Efeito de zoom suave no hover */
+        .carousel-item:hover .carousel-img {
+        transform: scale(1.05);
+        filter: brightness(1);
+        }
+        /* Overlay só com sombra no texto */
+        .custom-overlay {
+        position: absolute;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        width: auto;
+        max-width: 90%;
+        }
+
+        .custom-overlay h5 {
+        color: #fff;
+        font-size: clamp(1.8rem, 3vw, 2.5rem);
+        font-weight: 800;
+        text-shadow: 
+        0px 4px 10px rgba(0, 0, 0, 0.9), 
+        0px 2px 5px rgba(0, 0, 0, 0.6);
+        letter-spacing: 1px;
+        }
+
+        .intro-content {
+        position: relative;
+        top: -8rem;
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: var(--gap);
+        height: 100vh;
+        }
+
+        .intro-text-content,
+        .intro-img {
+        display: flex;
+        flex-flow: column wrap;
+        justify-content: center;
+        }
+
+
+        .intro-img img,
+        .intro-img svg {
+        max-width: 100%;
+        height: auto;
+        }
+
+        .top3-content {
+        max-width: 64rem;
+        display: flex;
+        flex-flow: column wrap;
+        justify-content: center;
+        height: 100vh;
+        text-align: center;
+        }
+
+        .grid-one-content {
+        display: flex;
+        flex-flow: column wrap;
+        justify-content: center;
+        height: 100vh;
+        }
+
+        .grid-main-heading {
+        margin-bottom: 1rem;
+        }
+
+        .grid-description {
+        padding-bottom: 5rem;
+        }
+
+        .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--gap);
+        counter-reset: grid-counter;
+        }
+
+        .grid h3 {
+        font-size: 3rem;
+        position: relative;
+        padding-left: 5rem;
+        padding-bottom: 2rem;
+        }
+
+        .grid h3::before {
+        counter-increment: grid-counter;
+        content: counter(grid-counter);
+        position: absolute;
+        font-size: 8rem;
+        font-style: italic;
+        top: -4rem;
+        left: -2rem;
+        transform: rotate(5deg);
+        }
+
+        /* Container da imagem da categoria */
+        .gallery-img {
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+        transition: transform 0.3s ease-in-out;
+        }
+
+        .gallery-img img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        border-radius: 12px;
+        transition: transform 0.4s ease;
+        }
+
+        /* Efeito zoom suave ao passar o mouse */
+        .gallery-img:hover img {
+        transform: scale(1.08);
+        }
+
+        /* Texto sobre a imagem */
+        .overlay-text {
+        position: absolute;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.55);
+        color: #fff;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 1.2rem;
+        text-align: center;
+        white-space: nowrap;
+        transition: all 0.3s ease-in-out;
+        }
+
+        /* Efeito ao passar o mouse */
+        .gallery-img:hover .overlay-text {
+        background: rgba(0, 0, 0, 0.75);
+        transform: translateX(-50%) translateY(-5px);
+
+
+        }
+
+        /* ===== Termo Card ===== */
+        .termo-card {
+        border-radius: 15px;
+        overflow: hidden;
+        }
+        .termo-card .termo-img {
+        max-height: 300px;
+        object-fit: cover;
+        }
+
+        /* ===== Vídeo Card ===== */
+        .video-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 12px;
+        }
+        .video-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0px 8px 20px rgba(0,0,0,0.2);
+        }
+
+        /* ===== Botão Ver mais ===== */
+        .btn-hover {
+        transition: all 0.3s ease;
+        }
+        .btn-hover:hover {
+        background-color: #0d6efd;
+        color: #fff !important;
+        }
+
+        /* ===== Placeholder quando não há vídeo ===== */
+        .placeholder-img {
+        height: 200px;
+        border-radius: 12px 12px 0 0;
+        font-size: 1rem;
+        color: #6c757d;
         }

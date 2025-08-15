@@ -10,7 +10,6 @@
   gap: 2rem;
   animation: scroll-carousel 20s linear infinite;
 }
-
 /* Itens do carrossel */
 .carousel-item {
   flex: 0 0 90%;

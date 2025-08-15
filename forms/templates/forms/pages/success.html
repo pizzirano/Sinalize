@@ -1,0 +1,12 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Sucesso{% endblock title %}
+
+{% block content %}
+<div class="container py-5 text-center">
+  <h3 class="text-success">Vídeo cadastrado com sucesso!</h3>
+  <a href="{% url 'cadastrar_video' %}" class="btn btn-outline-primary mt-3">
+    Cadastrar outro vídeo
+  </a>
+</div>
+{% endblock content %}

@@ -1,0 +1,26 @@
+{% extends "global/base.html" %}
+
+{% block title %}{{ video.titulo }} - Detalhe{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h2 class="text-center mb-4">{{ video.titulo }}</h2>
+  
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-body text-center">
+          <video width="100%" height="auto" controls>
+            <source src="{{ video.video.url }}" type="video/mp4">
+            Seu navegador não suporta vídeo.
+          </video>
+          <h4 class="mt-3">Tipo: {{ video.tipo_video }}</h4>
+          {% if termo.descricao %}
+          <p class="mt-3">{{ termo.descricao }}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

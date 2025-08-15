@@ -47,7 +47,3 @@ class VideoAdmin(admin.ModelAdmin):
     list_display = ('id_video', 'titulo', 'tipo_video', 'termo')
     search_fields = ('titulo',)
     list_filter = ('tipo_video', 'termo')
-
-# Não precisa mais registrar Classificacao e Pertence separadamente
-# admin.site.register(Classificacao)
-# admin.site.register(Pertence)
