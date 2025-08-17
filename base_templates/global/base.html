@@ -15,13 +15,21 @@
 
     <!-- Cabeçalho -->
     {% block header %}
+    {% if request.resolver_match.view_name == 'sinal.list' and termo.t_imagem %}
+        <div class="termo-header text-white text-center d-flex align-items-center justify-content-center mb-4"
+             style="background-image: url('{{ termo.t_imagem.url }}');">
+          <div class="overlay-glass w-100 h-100 d-flex align-items-center justify-content-center">
+            <h2 class="fw-bold display-5 m-0">{{ termo.nome_termo }}</h2>
+          </div>
+        </div>
+    {% else %}
         <section class="py-5 bg-primary text-white text-center shadow-sm">
             <div class="container">
                 {% include 'catalog/partials/header.html' %}
             </div>
         </section>
-    {% endblock header %}
-
+    {% endif %}
+{% endblock header %}
 
     <!-- Conteúdo Principal -->
     <main class="container my-5">

@@ -501,9 +501,22 @@
         border-radius: 15px;
         overflow: hidden;
         }
+
+        /* Imagem do termo responsiva, mantendo proporção */
         .termo-card .termo-img {
-        max-height: 300px;
-        object-fit: cover;
+        width: 100%;
+        height: auto;          /* mantém proporção original */
+        max-height: 300px;     /* impede que fique gigante */
+        object-fit: contain;   /* ajusta para caber sem cortar */
+        display: block;
+        margin: 0 auto;
+        background-color: #f8f9fa; /* fundo neutro para imagens menores */
+        }
+
+        @media (max-width: 768px) {
+        .termo-card .termo-img {
+            max-height: 200px; /* limite menor no mobile */
+        }
         }
 
         /* ===== Vídeo Card ===== */
@@ -524,8 +537,7 @@
         background-color: #0d6efd;
         color: #fff !important;
         }
-
-        /* ===== Placeholder quando não há vídeo ===== */
+                /* ===== Placeholder quando não há vídeo ===== */
         .placeholder-img {
         height: 200px;
         border-radius: 12px 12px 0 0;

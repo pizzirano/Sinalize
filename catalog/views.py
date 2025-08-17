@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from catalog.models import Termo, Categoria, Subcategoria, Video
+from django.db.models import Count
 
 # ------------------------------
 # Lista termos de uma categoria
@@ -58,11 +59,14 @@ def sinal_list(request, termo_id):
 def home(request):
     """
     Página inicial do sistema.
-    Mostra termos para o carrossel e categorias em destaque.
+    Mostra termos para o carrossel e todas as categorias com imagem.
     """
     try:
-        termos_carrossel = Termo.objects.exclude(t_imagem='')  # só termos com imagem
-        categorias_galeria = Categoria.objects.filter(dominio__id_dominio=1)  # E o Select para o Dominio principal where:1 "Turismo"
+        # Termos com imagem para o carrossel
+        termos_carrossel = Termo.objects.filter(carrossel=True).exclude(t_imagem='')
+
+        # Todas as categorias com imagem
+        categorias_galeria = Categoria.objects.exclude(c_imagem='').filter(c_imagem__isnull=False)
 
         context = {
             'termos_carrossel': termos_carrossel,
@@ -70,9 +74,7 @@ def home(request):
         }
         return render(request, 'catalog/pages/home.html', context)
     except Exception as e:
-        return HttpResponse(f"Erro na home: {e}", status=500)
-
-
+        return HttpResponse(f"Erro na home: {e}")
 # ------------------------------
 # Lista termos de uma subcategoria
 # ------------------------------

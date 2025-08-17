@@ -24,6 +24,14 @@ class TermoForm(forms.ModelForm):
         }
 
 
+class CategoriaForm(forms.ModelForm):
+    class Meta:
+        model = Categoria
+        fields = ['c_imagem']
+        widgets = {
+            'c_imagem': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+
 class VideoForm(forms.ModelForm):
     class Meta:
         model = Video

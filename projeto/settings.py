@@ -40,7 +40,6 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             BASE_DIR / 'base_templates',
-            BASE_DIR / 'signalsapi' / 'templates',
             BASE_DIR / 'catalog' / 'templates',
             BASE_DIR / 'forms' / 'templates',
         ],

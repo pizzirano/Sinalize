@@ -16,65 +16,99 @@
     href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Open+Sans:ital,wght@0,400;0,700;1,400&display=swap"
     rel="stylesheet">
 
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
   <!-- CSS Customizado -->
+  <link rel="stylesheet" href="{% static 'global/css/styles.css' %}">
   <link rel="stylesheet" href="{% static 'catalog/css/elements.css' %}">
   <link rel="stylesheet" href="{% static 'catalog/css/classes.css' %}">
   <link rel="stylesheet" href="{% static 'catalog/css/menu.css' %}">
   <link rel="stylesheet" href="{% static 'catalog/css/style.css' %}">
   <link rel="stylesheet" href="{% static 'catalog/css/variables.css' %}">
   <link rel="stylesheet" href="{% static 'catalog/css/styles.css' %}">
+
+  <style>
+    /* Estilo para títulos */
+   
+  </style>
 </head>
 
 <body class="main-bg">
-<!-- Menu -->
-<aside class="menu white-bg">
-  <div class="main-content menu-content d-flex justify-content-between align-items-center">
-    <h1 class="logo m-0">
-      <a href="/">
-        <img src="{% static 'catalog/img/logo1 (3).png' %}" alt="LOGO" style="height: 65px; width: 5%px; padding: 10px;">
-      </a>
-    </h1>
-    <!-- Aqui você coloca os links do menu -->
-    <nav>
-      <ul class="nav d-flex">
-        <li><a href="#">Início</a></li>
-        <li><a href="#">Sobre</a></li>
-       <li><a href="{% url 'cadastrar_termo' %}">formulario</a></li>
+
+<!-- 🔹 Menu -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+  <div class="container">
+    <a class="navbar-brand" href="{% url 'home' %}">
+      <img src="{% static 'catalog/img/logo1 (3).png' %}" 
+           alt="LOGO" 
+           class="img-fluid" 
+           style="max-height: 65px;">
+    </a>
+
+    <!-- Botão hamburguer no celular -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Alternar navegação">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Links do menu -->
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav text-center">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'home' %}">Início</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#sobre">Sobre</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'cadastrar_termo' %}">Formulário</a>
+        </li>
       </ul>
-    </nav>
+    </div>
   </div>
-</aside>
+</nav>
 
-  <div class="menu-spacing"></div>
+<div class="menu-spacing"></div>
 
-  <!-- Seção de Introdução -->
-  <section id="intro" class="intro main-bg section">
-    <div class="container text-center py-5">
-      <div class="row align-items-center">
-        <div class="col-md-6 text-start">
-          <h2>Bem-vindo ao Sinalize</h2>
-          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellendus consequuntur iure aspernatur nihil est.</p>
-        </div>
-        <div class="col-md-6">
-          <img src="{% static 'catalog/img/sinal.svg' %}" class="img-fluid" alt="Sinalize ">
-        </div>
+<!-- 🔹 Seção de Introdução -->
+<section id="intro" class="intro main-bg section">
+  <div class="container text-center py-5">
+    <div class="row align-items-center">
+      <div class="col-md-6 text-start">
+        <h2><i class="fa-solid fa-handshake"></i> Bem-vindo ao Sinalize</h2>
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellendus consequuntur iure aspernatur nihil est.</p>
+      </div>
+      <div class="col-md-6 text-center">
+        <lottie-player 
+          src="{% static 'catalog/img/icon2.json' %}"  
+          background="transparent"  
+          speed="1"  
+          style="max-width: 100%; height: auto;"  
+          loop  
+          autoplay>
+        </lottie-player>
       </div>
     </div>
-  </section>
-  <!-- Carrossel Moderno -->
+  </div>
+</section>
+
+<!-- CDN do lottie-player -->
+<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+<!-- 🔹 Carrossel -->
 <section class="white-bg section">
   <div class="container py-4">
-    <h1 class="text-center mb-4">Descubra e inspire-se</h1>
+    <h1 class="text-center mb-4"><i class="fa-solid fa-lightbulb"></i> Descubra e inspire-se</h1>
 
     <div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
-      
       <!-- Indicadores -->
       <div class="carousel-indicators">
         {% for termo in termos_carrossel %}
-        <button type="button" data-bs-target="#carouselExample" 
+        <button type="button" data-bs-target="#carouselExample"
           data-bs-slide-to="{{ forloop.counter0 }}"
-          class="{% if forloop.first %}active{% endif %}" 
-          aria-current="{% if forloop.first %}true{% endif %}" 
+          class="{% if forloop.first %}active{% endif %}"
+          aria-current="{% if forloop.first %}true{% endif %}"
           aria-label="Slide {{ forloop.counter }}"></button>
         {% endfor %}
       </div>
@@ -84,15 +118,9 @@
         {% for termo in termos_carrossel %}
         <div class="carousel-item {% if forloop.first %}active{% endif %}">
           <a href="{% url 'sinal_list' termo.id_termo %}">
-            {% if termo.t_imagem %}
-            <img src="{{ termo.t_imagem.url }}" 
-                 class="d-block w-100 carousel-img" 
+            <img src="{{ termo.t_imagem.url }}"
+                 class="d-block w-100 carousel-img"
                  alt="{{ termo.nome_termo }}">
-            {% else %}
-            <img src="{% static 'catalog/img/placeholder.jpg' %}" 
-                 class="d-block w-100 carousel-img" 
-                 alt="Imagem padrão">
-            {% endif %}
             <div class="custom-overlay">
               <h5>{{ termo.nome_termo }}</h5>
             </div>
@@ -113,15 +141,15 @@
     </div>
   </div>
 </section>
-  <!-- Grid de Categorias -->
- <section id="grid-one" class="grid-one main-bg section">
+
+<!-- 🔹 Grid de Categorias -->
+<section id="grid-one" class="grid-one main-bg section">
   <div class="container py-5">
-    <h2 class="grid-main-heading text-center">Categorias</h2>
+    <h2 class="grid-main-heading text-center"><i class="fa-solid fa-layer-group"></i> Categorias</h2>
     <p class="grid-description text-center">Uma breve descrição.</p>
 
     <div class="row g-4 mt-4">
       {% for categoria in categorias_galeria %}
-      {% if categoria.c_imagem %}
       <div class="col-sm-6 col-md-4 col-lg-3">
         <div class="gallery-img text-center position-relative">
           <a href="{% url 'termo_list' categoria.id_categoria %}">
@@ -133,27 +161,49 @@
           </a>
         </div>
       </div>
-      {% endif %}
       {% endfor %}
     </div>
   </div>
 </section>
 
-  <!-- Rodapé -->
-<footer class="main-footer">
-  <div class="developer">
-    <a href="https://www.camboriu.ifc.edu.br/" target="_blank" rel="noreferrer noopener">
-      By Sinalize
-    </a>
+<!-- 🔹 Seção Sobre Nós -->
+<section id="sobre" class="white-bg section">
+  <div class="container py-5">
+    <h2 class="text-center mb-4"><i class="fa-solid fa-users"></i> Sobre Nós</h2>
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <p>
+          O <strong>Sinalize</strong> é um projeto dedicado a promover a inclusão
+          e acessibilidade através da difusão da Língua Brasileira de Sinais (Libras).
+          Nosso objetivo é criar uma ponte entre a comunidade surda e a ouvinte,
+          fornecendo recursos modernos e acessíveis.
+        </p>
+      </div>
+      <div class="col-md-6 text-center">
+         <lottie-player 
+          src="{% static 'catalog/img/sobre.json' %}"  
+          background="transparent"  
+          speed="1"  
+          style="max-width: 100%; height: auto;"  
+          loop  
+          autoplay>
+        </lottie-player>
+      </div>
+    </div>
   </div>
+</section>
 
+<!-- 🔹 Rodapé -->
+<footer class="main-footer text-center py-3">
+  <div class="developer mb-1">
+    <a href="https://www.camboriu.ifc.edu.br/" target="_blank" rel="noreferrer noopener">By Sinalize</a>
+  </div>
   <div class="powered">
-    <a href="https://www.djangoproject.com/" target="_blank" rel="noreferrer noopener">
-      Powered by Django
-    </a>
+    <a href="https://www.djangoproject.com/" target="_blank" rel="noreferrer noopener">Powered by Django</a>
   </div>
 </footer>
-  <!-- JS Bootstrap -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- JS Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
