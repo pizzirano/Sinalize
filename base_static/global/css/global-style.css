@@ -250,16 +250,36 @@ section h2::after {
 }
 .signal-meta-title { font-size: 1.6rem; }
 
+/* 🔹 Footer moderno */
+.signal-footer {
+  background: var(--color-primary); /* Altere para a cor principal da sua paleta */
+  color: var(--color-white);
+  padding: 1.5rem var(--spacing-gutter-medium);
+  font-size: 0.95rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
 .signal-footer a {
-  background: var(--color-primary-dark);
-  display: block;
   color: var(--color-white);
   text-decoration: none;
-  text-align: center;
-  padding: 1.5rem var(--spacing-gutter-medium);
-  transition: all 300ms ease-in-out;
+  transition: all 0.3s ease;
 }
-.signal-footer a:hover { filter: brightness(1.2); }
+
+.signal-footer a:hover {
+  filter: brightness(1.2);
+}
+
+@media (min-width: 768px) {
+  .signal-footer {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 1.5rem 3rem;
+  }
+}
 
 /* ===== Página de detalhe ===== */
 .main-content-detail .signal-list-item {

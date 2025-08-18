@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=lambda v: [s.strip() for s in v.split(',') if s])
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "192.168.18.14"]
 
 # APPLICATION DEFINITION
 INSTALLED_APPS = [
