@@ -106,7 +106,7 @@
 <!-- 🔹 Carrossel -->
 <section class="white-bg section">
   <div class="container py-4">
-    <h1 class="text-center mb-4"><i class="fa-solid fa-lightbulb"></i>Descunra e Inspire-se</h1>
+    <h1 class="text-center mb-4"><i class="fa-solid fa-lightbulb"></i>Descubra e Inspire-se</h1>
 
     <div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
       <!-- Indicadores -->
@@ -172,7 +172,6 @@
     </div>
   </div>
 </section>
-
 <!-- 🔹 Seção Sobre Nós -->
 <section id="sobre" class="white-bg section">
   <div class="container py-5">
@@ -190,7 +189,7 @@
           O <strong>Sinalize</strong> surgiu como um projeto acadêmico do 
           <em>Instituto Federal Catarinense – Campus Camboriú</em>, com a participação direta 
           de estudantes e Professores. Nosso objetivo é oferecer um recurso didático e 
-          tecnológico que apoie tradutores, professores, alunos, e principalmente toda a comunidade surda.
+          tecnológico que apoie tradutores, professores, alunos, comunidade surda, e a toda comunidade em geral que tem intersesse em aprender libras.
         </p>
         <p>
           A plataforma permite criar, gerenciar e editar sinais em Libras, organizando-os em 
@@ -209,7 +208,7 @@
           src="{% static 'catalog/img/sobre.json' %}"  
           background="transparent"  
           speed="1"  
-          style="max-width: 85%; height: auto;"  
+          style="width: 100%; max-width: 85%; height: auto;"  
           loop  
           autoplay>
         </lottie-player>
@@ -219,15 +218,59 @@
   </div>
 </section>
 
-<!--  Rodapé -->
-<footer class="main-footer text-center py-3">
-  <div class="developer mb-1">
-    <a href="https://www.camboriu.ifc.edu.br/" target="_blank" rel="noreferrer noopener">By Sinalize</a>
-  </div>
-  <div class="powered">
-    <a href="https://www.djangoproject.com/" target="_blank" rel="noreferrer noopener">Powered by Django</a>
+<!-- 🔹 Rodapé -->
+<footer class="main-footer py-3">
+  <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
+
+    <!-- Esquerda: By Sinalize -->
+    <div class="developer mb-2 mb-md-0 text-center text-md-start text-white">
+      <a href="https://www.camboriu.ifc.edu.br/" target="_blank" rel="noreferrer noopener" class="text-white text-decoration-none">
+        By Sinalize
+      </a>
+    </div>
+
+    <!-- Centro: Powered by Django -->
+    <div class="powered mb-2 mb-md-0 text-center text-white">
+      <a href="https://www.djangoproject.com/" target="_blank" rel="noreferrer noopener" class="text-white text-decoration-none">
+        Powered by Django
+      </a>
+    </div>
+
+    <!-- Direita: Logo IFC -->
+    <div class="footer-logo text-center text-md-end">
+      <a href="https://www.camboriu.ifc.edu.br/" target="_blank" rel="noreferrer noopener">
+        <img src="{% static 'catalog/img/logoifcc.png' %}" alt="Instituto Federal Catarinense" class="logo-footer">
+      </a>
+    </div>
+
   </div>
 </footer>
+
+<style>
+.main-footer {
+  background-color: #024b87ff; /* fundo azul escuro */
+  color: white;
+}
+
+.logo-footer {
+  max-width: 90px;
+  height: auto;
+  opacity: 0.95;
+  transition: transform 0.2s ease;
+}
+
+.logo-footer:hover {
+  transform: scale(1.05);
+}
+
+/* Ajuste responsivo: centraliza os itens no mobile */
+@media (max-width: 767px) {
+  .main-footer .container {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+</style>
 <!-- JS Bootstrap -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
