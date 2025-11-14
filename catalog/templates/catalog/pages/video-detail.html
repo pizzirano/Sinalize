@@ -1,0 +1,78 @@
+{% extends "global/base.html" %}
+
+{% block title %}{{ video.titulo }} - Detalhe{% endblock %}
+{% block header %}
+  {% if termo.t_imagem %}
+    <div class="termo-header text-white text-center d-flex align-items-center justify-content-center mb-4"
+         style="background-image: url('{{ termo.t_imagem.url }}');">
+      <div class="overlay-glass w-100 h-100 d-flex align-items-center justify-content-center">
+        <h2 class="fw-bold display-5 m-0">{{ termo.nome_termo }}</h2>
+      </div>
+    </div>
+  {% else %}
+    <section class="py-5 bg-primary text-white text-center shadow-sm">
+      <div class="container">
+        {% include 'catalog/partials/header.html' %}
+      </div>
+    </section>
+  {% endif %}
+{% endblock header %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Título -->
+  <div class="text-center mb-4">
+    <h2 class="fw-bold">{{ video.titulo }}</h2>
+    <hr class="w-25 mx-auto text-primary">
+  </div>
+
+  <div class="text-center mb-3">
+    {% if user.is_authenticated %}
+      <a class="btn btn-sm btn-outline-success" href="{% url 'cadastrar_termo' %}">
+        <i class="fa-solid fa-plus me-1"></i>Adicionar Sinal
+      </a>
+    {% endif %}
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+      <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-body text-center p-4">
+
+                  <!-- Vídeo responsivo -->
+          <div class="mb-3">
+            <video controls class="rounded w-100">
+              <source src="{{ video.video.url }}" type="video/mp4">
+              Seu navegador não suporta vídeo.
+            </video>
+          </div>
+
+          <!-- Tipo de vídeo -->
+          <h5 class="mt-3">
+            <span class="badge bg-info text-dark px-3 py-2">
+              <i class="bi bi-collection-play me-1"></i>
+              {{ video.tipo_video }}
+            </span>
+          </h5>
+
+          <!-- Descrição -->
+          {% if termo.descricao %}
+            <div class="mt-4">
+              <h6 class="text-muted">Descrição</h6>
+              <p class="lead text-secondary">{{ termo.descricao }}</p>
+            </div>
+          {% endif %}
+
+          <!-- Botão Voltar -->
+          <div class="mt-4">
+            <a href="javascript:history.back()" class="btn btn-outline-primary">
+              <i class="bi bi-arrow-left-circle me-1"></i> Voltar
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

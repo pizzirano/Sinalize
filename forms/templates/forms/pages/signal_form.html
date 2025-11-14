@@ -1,0 +1,192 @@
+{% extends 'global/base.html' %}
+{% load static %}
+
+{% block title %}Adicionar Sinal{% endblock title %}
+{% block body_class %}signal-form-page{% endblock body_class %}
+
+  {% block header %}
+    <div class="signal-hero">
+      <header class="glass-header">
+        <h1 class="display-5">Adicionar Novo Sinal</h1>
+        <p class="lead text-white-50">Cadastre sinais com imagem, vídeo e descrição</p>
+      </header>
+    </div>
+  {% endblock header %}
+
+  {% block content %}
+    <form id="signalForm" method="POST" enctype="multipart/form-data" class="signal-form">
+        {% csrf_token %}
+
+        <div class="alert-mp4">
+          ⚠️ Dê preferência para vídeos no formato <strong>MP4</strong> para melhor compatibilidade.
+        </div>
+
+        <div class="row g-3">
+          <!-- Nome do Termo -->
+          <div class="col-md-6">
+            <label class="form-label">Nome do Termo</label>
+            {{ termo_form.nome_termo }}
+          </div>
+
+          <!-- Descrição -->
+          <div class="col-md-12">
+            <label class="form-label">Descrição</label>
+            {{ termo_form.descricao }}
+          </div>
+
+          <!-- Imagem do Termo -->
+          <div class="col-md-6">
+            <label class="form-label">Imagem do Termo</label>
+            {{ termo_form.t_imagem }}
+          </div>
+
+          <!-- Categoria -->
+          <div class="col-md-6">
+            <label class="form-label">Categoria</label>
+            {{ termo_form.categoria }}
+          </div>
+
+          <!-- Imagem da Categoria -->
+          <div class="col-md-6" id="categoria_imagem_field">
+            <label class="form-label">Imagem da Categoria</label>
+            {{ categoria_form.c_imagem }}
+          </div>
+
+          <!-- Subcategoria -->
+          <div class="col-md-6">
+            <label class="form-label">Subcategoria</label>
+            {{ termo_form.subcategoria }}
+          </div>
+        </div>
+
+        <!-- Checkbox Carrossel -->
+        <div class="form-check mb-3">
+            {{ termo_form.carrossel }}
+            <label class="form-check-label">Exibir no Carrossel</label>
+        </div>
+
+        <!-- Vídeos -->
+        <h4 class="section-title">Vídeos</h4>
+        {{ formset.management_form }}
+        <div id="videos-container">
+            {% for form in formset %}
+                <div class="video-form mb-3">
+                    <label class="form-label">Título do Vídeo</label>
+                    {{ form.titulo }}
+                    <label class="form-label">Tipo de Vídeo</label>
+                    {{ form.tipo_video }}
+                    <label class="form-label">Arquivo de Vídeo</label>
+                    {{ form.video }}
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Botão Adicionar Vídeo -->
+        <button type="button" id="add-video-btn" class="btn btn-outline-secondary mb-3">
+            <i class="fas fa-plus"></i> Adicionar Vídeo
+        </button>
+
+        <!-- Botões Submit -->
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save"></i> Salvar
+            </button>
+            <a href="{% url 'home' %}" class="btn btn-secondary">
+              <i class="fas fa-times"></i> Cancelar
+            </a>
+        </div>
+
+        <!-- Barra de progresso -->
+        <div id="upload-progress" class="progress mt-3">
+          <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar">0%</div>
+        </div>
+
+        <div id="upload-success" class="alert alert-success mt-3" style="display: none;">
+          ✅ Vídeo carregado com sucesso!
+        </div>
+    </form>
+  {% endblock content %}
+
+  {% block extra_js %}
+    <script>
+      // Adicionar vídeo dinamicamente
+      document.addEventListener('DOMContentLoaded', function() {
+        const addBtn = document.getElementById('add-video-btn');
+        if (addBtn) {
+          addBtn.addEventListener('click', function() {
+            let container = document.getElementById('videos-container');
+            let totalForms = document.querySelector('#id_form-TOTAL_FORMS');
+            let newForm = container.firstElementChild.cloneNode(true);
+
+            newForm.querySelectorAll('input, select').forEach(input => input.value = '');
+            container.appendChild(newForm);
+
+            if (totalForms) totalForms.value = parseInt(totalForms.value) + 1;
+          });
+        }
+
+        // Lista de categorias existentes (JSON do contexto)
+        const existentes = {{ categorias_existentes|safe }};
+
+        // Campos do formulário
+        const categoriaInput = document.getElementById('id_categoria');
+        const categoriaImagemField = document.getElementById('categoria_imagem_field');
+        if (categoriaImagemField) categoriaImagemField.style.display = "none";
+
+        if (categoriaInput) {
+          categoriaInput.addEventListener("input", function() {
+              const valor = this.value.trim();
+              if (valor && !existentes.includes(valor)) {
+                  categoriaImagemField.style.display = "block";
+              } else {
+                  categoriaImagemField.style.display = "none";
+              }
+          });
+        }
+
+        // Envio com barra de progresso real
+        const formEl = document.getElementById('signalForm');
+        if (formEl) {
+          formEl.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            let form = this;
+            let formData = new FormData(form);
+            let xhr = new XMLHttpRequest();
+            let progress = document.getElementById('upload-progress');
+            let progressBar = progress.querySelector('.progress-bar');
+            let successMsg = document.getElementById('upload-success');
+
+            progress.style.display = 'block';
+            progressBar.style.width = '0%';
+            progressBar.innerText = '0%';
+
+            xhr.upload.addEventListener('progress', function(evt) {
+              if (evt.lengthComputable) {
+                let percent = Math.round((evt.loaded / evt.total) * 100);
+                progressBar.style.width = percent + '%';
+                progressBar.innerText = percent + '%';
+              }
+            });
+
+            xhr.onload = function() {
+              if (xhr.status >= 200 && xhr.status < 300) {
+                successMsg.style.display = 'block';
+                setTimeout(() => { window.location.href = "{% url 'home' %}"; }, 1500);
+              } else {
+                alert('Erro no upload, tente novamente.');
+              }
+            };
+
+            // CSRF token from the form input
+            const csrfTokenInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+            const token = csrfTokenInput ? csrfTokenInput.value : '';
+
+            xhr.open('POST', form.action || window.location.href);
+            if (token) xhr.setRequestHeader('X-CSRFToken', token);
+            xhr.send(formData);
+          });
+        }
+      });
+    </script>
+  {% endblock extra_js %}

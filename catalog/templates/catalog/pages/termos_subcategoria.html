@@ -1,0 +1,29 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Termos - {{ subcategoria.nome_subcategoria }}{% endblock %}
+
+
+{% block content %}
+<div class="container py-5">
+  <h2 class="text-center">Termos de {{ subcategoria.nome_subcategoria }}</h2>
+  <div class="row mt-4">
+    {% for termo in termos %}
+      <div class="col-md-3 mb-4">
+        <div class="card h-100 shadow-sm">
+          {% if termo.t_imagem %}
+            <img src="{{ termo.t_imagem.url }}" class="card-img-top" alt="{{ termo.nome_termo }}">
+          {% endif %}
+          <div class="card-body text-center">
+            <h5 class="card-title">{{ termo.nome_termo }}</h5>
+            <a href="{% url 'sinal_list' termo.id_termo %}" class="btn btn-primary">
+              Ver Sinal
+            </a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-center">Nenhum termo encontrado.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
