@@ -1,0 +1,66 @@
+# -----------------------
+# Python
+# -----------------------
+__pycache__/
+*.pyc
+*.pyo
+*.mo
+
+# -----------------------
+# Virtualenv
+# -----------------------
+.venv/
+venv/
+env/
+
+# -----------------------
+# Git
+# -----------------------
+.git
+.gitignore
+
+# -----------------------
+# IDE / Editor
+# -----------------------
+.idea
+.vscode
+.project
+.pydevproject
+.DS_Store
+
+# -----------------------
+# Logs / Cache
+# -----------------------
+*.log
+.cache
+logs/
+
+# -----------------------
+# Build / Dist
+# -----------------------
+dist/
+build/
+*.egg-info
+
+# -----------------------
+# Docker / Local Data
+# -----------------------
+data/postgres/
+data/web/
+
+# -----------------------
+# Env files (segurança)
+# -----------------------
+.env
+dotenv_files/.env
+
+# -----------------------
+# Misc
+# -----------------------
+*.sql.gz
+*.db
+*.css.map
+.sass-cache
+.vagrant/
+__localcode/
+stats/
