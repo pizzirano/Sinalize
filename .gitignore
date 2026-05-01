@@ -98,6 +98,9 @@ coverage.xml
 *.cover
 .hypothesis/
 
+# Database data
+data/postgres/data/
+
 # Jupyter
 .ipynb_checkpoints
 
