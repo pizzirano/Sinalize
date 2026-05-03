@@ -8,6 +8,23 @@ __pycache__/
 *.pyo
 *$py.class
 
+
+# -----------------------
+# Database / Docker Data
+# -----------------------
+# Ignora a pasta de dados do Postgres e qualquer volume local
+data/
+pgdata/
+
+# -----------------------
+# System / Cache
+# -----------------------
+.cache/
+.pytest_cache/
+.eslintcache
+*.tmp
+*.temp
+
 # Environments
 .env
 .venv/

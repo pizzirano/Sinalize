@@ -27,7 +27,4 @@ services:
       - ./dotenv_files/.env
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    # Use env_file (dotenv_files/.env) to provide POSTGRES_* variables to the container

@@ -10,7 +10,7 @@ RUN apk add --no-cache \
     build-base \
     postgresql-dev \
     postgresql-client \
-    netcat-openbsd \
+    # netcat-openbsd removed: using pg_isready (postgres client) for readiness checks
     bash
 
 # venv
