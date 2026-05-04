@@ -26,7 +26,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'catalog',
     'forms',
+    'tailwind',
+    'theme',
 ]
+
+TAILWIND_APP_NAME = "theme"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -100,6 +104,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # DEFAULT AUTO FIELD
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Tailwind app name (django-tailwind)
+TAILWIND_APP_NAME = 'theme'
 
 # Auth
 LOGIN_URL = '/accounts/login/'

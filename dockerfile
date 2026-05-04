@@ -1,41 +1,50 @@
-FROM python:3.11.3-alpine3.18
+FROM python:3.11-slim
 
-LABEL mantainer="luis"
+LABEL maintainer="luis"
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# dependências do sistema
-RUN apk add --no-cache \
-    build-base \
-    postgresql-dev \
+# 🔧 dependências + Node 20
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
     postgresql-client \
-    # netcat-openbsd removed: using pg_isready (postgres client) for readiness checks
-    bash
+    curl \
+    bash \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get clean
 
-# venv
+# 👤 cria usuário
+RUN useradd -m duser
+
+# 🧠 venv
 RUN python -m venv /venv
 ENV PATH="/venv/bin:$PATH"
 
-# diretório app
+# 📁 diretório app
 WORKDIR /Sinalize
 
-# requirements primeiro (cache)
-COPY requirements.txt /Sinalize/requirements.txt
-RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+# 📦 dependências Python
+COPY requirements.txt .
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# código
-COPY . /Sinalize
-COPY scripts /Sinalize/scripts
+# 📁 código
+COPY . .
+COPY scripts ./scripts
 
-# permissões
-RUN adduser -D duser && \
-    mkdir -p /data/web/static /data/web/media && \
-    chown -R duser:duser /Sinalize /data && \
-    sed -i 's/\r$//' /Sinalize/scripts/commands.sh && \
+# 📁 diretórios
+RUN mkdir -p /data/web/static /data/web/media
+
+# 🔥 permissões
+RUN chown -R duser:duser /Sinalize /data
+
+# 🔧 scripts
+RUN sed -i 's/\r$//' /Sinalize/scripts/commands.sh && \
     chmod +x /Sinalize/scripts/*.sh
 
+# 👤 usuário final
 USER duser
 
 CMD ["/bin/sh", "-c", "tr -d '\\r' < /Sinalize/scripts/commands.sh > /tmp/commands.sh && /bin/sh /tmp/commands.sh"]
