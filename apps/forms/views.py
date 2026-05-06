@@ -4,7 +4,7 @@ from django.forms import modelformset_factory
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
-from catalog.models import Video, Categoria, Subcategoria, Classificacao, Pertence, Dominio
+from apps.catalog.models import Video, Categoria, Subcategoria, Classificacao, Pertence, Dominio
 from .forms import TermoForm, VideoForm, CategoriaForm
 
 @login_required

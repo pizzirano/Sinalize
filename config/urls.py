@@ -8,8 +8,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
     path('', RedirectView.as_view(url='/catalog/home/', permanent=False)),  # Redirecionamento
-    path('catalog/', include('catalog.urls')),
-    path('forms/', include('forms.urls')),
+    path('catalog/', include('apps.catalog.urls')),
+    path('forms/', include('apps.forms.urls')),
 ]
 
 # Se estiver usando arquivos de mídia ou estáticos no dev

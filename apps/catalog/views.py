@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
-from catalog.models import Termo, Categoria, Subcategoria, Video
+from apps.catalog.models import Termo, Categoria, Subcategoria, Video
 from django.db.models import Count, Q
 import logging
 

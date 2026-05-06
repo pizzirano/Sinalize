@@ -20,27 +20,35 @@ done
 
 echo "✅ PostgreSQL disponível"
 
-# ── 2. Build Tailwind ─────────────────────────────────
-echo "🎨 Compilando Tailwind CSS..."
+# ── 2. Frontend ─────────────────────────────────────
+echo "🎨 Configurando Frontend (Tailwind CSS)..."
+cd /Sinalize/frontend
 
-if [ "$DEPLOY_MODE" = "prod" ]; then
-  cd /Sinalize/frontend && npm run build
+if [ "$DEPLOY_MODE" = "dev" ]; then
+  echo "📦 Instalando dependências do frontend..."
+  npm install
+  echo "🏗️ Executando build de desenvolvimento..."
+  npm run build:dev
 else
-  cd /Sinalize/frontend && npm run build:dev
+  echo "🏗️ Executando build de produção..."
+  npm run build
 fi
 
 cd /Sinalize
-echo "✅ Tailwind compilado"
+echo "✅ Frontend pronto"
 
 # ── 3. Migrações ──────────────────────────────────────
-echo "🔄 Aplicando migrações..."
+echo "🔄 Processando migrações..."
+python manage.py makemigrations --noinput
 python manage.py migrate --noinput
-echo "✅ Migrações aplicadas"
+echo "✅ Migrações concluídas"
 
 # ── 4. Collectstatic ──────────────────────────────────
-echo "📦 Coletando arquivos estáticos..."
-python manage.py collectstatic --noinput --clear
-echo "✅ Static files coletados"
+if [ "$DEPLOY_MODE" = "prod" ]; then
+  echo "📦 Coletando arquivos estáticos..."
+  python manage.py collectstatic --noinput --clear
+  echo "✅ Static files coletados"
+fi
 
 # ── 5. Servidor ───────────────────────────────────────
 echo "🚀 Iniciando servidor [DEPLOY_MODE=${DEPLOY_MODE}]..."
@@ -51,5 +59,7 @@ if [ "$DEPLOY_MODE" = "prod" ]; then
     --workers 2 \
     --timeout 120
 else
+  # No modo dev, o CMD do Dockerfile ou docker-compose passa os argumentos aqui ($@)
+  # Geralmente: python manage.py runserver 0.0.0.0:8000
   exec "$@"
 fi

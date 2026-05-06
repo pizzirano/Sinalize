@@ -1,6 +1,8 @@
+# pyrefly: ignore [missing-import]
 from django.shortcuts import render, redirect
+# pyrefly: ignore [missing-import]
 from django.forms import modelformset_factory
-from catalog.models import Video
+from apps.catalog.models import Video
 from .forms import TermoForm, VideoForm
 
 def cadastrar_termo_e_videos(request):

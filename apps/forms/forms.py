@@ -1,5 +1,5 @@
 from django import forms
-from catalog.models import Termo, Video, Categoria, Subcategoria
+from apps.catalog.models import Termo, Video, Categoria, Subcategoria
 
 class TermoForm(forms.ModelForm):
     categoria = forms.CharField(
