@@ -2,21 +2,28 @@ version: "3.9"
 
 networks:
   app-network:
+    driver: bridge
 
 services:
   projeto:
     build:
       context: .
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     volumes:
       - ./:/Sinalize
+      - /Sinalize/frontend/node_modules
       - ./data/web/static:/data/web/static/
       - ./data/web/media:/data/web/media/
     env_file:
       - ./dotenv_files/.env
+    environment:
+      - DEPLOY_MODE=dev
     depends_on:
       - psql
+    networks:
+      - app-network
 
   psql:
     image: postgres:15-alpine
@@ -27,4 +34,5 @@ services:
       - ./dotenv_files/.env
     ports:
       - "5432:5432"
-    # Use env_file (dotenv_files/.env) to provide POSTGRES_* variables to the container
+    networks:
+      - app-network

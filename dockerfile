@@ -1,50 +1,38 @@
-FROM python:3.11-slim
+FROM python:3.11.3-alpine3.18
 
 LABEL maintainer="luis"
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH="/venv/bin:$PATH"
 
-# 🔧 dependências + Node 20
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpq-dev \
-    postgresql-client \
-    curl \
+RUN apk add --no-cache \
     bash \
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && apt-get clean
+    build-base \
+    postgresql-dev \
+    postgresql-client \
+    nodejs \
+    npm
 
-# 👤 cria usuário
-RUN useradd -m duser
-
-# 🧠 venv
 RUN python -m venv /venv
-ENV PATH="/venv/bin:$PATH"
 
-# 📁 diretório app
 WORKDIR /Sinalize
 
-# 📦 dependências Python
-COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+COPY requirements/development.txt requirements/base.txt ./requirements/
+RUN pip install --upgrade pip && \
+    pip install -r requirements/development.txt
 
-# 📁 código
+COPY frontend/package.json frontend/package-lock.json* ./frontend/
+RUN cd frontend && npm ci
+
 COPY . .
-COPY scripts ./scripts
 
-# 📁 diretórios
-RUN mkdir -p /data/web/static /data/web/media
+RUN adduser -D duser && \
+    mkdir -p /data/web/static /data/web/media && \
+    chown -R duser:duser /Sinalize /data && \
+    chmod +x /Sinalize/scripts/entrypoint.sh
 
-# 🔥 permissões
-RUN chown -R duser:duser /Sinalize /data
-
-# 🔧 scripts
-RUN sed -i 's/\r$//' /Sinalize/scripts/commands.sh && \
-    chmod +x /Sinalize/scripts/*.sh
-
-# 👤 usuário final
 USER duser
 
-CMD ["/bin/sh", "-c", "tr -d '\\r' < /Sinalize/scripts/commands.sh > /tmp/commands.sh && /bin/sh /tmp/commands.sh"]
+ENTRYPOINT ["/bin/bash", "/Sinalize/scripts/entrypoint.sh"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
