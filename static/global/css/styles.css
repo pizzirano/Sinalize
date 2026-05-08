@@ -1,0 +1,3 @@
+/* Compatibility file to satisfy requests to /static/global/css/styles.css
+   Imports the canonical global-style.css to avoid duplication. */
+@import "global-style.css";
