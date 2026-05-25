@@ -29,14 +29,41 @@
 
   {% block extra_css %}{% endblock extra_css %}
   <title>{% block title %}{% endblock title %} | Sinalário</title>
+
+  <style>
+    .skip-link {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 10000;
+      padding: 0.75rem 1rem;
+      text-decoration: none;
+      transform: translateY(-120%);
+      transition: transform 0.2s ease;
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+      outline: 3px solid;
+      outline-offset: 2px;
+    }
+  </style>
 </head>
 
 <body class="{% block body_class %}main-bg{% endblock body_class %}">
 
-    <!-- Menu -->
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-          <div class="container">
+    <a href="#main-content" class="skip-link">Pular para conteúdo principal</a>
+
+    <header role="banner">
+        <p class="visually-hidden">Sinalize — Sinalário Digital de Libras</p>
+    </header>
+
+    <nav
+        class="navbar navbar-expand-lg navbar-light bg-white shadow-sm"
+        role="navigation"
+        aria-label="Navegação principal"
+    >
+        <div class="container">
             <a class="navbar-brand" href="{% url 'home' %}">
               <img src="{% static 'catalog/img/logo1 (3).png' %}" alt="LOGO" class="img-fluid" style="max-height: 65px;">
             </a>
@@ -49,9 +76,8 @@
                 <li class="nav-item"><a class="nav-link" href="#sobre">Sobre</a></li>
               </ul>
             </div>
-          </div>
-        </nav>
-    </header>
+        </div>
+    </nav>
 
     <!-- Cabeçalho -->
     {% block header %}
@@ -72,7 +98,7 @@
 {% endblock header %}
 
     <!-- Conteúdo Principal -->
-    <main class="container my-5">
+    <main id="main-content" role="main" class="container my-5">
         <div class="row">
             <div class="col-12">
                 {% block content %}{% endblock content %}
@@ -81,7 +107,7 @@
     </main>
 
     {% block footer %}
-    <footer class="main-footer">
+    <footer class="main-footer" role="contentinfo">
       <div class="container footer-columns">
         <div class="footer-left">
           <a href="/" class="d-flex align-items-center gap-2">
