@@ -1,106 +1,579 @@
-## versão 2025 ja atualizada na main aplicar ajustes para delploy na cloudflare Realizado merge com correções do contêiner feito: atualizar merge de brach atual e testada, SIN-3 Completa
+# Sinalize — Sinalário Digital de Libras
 
-## task Aual SIN-5- incluir requitements as novas libs da compiçação node do twailwind e criar o app Theme no respositorio Django django-htmx django-tailwind, ussar com p SIN-5: Instalação e Configuração do Django Tailwind
-Este guia detalha o passo a passo para instalar e configurar o django-tailwind utilizando o ambiente Docker no seu projeto Sinalize, resolvendo problemas de permissão e estruturação de diretórios.
+> Plataforma web para registro, busca e visualização de sinais em Libras, com foco no domínio **Turismo**. Projeto acadêmico do Instituto Federal Catarinense — Campus Camboriú.
 
-Passo 1: Instalação do Pacote
-Instale o pacote django-tailwind com todos os recursos de desenvolvimento (incluindo cookiecutter e browser-reload). Utilize o usuário root no container para garantir permissões de escrita:
+---
 
-PowerShell
-docker compose exec -u 0 projeto python -m pip install 'django-tailwind[cookiecutter,honcho,reload]'
-Passo 2: Registrar o Tailwind no settings.py
-Abra o arquivo projeto/settings.py e adicione o aplicativo tailwind na sua lista INSTALLED_APPS:
+## Stack Tecnológica
 
-Python
+| Camada | Tecnologia |
+|---|---|
+| Backend | Django 5.x + Python 3.11 |
+| Frontend | Tailwind CSS + Alpine.js + HTMX |
+| Build CSS | Node.js + npm (`frontend/`) |
+| Banco de dados | PostgreSQL |
+| Containerização | Docker + Docker Compose |
+| Componentes UI | Flowbite |
+| Hot reload | django-browser-reload |
+| Deploy | Não configurado |
+
+---
+
+## Estrutura do Projeto
+
+```text
+Sinalize/
+├── apps/
+│   ├── catalog/                  # Catálogo de sinais
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   └── views.py
+│   │
+│   └── forms/                    # Cadastro e formulários
+│       ├── apps.py
+│       ├── models.py
+│       └── views.py
+│
+├── config/
+│   ├── settings/
+│   │   └── base.py               # Configuração principal Django
+│   │
+│   ├── urls.py
+│   ├── wsgi.py
+│   └── asgi.py
+│
+├── frontend/                     # Frontend e Tailwind
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── src/
+│   │   └── input.css
+│   └── dist/
+│       └── output.css
+│
+├── templates/
+│
+├── static/
+│
+├── requirements/
+│   ├── base.txt
+│   └── development.txt
+│
+├── scripts/
+│   └── entrypoint.sh
+│
+├── manage.py
+├── Dockerfile
+├── docker-compose.yml
+└── .env
+```
+
+---
+
+## Organização dos Apps Django
+
+Todos os apps ficam dentro do diretório:
+
+```text
+apps/
+```
+
+O projeto utiliza **imports curtos**, por exemplo:
+
+```python
+from catalog.models import Video
+```
+
+**NÃO usar:**
+
+```python
+from apps.catalog.models import Video
+```
+
+Para isso funcionar, o Django adiciona automaticamente `apps/` ao `sys.path`.
+
+Arquivo:
+
+```text
+config/settings/base.py
+```
+
+Trecho utilizado:
+
+```python
+import sys
+from pathlib import Path
+
+BASE_DIR = Path(
+    __file__
+).resolve().parent.parent.parent
+
+sys.path.insert(
+    0,
+    str(BASE_DIR / "apps")
+)
+```
+
+---
+
+## Configuração dos Apps
+
+Os apps utilizam nomes curtos no Django.
+
+### INSTALLED_APPS
+
+Arquivo:
+
+```text
+config/settings/base.py
+```
+
+Correto:
+
+```python
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'rest_framework',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'catalog',
-    'forms',
-    'tailwind',  # <- Adicione esta linha
+    ...
+    "catalog",
+    "forms",
 ]
-Passo 3: Criação Correta do Aplicativo theme
-Para evitar erros de módulo ou problemas de indentação em comandos do sistema, criaremos a estrutura diretamente pelo Django dentro do container:
+```
 
-Crie a pasta do app theme via terminal:
+Incorreto:
 
-PowerShell
-docker compose exec -u 0 projeto python manage.py startapp theme
-Inicialize os arquivos do Tailwind:
+```python
+"apps.catalog"
+"apps.forms"
+```
 
-PowerShell
-docker compose exec -u 0 projeto python manage.py tailwind init
-Quando solicitado o nome do app, digite: theme
+---
 
-Quando perguntado sobre o plugin DaisyUI, selecione a opção: 1 (no)
+## AppConfig
 
-Passo 4: Ativação do Theme no settings.py
-Adicione o novo aplicativo theme e configure o seu nome logo abaixo das suas INSTALLED_APPS no projeto/settings.py:
+### apps/catalog/apps.py
 
-Python
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'rest_framework',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'catalog',
-    'forms',
-    'tailwind',
-    'theme',  # <- Adicione o theme aqui
+```python
+from django.apps import AppConfig
+
+class CatalogConfig(AppConfig):
+
+    default_auto_field = (
+        "django.db.models.BigAutoField"
+    )
+
+    name = "catalog"
+```
+
+---
+
+### apps/forms/apps.py
+
+```python
+from django.apps import AppConfig
+
+class FormsConfig(AppConfig):
+
+    default_auto_field = (
+        "django.db.models.BigAutoField"
+    )
+
+    name = "forms"
+```
+
+---
+
+## Pré-requisitos
+
+Instalar:
+
+- Docker Desktop
+- Docker Compose
+- Git
+
+---
+
+## Clonando o projeto
+
+```bash
+git clone https://github.com/seu-usuario/sinalize.git
+
+cd sinalize
+```
+
+---
+
+## Variáveis de ambiente
+
+Criar:
+
+```bash
+cp .env.example .env
+```
+
+Exemplo:
+
+```env
+DEBUG=True
+
+SECRET_KEY=sua-secret-key
+
+DB_NAME=sinalize
+DB_USER=postgres
+DB_PASSWORD=postgres
+
+DB_HOST=postgres
+DB_PORT=5432
+
+ALLOWED_HOSTS=localhost,127.0.0.1
+```
+
+---
+
+## Subindo o projeto
+
+Primeira execução:
+
+```bash
+docker compose up --build
+```
+
+Execuções seguintes:
+
+```bash
+docker compose up
+```
+
+O `entrypoint.sh` executa automaticamente:
+
+1. Aguarda PostgreSQL
+2. Compila frontend (Tailwind)
+3. Executa migrations
+4. Executa collectstatic
+5. Inicializa Django
+
+Aplicação:
+
+```text
+http://localhost:8000
+```
+
+Exemplo validado:
+
+```text
+http://localhost:8000/catalog/home/
+```
+
+---
+
+## Docker atual
+
+Imagem base:
+
+```dockerfile
+FROM python:3.11.3-alpine3.18
+```
+
+Pacotes instalados:
+
+```dockerfile
+RUN apk add --no-cache \
+    bash \
+    build-base \
+    postgresql-dev \
+    postgresql-client \
+    nodejs \
+    npm
+```
+
+Dependências frontend:
+
+```dockerfile
+COPY frontend/package.json \
+     frontend/package-lock.json* \
+     ./frontend/
+
+RUN cd frontend && npm ci
+```
+
+Usuário não-root:
+
+```dockerfile
+RUN adduser -D duser
+```
+
+Execução:
+
+```dockerfile
+ENTRYPOINT [
+    "/bin/bash",
+    "/Sinalize/scripts/entrypoint.sh"
+]
+```
+
+---
+
+## Frontend
+
+Local:
+
+```text
+frontend/
+```
+
+Build manual:
+
+```bash
+docker compose exec projeto \
+sh -c "cd frontend && npm run build"
+```
+
+Modo desenvolvimento:
+
+```bash
+docker compose exec projeto \
+sh -c "cd frontend && npm run dev"
+```
+
+Instalar dependência:
+
+```bash
+docker compose exec projeto \
+sh -c "cd frontend && npm install pacote"
+```
+
+---
+
+## Configuração Django
+
+Arquivo:
+
+```text
+config/settings/base.py
+```
+
+Arquivos estáticos:
+
+```python
+STATIC_URL = "/static/"
+
+STATIC_ROOT = (
+    BASE_DIR / "staticfiles"
+)
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static"
 ]
 
-TAILWIND_APP_NAME = "theme"
-Passo 5: Instalação das Dependências do Tailwind
-Instale os executáveis e as dependências do compilador:
+MEDIA_URL = "/media/"
 
-PowerShell
-docker compose exec -u 0 projeto python manage.py tailwind install
-Passo 6: Configuração do django-browser-reload
-Para que as atualizações de HTML e CSS recarreguem a página automaticamente no modo de desenvolvimento, configure o settings.py com o bloco condicional DEBUG:
+MEDIA_ROOT = (
+    BASE_DIR / "media"
+)
+```
 
-Python
+Hot reload:
+
+```python
 if DEBUG:
-    INSTALLED_APPS += ["django_browser_reload"]
+
+    INSTALLED_APPS += [
+        "django_browser_reload"
+    ]
 
     MIDDLEWARE += [
-        "django_browser_reload.middleware.BrowserReloadMiddleware",
+        (
+        "django_browser_reload.middleware."
+        "BrowserReloadMiddleware"
+        )
     ]
-E inclua as rotas do reload no seu projeto/urls.py principal:
+```
 
-Python
-from django.urls import include, path
-from django.conf import settings
+---
 
-urlpatterns = [
-    # Suas outras rotas
-]
+## Comandos úteis
 
-if settings.DEBUG:
-    urlpatterns += [
-        path("reload/", include("django_browser_reload.urls")),
-    ]
-Passo 7: Utilização
-Para iniciar o seu servidor de desenvolvimento junto com o compilador do Tailwind, utilize:
+Subir:
 
-PowerShell
-docker compose exec projeto python manage.py tailwind dev
+```bash
+docker compose up
+```
 
+Reconstruir:
 
+```bash
+docker compose up --build
+```
+
+Parar:
+
+```bash
+docker compose down
+```
+
+Reiniciar Django:
+
+```bash
 docker compose restart projeto
-##SIN-6- Selecionar os componentes de home no Flowbite e incluir em playground.html
+```
 
-tutorial no munual antes do docker compose exec -u 0 projeto mkdir -p theme
-docker compose exec -u 0 projeto touch theme/__init__.py
+Logs:
 
-docker compose exec -u 0 projeto sh -c "echo 'from django.apps import AppConfig' > theme/apps.py"
-docker compose exec -u 0 projeto sh -c "echo 'class ThemeConfig(AppConfig):' >> theme/apps.py"
-docker compose exec -u 0 projeto sh -c "echo \"    default_auto_field = 'django.db.models.BigAutoField'\" >> theme/apps.py"
-docker compose exec -u 0 projeto sh -c "echo \"    name = 'theme'\" >> theme/apps.py"
+```bash
+docker compose logs -f projeto
+```
+
+Entrar no container:
+
+```bash
+docker compose exec projeto bash
+```
+
+Criar migrations:
+
+```bash
+docker compose exec projeto \
+python manage.py makemigrations
+```
+
+Aplicar migrations:
+
+```bash
+docker compose exec projeto \
+python manage.py migrate
+```
+
+Criar admin:
+
+```bash
+docker compose exec projeto \
+python manage.py createsuperuser
+```
+
+Instalar biblioteca Python:
+
+```bash
+docker compose exec -u 0 projeto \
+pip install pacote
+```
+
+Atualizar:
+
+```text
+requirements/development.txt
+```
+
+---
+
+## Fluxo de inicialização validado
+
+Estado atual validado:
+
+✅ `sys.path.insert()` configurado
+
+✅ `catalog` importável
+
+✅ `forms` importável
+
+✅ `INSTALLED_APPS` corrigido
+
+✅ migrations executando
+
+✅ collectstatic funcionando
+
+✅ Tailwind compilando
+
+✅ servidor Django iniciado
+
+✅ rota `/catalog/home/` retornando HTTP 200
+
+---
+
+## Produção (planejado)
+
+Ainda não hospedado.
+
+Checklist futuro:
+
+- [ ] `DEBUG=False`
+- [ ] `SECRET_KEY` por variável
+- [ ] `ALLOWED_HOSTS`
+- [ ] `CSRF_TRUSTED_ORIGINS`
+- [ ] PostgreSQL externo
+- [ ] Gunicorn
+- [ ] Traefik / Nginx
+- [ ] Volume persistente para `media/`
+
+Estrutura recomendada:
+
+```text
+requirements/
+├── base.txt
+├── development.txt
+└── production.txt
+```
+
+Produção:
+
+```dockerfile
+RUN pip install \
+-r requirements/base.txt
+```
+
+---
+
+## Acessibilidade
+
+O projeto segue WCAG 2.1 AAA.
+
+Objetivos:
+
+### Comunidade surda
+
+- Hierarquia visual clara
+- Vídeos descritivos
+- Conteúdo visual acessível
+
+### Daltônicos
+
+- Alto contraste
+- Ícone + texto + cor
+
+### Navegação
+
+- `focus-visible`
+- Navegação por teclado
+- Skip links
+
+Ferramentas:
+
+- Lighthouse
+- axe DevTools
+
+Meta:
+
+```text
+Lighthouse >= 90
+```
+
+---
+
+## Contribuição
+
+Criar branch:
+
+```bash
+git checkout \
+-b feature/SIN-XX-descricao
+```
+
+Executar:
+
+```bash
+docker compose up
+```
+
+Abrir Pull Request.
+
+---
+
+## Licença
+
+Projeto acadêmico — Instituto Federal Catarinense — Campus Camboriú.

@@ -1,9 +1,15 @@
 from pathlib import Path
 import os
+import sys
 from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+sys.path.insert(
+    0,
+    str(BASE_DIR / "apps")
+)
 
 # SECURITY
 SECRET_KEY = os.environ.get('SECRET_KEY')
@@ -24,8 +30,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'apps.catalog',
-    'apps.forms',
+    'catalog',
+    'forms',
 ]
 
 MIDDLEWARE = [
