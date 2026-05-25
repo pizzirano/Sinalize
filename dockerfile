@@ -1,41 +1,38 @@
 FROM python:3.11.3-alpine3.18
 
-LABEL mantainer="luis"
+LABEL maintainer="luis"
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH="/venv/bin:$PATH"
 
-# dependências do sistema
 RUN apk add --no-cache \
+    bash \
     build-base \
     postgresql-dev \
     postgresql-client \
-    # netcat-openbsd removed: using pg_isready (postgres client) for readiness checks
-    bash
+    nodejs \
+    npm
 
-# venv
 RUN python -m venv /venv
-ENV PATH="/venv/bin:$PATH"
 
-# diretório app
 WORKDIR /Sinalize
 
-# requirements primeiro (cache)
-COPY requirements.txt /Sinalize/requirements.txt
+COPY requirements/development.txt requirements/base.txt ./requirements/
 RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+    pip install -r requirements/development.txt
 
-# código
-COPY . /Sinalize
-COPY scripts /Sinalize/scripts
+COPY frontend/package.json frontend/package-lock.json* ./frontend/
+RUN cd frontend && npm ci
 
-# permissões
+COPY . .
+
 RUN adduser -D duser && \
     mkdir -p /data/web/static /data/web/media && \
     chown -R duser:duser /Sinalize /data && \
-    sed -i 's/\r$//' /Sinalize/scripts/commands.sh && \
-    chmod +x /Sinalize/scripts/*.sh
+    chmod +x /Sinalize/scripts/entrypoint.sh
 
 USER duser
 
-CMD ["/bin/sh", "-c", "tr -d '\\r' < /Sinalize/scripts/commands.sh > /tmp/commands.sh && /bin/sh /tmp/commands.sh"]
+ENTRYPOINT ["/bin/bash", "/Sinalize/scripts/entrypoint.sh"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

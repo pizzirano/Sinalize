@@ -1,0 +1,2 @@
+-r base.txt
+django-browser-reload==1.18.0

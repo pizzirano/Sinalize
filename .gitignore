@@ -17,13 +17,14 @@ data/
 pgdata/
 
 # -----------------------
-# System / Cache
+# System / Cache / Node
 # -----------------------
 .cache/
 .pytest_cache/
 .eslintcache
 *.tmp
 *.temp
+node_modules/
 
 # Environments
 .env
@@ -46,6 +47,9 @@ _local_settings.py
 
 # Ignore staticfiles generated pelo collectstatic
 /staticfiles/
+
+# Ignore Tailwind CSS output (gerado no build)
+/static/css/output.css
 
 # Não ignorar seu CSS/JS/Imagens próprios em static/
 
