@@ -61,7 +61,11 @@
         <!-- Vídeo / Placeholder -->
         <div class="video-container">
           {% if video.video %}
-          <video class="w-100 rounded-top" controls poster="{% static 'images/video-placeholder.jpg' %}">
+          <video class="w-100 rounded-top"
+                 controls
+                 preload="metadata"
+                 aria-label="Vídeo do sinal: {{ video.titulo }}"
+                 poster="{% static 'images/video-placeholder.jpg' %}">
             <source src="{{ video.video.url }}" type="video/mp4">
             Seu navegador não suporta vídeo.
           </video>

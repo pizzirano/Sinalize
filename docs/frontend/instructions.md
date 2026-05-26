@@ -13,6 +13,36 @@ Projeto voltado para acessibilidade digital para comunidade surda.
 
 Regras:
 
+## Regras estruturais do projeto
+
+NÃO alterar:
+
+apps/catalog/models.py
+apps/catalog/apps.py
+apps/forms/models.py
+apps/forms/apps.py
+apps/catalog/migrations/
+
+NÃO mover apps internos.
+
+Arquitetura oficial:
+
+apps/
+   catalog/
+   forms/
+
+config/settings/base.py:
+
+sys.path.insert(
+    0,
+    str(BASE_DIR / "apps")
+)
+
+INSTALLED_APPS:
+
+catalog
+forms
+
 - WCAG AAA
 - Navegação teclado
 - Dark-first

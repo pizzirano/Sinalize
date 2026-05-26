@@ -3,6 +3,15 @@
 
 {% block title %}Termos{% endblock title %}
 
+{% block extra_css %}
+<style>
+  .az-btn:focus-visible {
+    outline: 3px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+</style>
+{% endblock extra_css %}
+
 {% block header %}
 
   {# breadcrumb removed as requested (no top breadcrumb displayed) #}
@@ -47,13 +56,13 @@
       <h2 class="visually-hidden">Filtrar termos por inicial</h2>
       {% with selected=letra|default:'' %}
         {# 'Todos' clears the letra filter; keep simple ? to reset #}
-        <a href="?" class="btn btn-sm {% if not selected %}btn-primary{% else %}btn-outline-secondary{% endif %}" {% if not selected %}aria-current="true"{% endif %}>Todos</a>
+        <a href="?" class="btn btn-sm az-btn {% if not selected %}btn-primary{% else %}btn-outline-secondary{% endif %}" aria-label="Todos os termos" {% if not selected %}aria-current="true"{% endif %}>Todos</a>
         {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ"|make_list %}
           {# compare case-insensitively in case view passes lowercase #}
           {% if selected|default:''|upper == letter %}
-            <a href="?letra={{ letter }}" class="btn btn-sm btn-primary" aria-current="true">{{ letter }}</a>
+            <a href="?letra={{ letter }}" class="btn btn-sm az-btn btn-primary" aria-label="Termos começando com {{ letter }}" aria-current="true">{{ letter }}</a>
           {% else %}
-            <a href="?letra={{ letter }}" class="btn btn-sm btn-outline-secondary">{{ letter }}</a>
+            <a href="?letra={{ letter }}" class="btn btn-sm az-btn btn-outline-secondary" aria-label="Termos começando com {{ letter }}">{{ letter }}</a>
           {% endif %}
         {% endfor %}
       {% endwith %}

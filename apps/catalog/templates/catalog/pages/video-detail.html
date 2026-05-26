@@ -41,7 +41,10 @@
 
                   <!-- Vídeo responsivo -->
           <div class="mb-3">
-            <video controls class="rounded w-100">
+            <video controls
+                   preload="metadata"
+                   class="rounded w-100"
+                   aria-label="Vídeo do sinal: {{ video.titulo }}">
               <source src="{{ video.video.url }}" type="video/mp4">
               Seu navegador não suporta vídeo.
             </video>
