@@ -1,11 +1,11 @@
 {% load static %}
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+<nav class="sticky top-0 z-50 bg-surface/90 backdrop-blur-md border-b border-border shadow-sm">
   <div class="container">
-    <a class="navbar-brand" href="{% url 'home' %}">
-      <img src="{% static 'catalog/img/logo1 (3).png' %}" alt="LOGO" class="img-fluid" style="max-height: 65px;">
+    <a class="navbar-brand" href="{% url 'home' %}" aria-label="Sinalize — página inicial">
+      <img src="{% static 'catalog/img/logo1 (3).png' %}" alt="" aria-hidden="true" class="img-fluid" style="max-height: 65px;">
     </a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Alternar navegação">
+    <button class="navbar-toggler focus-visible:ring-2 focus-visible:ring-ring" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Abrir menu">
       <span class="navbar-toggler-icon"></span>
     </button>
 
@@ -14,14 +14,14 @@
         {# Minimal nav to keep header clean: only auth and add video #}
         {% if user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link btn btn-sm btn-success text-white ms-2" href="{% url 'cadastrar_termo' %}">Adicionar vídeo</a>
+            <a class="nav-link btn btn-sm bg-primary text-primary-foreground ms-2" href="{% url 'cadastrar_termo' %}">Adicionar vídeo</a>
           </li>
           <li class="nav-item dropdown ms-2">
             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               {{ user.get_username }}
             </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-              <li><a class="dropdown-item" href="#">Perfil</a></li>
+            <ul class="dropdown-menu dropdown-menu-end bg-card border border-border" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item hover:bg-surface" href="#">Perfil</a></li>
               <li>
                 <form method="post" action="{% url 'logout' %}" class="d-inline">
                   {% csrf_token %}
@@ -32,10 +32,10 @@
           </li>
         {% else %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'login' %}">Entrar</a>
+            <a class="nav-link text-muted-foreground hover:text-primary" href="{% url 'login' %}">Entrar</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'register' %}">Registrar</a>
+            <a class="nav-link text-muted-foreground hover:text-primary" href="{% url 'register' %}">Registrar</a>
           </li>
         {% endif %}
       </ul>

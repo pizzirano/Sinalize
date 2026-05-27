@@ -287,10 +287,10 @@
   <a href="#main-content" class="skip-link">Pular para conteúdo principal</a>
 
   <!-- Menu -->
-  <nav class="navbar navbar-expand-lg navbar-light shadow-sm" style="background:var(--color-surface); border-bottom:1px solid var(--color-border);">
+  <nav class="sticky top-0 z-50 bg-surface/90 backdrop-blur-md border-b border-border shadow-sm">
     <div class="container">
       <a class="navbar-brand" href="{% url 'home' %}" aria-label="Sinalize — página inicial">
-        <img src="{% static 'catalog/img/logo1 (3).png' %}" alt="" class="img-fluid" style="max-height:65px;">
+        <img src="{% static 'catalog/img/logo1 (3).png' %}" alt="" aria-hidden="true" class="img-fluid" style="max-height:65px;">
       </a>
 
       <div class="hidden md:flex items-center gap-4 ms-auto">
@@ -306,8 +306,8 @@
         </button>
       </div>
 
-      <button class="navbar-toggler d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="false" aria-label="Abrir menu de navegação">
+      <button class="navbar-toggler d-md-none focus-visible:ring-2 focus-visible:ring-ring" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Abrir menu">
         <span class="navbar-toggler-icon"></span>
       </button>
 

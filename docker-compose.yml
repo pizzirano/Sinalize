@@ -12,13 +12,22 @@ services:
     ports:
       - "8000:8000"
     volumes:
+      # Monta o código do projeto no container
       - ./:/Sinalize
+
+      # ─── CRÍTICO: impede que o volume acima sobrescreva o node_modules
+      # instalado dentro do container (que é Linux/Alpine).
+      # Sem isso, o node_modules do host (Windows/Mac) sobrescreve o do
+      # container e os binários ficam incompatíveis.
       - /Sinalize/frontend/node_modules
+
+      # Volumes de dados persistentes (fora do código)
       - ./data/web/static:/data/web/static/
       - ./data/web/media:/data/web/media/
     env_file:
       - ./dotenv_files/.env
     environment:
+      # Garante que o entrypoint saiba que está em modo dev
       - DEPLOY_MODE=dev
     depends_on:
       - psql
