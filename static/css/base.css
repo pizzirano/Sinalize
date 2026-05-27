@@ -1,0 +1,105 @@
+/* Global base styles moved from templates/global/base.html
+   Preserve accessibility, focus rules, and layout behavior.
+*/
+
+/* Box sizing reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Document colors use design tokens */
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+}
+
+/* Preserve prior behavior (note: :focus reset kept for parity) */
+*:focus { outline: none; }
+
+/* Keyboard focus — never triggers on mouse click */
+:focus-visible {
+  outline: 3px solid var(--color-ring);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Extra ring for form controls */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--color-ring);
+  outline-offset: 0;
+  box-shadow: 0 0 0 4px var(--color-success-subtle);
+  border-radius: 6px;
+}
+
+/* Stronger ring for buttons */
+button:focus-visible {
+  outline: 3px solid var(--color-ring);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Video player keyboard focus */
+video:focus-visible {
+  outline: 3px solid var(--color-ring);
+  outline-offset: 0;
+  border-radius: 4px;
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  padding: 0.75rem 1rem;
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  text-decoration: none;
+  transform: translateY(-120%);
+  transition: transform 0.2s ease;
+}
+
+.skip-link:focus-visible {
+  top: 0;
+  transform: translateY(0);
+  outline: 3px solid var(--color-ring-offset);
+  outline-offset: 3px;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+}
+
+/* Card hover */
+.sinalize-card:hover {
+  box-shadow: 0 12px 40px var(--color-success-subtle);
+}
+
+/* HTMX indicator (if present elsewhere) */
+.htmx-indicator {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 4px;
+  background: var(--color-primary);
+  z-index: 9999;
+}
+
+/* Badge example */
+.badge-token {
+  display: inline-block;
+  padding: .125rem .5rem;
+  border-radius: .375rem;
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  font-size: .75rem;
+}

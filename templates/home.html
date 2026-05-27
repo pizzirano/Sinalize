@@ -1,0 +1,31 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Início{% endblock %}
+
+{% block content %}
+
+<main class="space-y-12" role="main">
+
+  <section class="bg-surface rounded-2xl shadow-lg p-6 md:p-12" role="region" aria-roledescription="hero" aria-label="Introdução ao Sinalize">
+    <div class="max-w-4xl mx-auto text-center">
+      <h1 class="text-3xl md:text-4xl font-display font-bold text-foreground">Sinalize — Dicionário visual de Libras para turismo</h1>
+      <p class="mt-3 text-muted-foreground">Aprenda sinais, explore termos e descubra categorias relevantes para visitantes e profissionais de turismo.</p>
+    </div>
+  </section>
+
+  {% include 'components/search/live-search.html' %}
+
+  {% include 'components/carousel/featured-carousel.html' %}
+
+  {% include 'components/categories/category-grid.html' %}
+
+  <section id="about" class="bg-surface rounded-2xl p-6 md:p-8" role="region" aria-roledescription="about" aria-label="Sobre o projeto">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-xl font-semibold text-foreground">Sobre o Sinalize</h2>
+      <p class="mt-2 text-muted-foreground">Sinalize é um dicionário visual de Libras pensado para o turismo: palavras, categorias e exemplos para facilitar a comunicação e a inclusão.</p>
+    </div>
+  </section>
+
+</main>
+
+{% endblock %}

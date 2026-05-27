@@ -1,0 +1,132 @@
+/* Design tokens (moved from templates/global/base.html)
+   Keep values exactly as they were. */
+:root {
+  /* dark default */
+
+  --color-background:           #080f1a;
+  --color-surface:              #0e1a2e;
+  --color-card:                 #112035;
+  --color-overlay:              rgba(8,15,26,.85);
+
+  --color-foreground:           #e2e8f0;
+  --color-foreground-secondary: #94a3b8;
+  --color-foreground-muted:     #64748b;
+
+  --color-border:               #1a2f4a;
+  --color-input:                #1a2f4a;
+
+  --color-primary:              #06d6c7;
+  --color-primary-dark:         #04a89c;
+  --color-primary-fg:           #00120f;
+
+  --color-secondary:            #f59e0b;
+  --color-secondary-dark:       #d97706;
+  --color-secondary-fg:         #1a0a00;
+
+  --color-accent:               #818cf8;
+  --color-accent-fg:            #06032a;
+
+  --color-success:              #06d6c7;
+  --color-success-subtle:       rgba(6,214,199,.08);
+  --color-success-border:       rgba(6,214,199,.25);
+
+  --color-warning:              #f59e0b;
+  --color-warning-subtle:       rgba(245,158,11,.08);
+  --color-warning-border:       rgba(245,158,11,.25);
+
+  --color-destructive:          #f87171;
+  --color-destructive-subtle:   rgba(248,113,113,.08);
+  --color-destructive-border:   rgba(248,113,113,.25);
+
+  --color-ring:                 #06d6c7;
+  --color-ring-offset:          #080f1a;
+
+  --color-muted:                #0e1a2e;
+  --color-muted-foreground:     #94a3b8;
+}
+
+.dark {
+  --color-background:           #080f1a;
+  --color-surface:              #0e1a2e;
+  --color-card:                 #112035;
+  --color-overlay:              rgba(8,15,26,.85);
+
+  --color-foreground:           #e2e8f0;
+  --color-foreground-secondary: #94a3b8;
+  --color-foreground-muted:     #64748b;
+
+  --color-border:               #1a2f4a;
+  --color-input:                #1a2f4a;
+
+  --color-primary:              #06d6c7;
+  --color-primary-dark:         #04a89c;
+  --color-primary-fg:           #00120f;
+
+  --color-secondary:            #f59e0b;
+  --color-secondary-dark:       #d97706;
+  --color-secondary-fg:         #1a0a00;
+
+  --color-accent:               #818cf8;
+  --color-accent-fg:            #06032a;
+
+  --color-success:              #06d6c7;
+  --color-success-subtle:       rgba(6,214,199,.08);
+  --color-success-border:       rgba(6,214,199,.25);
+
+  --color-warning:              #f59e0b;
+  --color-warning-subtle:       rgba(245,158,11,.08);
+  --color-warning-border:       rgba(245,158,11,.25);
+
+  --color-destructive:          #f87171;
+  --color-destructive-subtle:   rgba(248,113,113,.08);
+  --color-destructive-border:   rgba(248,113,113,.25);
+
+  --color-ring:                 #06d6c7;
+  --color-ring-offset:          #080f1a;
+
+  --color-muted:                #0e1a2e;
+  --color-muted-foreground:     #94a3b8;
+}
+
+.light {
+  --color-background:           #f8fafc;
+  --color-surface:              #ffffff;
+  --color-card:                 #f1f5f9;
+  --color-overlay:              rgba(248,250,252,.92);
+
+  --color-foreground:           #0f172a;
+  --color-foreground-secondary: #334155;
+  --color-foreground-muted:     #64748b;
+
+  --color-border:               #cbd5e1;
+  --color-input:                #cbd5e1;
+
+  --color-primary:              #0891b2;
+  --color-primary-dark:         #0e7490;
+  --color-primary-fg:           #ffffff;
+
+  --color-secondary:            #b45309;
+  --color-secondary-dark:       #92400e;
+  --color-secondary-fg:         #ffffff;
+
+  --color-accent:               #4338ca;
+  --color-accent-fg:            #ffffff;
+
+  --color-success:              #0891b2;
+  --color-success-subtle:       rgba(8,145,178,.08);
+  --color-success-border:       rgba(8,145,178,.3);
+
+  --color-warning:              #b45309;
+  --color-warning-subtle:       rgba(180,83,9,.08);
+  --color-warning-border:       rgba(180,83,9,.3);
+
+  --color-destructive:          #dc2626;
+  --color-destructive-subtle:   rgba(220,38,38,.08);
+  --color-destructive-border:   rgba(220,38,38,.3);
+
+  --color-ring:                 #0891b2;
+  --color-ring-offset:          #f8fafc;
+
+  --color-muted:                #f1f5f9;
+  --color-muted-foreground:     #475569;
+}

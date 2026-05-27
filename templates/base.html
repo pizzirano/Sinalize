@@ -1,133 +1,18 @@
+{% extends 'global/base.html' %}
+{% load static %}
 
-
-<!DOCTYPE html>
-<html lang="pt-BR">
-
-<head>
-  {% load static %}
-
-  <!-- Tailwind CSS (gerado pelo build) -->
-  <link rel="stylesheet" href="{% static 'css/output.css' %}">
-
-  <!-- Bootstrap (manter até migração completa) -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css">
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@900&display=swap" rel="stylesheet">
-
-  <!-- CSS antigo -->
-  <link rel="stylesheet" href="{% static 'global/css/global-style.css' %}">
-
-  {% block extra_css %}{% endblock extra_css %}
-  <title>{% block title %}{% endblock title %} | Sinalário</title>
-</head>
-
-<body class="{% block body_class %}main-bg{% endblock body_class %}">
-
-    <!-- Menu -->
-    <header>
-        <nav class="sticky top-0 z-50 bg-surface/90 backdrop-blur-md border-b border-border shadow-sm">
-          <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}" aria-label="Sinalize — página inicial">
-              <img src="{% static 'catalog/img/logo1 (3).png' %}" alt="" aria-hidden="true" class="img-fluid" style="max-height: 65px;">
-            </a>
-            <button class="navbar-toggler focus-visible:ring-2 focus-visible:ring-ring" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Abrir menu">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-              <ul class="navbar-nav text-center">
-                <li class="nav-item"><a class="nav-link text-muted-foreground hover:text-primary" href="{% url 'home' %}">Início</a></li>
-                <li class="nav-item"><a class="nav-link text-muted-foreground hover:text-primary" href="#sobre">Sobre</a></li>
-              </ul>
-            </div>
-          </div>
-        </nav>
-    </header>
-
-    <!-- Cabeçalho -->
-    {% block header %}
-    {% if request.resolver_match.view_name == 'sinal.list' and termo.t_imagem %}
-        <div class="termo-header text-white text-center d-flex align-items-center justify-content-center mb-4"
-             style="background-image: url('{{ termo.t_imagem.url }}');">
-          <div class="overlay-glass w-100 h-100 d-flex align-items-center justify-content-center">
-            <h2 class="fw-bold display-5 m-0">{{ termo.nome_termo }}</h2>
-          </div>
-        </div>
-    {% else %}
-        <section class="py-5 bg-primary text-white text-center shadow-sm">
-            <div class="container">
-                {% include 'catalog/partials/header.html' %}
-            </div>
-        </section>
-    {% endif %}
-{% endblock header %}
-
-    <!-- Conteúdo Principal -->
-    <main class="container my-5">
-        <div class="row">
-            <div class="col-12">
-                {% block content %}{% endblock content %}
-            </div>
-        </div>
-    </main>
-
-    {% block footer %}
-    <footer class="main-footer">
-      <div class="container footer-columns">
-        <div class="footer-left">
-          <a href="/" class="d-flex align-items-center gap-2">
-            <img src="{% static 'catalog/img/logoifcc.png' %}" alt="IFC" class="logo-footer">
-            <div>
-              <div class="text-white fw-bold">Sinalize</div>
-              <small class="text-white-50">Instituto Federal Catarinense</small>
-            </div>
-          </a>
-        </div>
-
-        <div class="footer-center footer-links">
-          <ul class="d-flex justify-content-center gap-4">
-            <li><a href="{% url 'home' %}">Início</a></li>
-            <li><a href="#sobre">Sobre</a></li>
-            <li><a href="{% url 'cadastrar_termo' %}">Contribuir</a></li>
-          </ul>
-          <div class="mt-2">
-            <small class="text-white-50">© {% now "Y" %} Sinalize — Todos os direitos reservados</small>
-          </div>
-        </div>
-
-        <div class="footer-right text-end">
-          <div class="mb-2">
-            <a href="https://www.camboriu.ifc.edu.br/" target="_blank">By IFC</a>
-            &nbsp;•&nbsp;
-            <a href="https://www.djangoproject.com/" target="_blank">Powered by Django</a>
-          </div>
-          <div>
-            <a href="#" class="me-2"><i class="fa-brands fa-facebook fa-lg"></i></a>
-            <a href="#" class="me-2"><i class="fa-brands fa-instagram fa-lg"></i></a>
-            <a href="mailto:contato@sinalize.ifc.edu.br"><i class="fa-solid fa-envelope fa-lg"></i></a>
-          </div>
-        </div>
+{% block header %}
+  {% if request.resolver_match.view_name == 'sinal.list' and termo.t_imagem %}
+    <div class="termo-header text-white text-center flex items-center justify-center mb-4" style="background-image: url('{{ termo.t_imagem.url }}');">
+      <div class="overlay-glass w-full h-full flex items-center justify-center">
+        <h2 class="font-extrabold text-3xl m-0">{{ termo.nome_termo }}</h2>
       </div>
-    </footer>
-  {% endblock footer %}
-
-  <!-- HTMX -->
-  <script src="{% static 'js/htmx.min.js' %}" defer></script>
-
-  <!-- Bootstrap JS (manter até migração completa) -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-  {% block extra_js %}{% endblock extra_js %}
-</body>
-</html>
+    </div>
+  {% else %}
+    <section id="sobre" class="py-12 bg-primary text-white text-center shadow-sm">
+      <div class="max-w-7xl mx-auto px-4">
+        {% include 'catalog/partials/header.html' %}
+      </div>
+    </section>
+  {% endif %}
+{% endblock header %}
