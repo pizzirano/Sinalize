@@ -3,7 +3,7 @@
     <h2 class="text-xl font-semibold text-foreground">Categorias</h2>
     <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
       {% for categoria in categorias_galeria %}
-        <a href="{% url 'categoria' categoria.id_categoria %}" class="block bg-card rounded-2xl p-3 border border-border focus-visible:ring-2 focus-visible:ring-ring transition-all" role="group" aria-label="Categoria {{ categoria.nome_categoria }}">
+        <a href="{% url 'categoria' categoria.id_categoria %}" class="block bg-card rounded-2xl p-3 border border-border focus-visible:ring-2 focus-visible:ring-ring transition-all" aria-label="Categoria {{ categoria.nome_categoria }}">
           <img src="{{ categoria.c_imagem.url }}" alt="{{ categoria.nome_categoria }}" class="w-full h-32 object-cover rounded-lg mb-2" loading="lazy">
           <div class="text-center text-sm font-medium text-foreground">{{ categoria.nome_categoria }}</div>
         </a>

@@ -4,9 +4,9 @@
 
     <div x-data="{ current: 0, total: {{ termos_carrossel|length }}, auto: null, start() { this.auto = setInterval(() => this.next(), 5000) }, stop() { clearInterval(this.auto) }, next() { this.current = (this.current + 1) % this.total }, prev() { this.current = (this.current - 1 + this.total) % this.total } }" x-init="start()" @mouseover="stop()" @mouseleave="start()" @keydown.window="if($event.key==='ArrowLeft') prev(); if($event.key==='ArrowRight') next();" class="relative mt-4">
 
-      <div class="overflow-hidden rounded-2xl bg-card border border-border">
+      <div class="overflow-hidden rounded-2xl bg-card border border-border" role="group" aria-roledescription="slides">
         {% for termo in termos_carrossel %}
-          <div x-show="current === {{ forloop.counter0 }}" x-transition class="p-4 md:p-6 flex items-center gap-4">
+          <div x-show="current === {{ forloop.counter0 }}" x-transition :aria-hidden="current !== {{ forloop.counter0 }}" class="p-4 md:p-6 flex items-center gap-4">
             <img src="{{ termo.t_imagem.url }}" alt="{{ termo.nome_termo }}" class="h-28 w-28 rounded-xl object-cover" loading="lazy">
             <div>
               <h3 class="text-lg font-medium text-foreground">{{ termo.nome_termo }}</h3>

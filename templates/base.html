@@ -1,18 +1,90 @@
-{% extends 'global/base.html' %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth dark">
 
-{% block header %}
-  {% if request.resolver_match.view_name == 'sinal.list' and termo.t_imagem %}
-    <div class="termo-header text-white text-center flex items-center justify-center mb-4" style="background-image: url('{{ termo.t_imagem.url }}');">
-      <div class="overlay-glass w-full h-full flex items-center justify-center">
-        <h2 class="font-extrabold text-3xl m-0">{{ termo.nome_termo }}</h2>
-      </div>
-    </div>
-  {% else %}
-    <section id="sobre" class="py-12 bg-primary text-white text-center shadow-sm">
-      <div class="max-w-7xl mx-auto px-4">
-        {% include 'catalog/partials/header.html' %}
-      </div>
-    </section>
-  {% endif %}
-{% endblock header %}
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>{% block title %}{% endblock %} | Sinalize</title>
+
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@900&display=swap" rel="stylesheet">
+
+  {% block extra_css %}{% endblock extra_css %}
+</head>
+
+<body class="antialiased">
+  <a href="#main" class="skip-link">Pular para o conteúdo</a>
+
+  {% include 'components/navigation/menu.html' %}
+
+  <main id="main" role="main" class="max-w-7xl mx-auto px-4 py-8">
+    {% block content %}{% endblock content %}
+  </main>
+
+  {% include 'components/footer/footer.html' %}
+
+  <script src="https://unpkg.com/htmx.org@1.9.3"></script>
+  <script src="https://unpkg.com/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
+
+  <script>
+    (function () {
+      const storageKey = 'sinalize-theme';
+      const root = document.documentElement;
+      const iconMoon = document.getElementById('theme-icon-moon');
+      const iconSun = document.getElementById('theme-icon-sun');
+      const toggle = document.getElementById('theme-toggle');
+
+      function setTheme(theme) {
+        if (theme === 'light') {
+          root.classList.remove('dark');
+          root.classList.add('light');
+          if (iconMoon) iconMoon.classList.add('hidden');
+          if (iconSun) iconSun.classList.remove('hidden');
+          if (toggle) toggle.setAttribute('aria-label', 'Mudar para tema escuro');
+        } else {
+          root.classList.remove('light');
+          root.classList.add('dark');
+          if (iconMoon) iconMoon.classList.remove('hidden');
+          if (iconSun) iconSun.classList.add('hidden');
+          if (toggle) toggle.setAttribute('aria-label', 'Mudar para tema claro');
+        }
+      }
+
+      try {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+          setTheme(saved);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+          setTheme('light');
+        } else {
+          setTheme('dark');
+        }
+      } catch (e) {}
+
+      if (toggle) {
+        toggle.addEventListener('click', function () {
+          const isLight = root.classList.contains('light');
+          const next = isLight ? 'dark' : 'light';
+          setTheme(next);
+          try { localStorage.setItem(storageKey, next); } catch (e) {}
+        });
+      }
+    })();
+  </script>
+
+  {% block extra_js %}{% endblock extra_js %}
+</body>
+
+</html>

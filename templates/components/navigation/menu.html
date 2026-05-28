@@ -5,7 +5,6 @@
 
       <div class="flex items-center gap-3">
         <button @click="open = !open" :aria-expanded="open.toString()" aria-controls="main-menu" class="md:hidden p-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Abrir menu">
-          <span class="sr-only">Abrir menu</span>
           <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
@@ -16,13 +15,13 @@
             <a href="{% url 'cadastrar_termo' %}" class="inline-flex items-center px-3 py-1.5 rounded bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring">Adicionar vídeo</a>
 
             <div x-data="{ openUser:false }" class="relative" @keydown.escape.window="openUser=false">
-              <button @click="openUser = !openUser" @click.outside="openUser = false" :aria-expanded="openUser.toString()" class="px-3 py-1.5 rounded hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring">{{ user.get_username }}</button>
-              <ul x-show="openUser" x-cloak x-transition class="absolute right-0 mt-2 w-48 rounded-lg border border-border bg-card py-2">
-                <li><a href="#" class="block px-4 py-2 hover:bg-surface">Perfil</a></li>
-                <li>
+              <button @click="openUser = !openUser" @click.outside="openUser = false" :aria-expanded="openUser.toString()" aria-haspopup="true" class="px-3 py-1.5 rounded hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring">{{ user.get_username }}</button>
+              <ul x-show="openUser" x-cloak x-transition role="menu" class="absolute right-0 mt-2 w-48 rounded-lg border border-border bg-card py-2">
+                <li role="none"><a href="#" role="menuitem" class="block px-4 py-2 hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring rounded">Perfil</a></li>
+                <li role="none">
                   <form method="post" action="{% url 'logout' %}">
                     {% csrf_token %}
-                    <button type="submit" class="w-full text-left px-4 py-2 hover:bg-surface">Sair</button>
+                    <button type="submit" role="menuitem" class="w-full text-left px-4 py-2 hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring rounded">Sair</button>
                   </form>
                 </li>
               </ul>
@@ -41,13 +40,13 @@
           <li><a href="{% url 'cadastrar_termo' %}" class="block px-3 py-2 rounded bg-primary text-primary-foreground">Adicionar vídeo</a></li>
           <li>
             <div x-data="{ openUserMobile:false }" class="relative">
-              <button @click="openUserMobile = !openUserMobile" @click.outside="openUserMobile = false" :aria-expanded="openUserMobile.toString()" class="w-full text-left px-3 py-2 rounded hover:bg-surface">{{ user.get_username }}</button>
-              <ul x-show="openUserMobile" x-cloak x-transition class="mt-1 space-y-1">
-                <li><a href="#" class="block px-3 py-2 hover:bg-surface">Perfil</a></li>
-                <li>
+              <button @click="openUserMobile = !openUserMobile" @click.outside="openUserMobile = false" :aria-expanded="openUserMobile.toString()" aria-haspopup="true" class="w-full text-left px-3 py-2 rounded hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring">{{ user.get_username }}</button>
+              <ul x-show="openUserMobile" x-cloak x-transition role="menu" class="mt-1 space-y-1">
+                <li role="none"><a href="#" role="menuitem" class="block px-3 py-2 hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring rounded">Perfil</a></li>
+                <li role="none">
                   <form method="post" action="{% url 'logout' %}">
                     {% csrf_token %}
-                    <button type="submit" class="w-full text-left px-3 py-2 hover:bg-surface">Sair</button>
+                    <button type="submit" role="menuitem" class="w-full text-left px-3 py-2 hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring rounded">Sair</button>
                   </form>
                 </li>
               </ul>

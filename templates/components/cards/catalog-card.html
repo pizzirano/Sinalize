@@ -1,5 +1,5 @@
 <article class="bg-card border border-border rounded-2xl p-4 transition-all hover:shadow-lg focus-within:ring-2 focus-within:ring-ring" role="article" aria-roledescription="card">
-  <a href="{% url 'sinal_list' termo.id_termo %}" class="block focus:outline-none"> 
+  <a href="{% url 'sinal_list' termo.id_termo %}" class="block focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded" aria-label="Ver detalhes de {{ termo.nome_termo }}">
     {% if termo.t_imagem %}
       <img src="{{ termo.t_imagem.url }}" alt="Imagem de {{ termo.nome_termo }}" class="w-full h-40 object-cover rounded-lg mb-3" loading="lazy">
     {% endif %}

@@ -1,101 +1,87 @@
-{% extends 'global/base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ termo.nome_termo }} | Sinais{% endblock title %}
-
-{% block header %}
-  {% if termo.t_imagem %}
-    <div class="termo-header text-white text-center d-flex align-items-center justify-content-center mb-4"
-         style="background-image: url('{{ termo.t_imagem.url }}');">
-      <div class="overlay-glass w-100 h-100 d-flex align-items-center justify-content-center">
-        <h2 class="fw-bold display-5 m-0">{{ termo.nome_termo }}</h2>
-      </div>
-    </div>
-  {% else %}
-    <section class="py-5 bg-primary text-white text-center shadow-sm">
-      <div class="container">
-        {% include 'catalog/partials/header.html' %}
-      </div>
-    </section>
-  {% endif %}
-{% endblock header %}
+{% block title %}{{ termo.nome_termo }} | Sinais{% endblock %}
 
 {% block content %}
+<div class="space-y-6">
 
-  <!-- Breadcrumb -->
+  {% if termo.t_imagem %}
+  <div class="relative rounded-2xl overflow-hidden mb-6">
+    <img src="{{ termo.t_imagem.url }}" alt="{{ termo.nome_termo }}" class="w-full h-48 object-cover">
+    <div class="absolute inset-0 bg-background/80 flex items-center justify-center">
+      <h1 class="text-3xl font-bold text-foreground">{{ termo.nome_termo }}</h1>
+    </div>
+  </div>
+  {% endif %}
+
   <nav aria-label="breadcrumb" class="mb-4">
-    <ol class="breadcrumb bg-surface p-3 shadow-sm rounded">
-      <li class="breadcrumb-item"><a href="{% url 'home' %}">Início</a></li>
+    <ol class="flex items-center space-x-2 text-sm text-muted-foreground bg-surface p-3 rounded-lg border border-border">
+      <li><a href="{% url 'home' %}" class="hover:text-primary focus-visible:ring-2 focus-visible:ring-ring rounded">Início</a></li>
       {% for classificacao in classificacoes %}
-        <li class="breadcrumb-item">
-          <a href="{% url 'termo_list' classificacao.subcategoria.categoria.id_categoria %}">
+        <li class="flex items-center">
+          <span class="mx-2">/</span>
+          <a href="{% url 'termo_list' classificacao.subcategoria.categoria.id_categoria %}" class="hover:text-primary focus-visible:ring-2 focus-visible:ring-ring rounded">
             {{ classificacao.subcategoria.categoria.nome_categoria }}
           </a>
         </li>
-        <li class="breadcrumb-item">
-          <a href="{% url 'termo_list' classificacao.subcategoria.categoria.id_categoria %}?sub={{ classificacao.subcategoria.id_subcategoria }}">
+        <li class="flex items-center">
+          <span class="mx-2">/</span>
+          <a href="{% url 'termo_list' classificacao.subcategoria.categoria.id_categoria %}?sub={{ classificacao.subcategoria.id_subcategoria %}" class="hover:text-primary focus-visible:ring-2 focus-visible:ring-ring rounded">
             {{ classificacao.subcategoria.nome_subcategoria }}
           </a>
         </li>
       {% endfor %}
-      <li class="breadcrumb-item active" aria-current="page">{{ termo.nome_termo }}</li>
+      <li class="flex items-center">
+        <span class="mx-2">/</span>
+        <span class="text-foreground font-medium" aria-current="page">{{ termo.nome_termo }}</span>
+      </li>
     </ol>
   </nav>
 
-
-
-  <!-- Lista de Vídeos -->
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="fw-bold text-primary mb-0">Vídeos relacionados</h4>
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-semibold text-foreground">Vídeos relacionados</h2>
     {% if user.is_authenticated %}
-      <a class="inline-flex items-center px-3 py-1.5 rounded border border-border text-muted-foreground hover:bg-surface" href="{% url 'cadastrar_termo' %}">
-        <i class="fa-solid fa-plus mr-2"></i>Adicionar Sinal
+      <a href="{% url 'cadastrar_termo' %}" class="inline-flex items-center px-3 py-1.5 rounded border border-border text-muted-foreground hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring">
+        <i class="fa-solid fa-plus mr-2"></i> Adicionar Sinal
       </a>
     {% endif %}
   </div>
-  <div class="row g-4">
+
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
     {% for video in videos %}
-    <div class="col-md-6 col-lg-4">
-      <div class="card h-100 shadow-lg border-0 video-card hover-card">
+    <div class="bg-card border border-border rounded-2xl overflow-hidden hover:shadow-lg transition">
+      {% if video.video %}
+      <video class="w-full"
+          controls
+          preload="metadata"
+          aria-label="Vídeo do sinal: {{ video.titulo }}"
+          poster="{% static 'images/video-placeholder.jpg' %}">
+        <source src="{{ video.video.url }}" type="video/mp4">
+        Seu navegador não suporta vídeo.
+      </video>
+      {% else %}
+      <div class="flex items-center justify-center bg-surface h-48">
+        <span class="text-muted-foreground">Sem vídeo</span>
+      </div>
+      {% endif %}
 
-        <!-- Vídeo / Placeholder -->
-        <div class="video-container">
-             {% if video.video %}
-             <video class="w-full rounded-t-xl"
-                 controls
-                 preload="metadata"
-                 aria-label="Vídeo do sinal: {{ video.titulo }}"
-                 poster="{% static 'images/video-placeholder.jpg' %}">
-            <source src="{{ video.video.url }}" type="video/mp4">
-            Seu navegador não suporta vídeo.
-          </video>
-          {% else %}
-          <div class="placeholder-img text-center flex items-center justify-center bg-surface rounded-t-xl" style="height:200px;">
-            <span class="text-muted">Sem vídeo</span>
-          </div>
-          {% endif %}
+      <div class="p-4">
+        <h3 class="text-lg font-medium text-foreground mb-2">{{ video.titulo }}</h3>
+        <div class="mb-3">
+          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-accent text-accent-foreground">
+            <i class="fa-solid fa-play mr-1"></i> {{ video.get_tipo_video_display }}
+          </span>
         </div>
-
-        <!-- Conteúdo -->
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title text-foreground font-bold">{{ video.titulo }}</h5>
-          <p class="mb-2">
-            <span class="badge bg-info text-dark">
-              <i class="bi bi-collection-play me-1"></i> {{ video.get_tipo_video_display }}
-            </span>
-          </p>
-          <div class="mt-auto">
-            <a href="{% url 'video_detail' video.id_video %}" class="inline-flex items-center px-3 py-1.5 rounded bg-primary text-primary-foreground w-full text-center">
-              <i class="fa-regular fa-eye mr-2"></i> Ver mais
-            </a>
-          </div>
-        </div>
-
+        <a href="{% url 'video_detail' video.id_video %}" class="inline-flex items-center justify-center w-full px-3 py-1.5 rounded bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring">
+          <i class="fa-regular fa-eye mr-2"></i> Ver mais
+        </a>
       </div>
     </div>
     {% empty %}
-      <p class="text-muted text-center">Não há vídeos cadastrados para este termo.</p>
+      <p class="text-muted-foreground text-center col-span-full">Não há vídeos cadastrados para este termo.</p>
     {% endfor %}
   </div>
+
 </div>
-{% endblock content %}
+{% endblock %}

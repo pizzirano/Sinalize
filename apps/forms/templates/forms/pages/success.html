@@ -1,12 +1,14 @@
-{% extends 'global/base.html' %}
+{% extends 'base.html' %}
 
-{% block title %}Sucesso{% endblock title %}
+{% block title %}Sucesso{% endblock %}
 
 {% block content %}
-<div class="container py-5 text-center">
-  <h3 class="text-success">Vídeo cadastrado com sucesso!</h3>
-  <a href="{% url 'cadastrar_video' %}" class="inline-flex items-center px-4 py-2 rounded border border-primary text-primary hover:bg-primary/10 mt-3 focus-visible:ring-2 focus-visible:ring-ring">
-    Cadastrar outro vídeo
-  </a>
+<div class="max-w-2xl mx-auto py-12 text-center space-y-6">
+  <div class="bg-card border border-border rounded-2xl p-8">
+    <h2 class="text-2xl font-semibold text-success mb-4">Vídeo cadastrado com sucesso!</h2>
+    <a href="{% url 'cadastrar_video' %}" class="inline-flex items-center px-4 py-2 rounded bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring">
+      Cadastrar outro vídeo
+    </a>
+  </div>
 </div>
-{% endblock content %}
+{% endblock %}

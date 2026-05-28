@@ -1,217 +1,102 @@
-{% extends 'global/base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Termos{% endblock title %}
-
-{% block extra_css %}
-<style>
-  .az-btn:focus-visible {
-    outline: 3px solid var(--color-ring);
-    outline-offset: 2px;
-  }
-</style>
-{% endblock extra_css %}
-
-{% block header %}
-
-  {# breadcrumb removed as requested (no top breadcrumb displayed) #}
-
-  {# Header visual (image or fallback) #}
-  {% if categoria.c_imagem %}
-    <div class="termo-header text-white text-center d-flex align-items-center justify-content-center mb-4"
-         style="background-image: url('{{ categoria.c_imagem.url }}');">
-      <div class="overlay-glass w-100 h-100 d-flex align-items-center justify-content-center">
-        <h1 class="fw-bold display-5 m-0">
-          <a class="text-white text-decoration-none"
-             href="{% url 'termo_list' categoria.id_categoria %}">
-            {% if subcategoria %}
-              {{ subcategoria.nome_subcategoria }}
-            {% else %}
-              {{ categoria.nome_categoria }}
-            {% endif %}
-          </a>
-        </h1>
-      </div>
-    </div>
-  {% else %}
-    <section class="py-5 bg-primary text-white text-center shadow-sm">
-      <div class="container">
-        <h1>
-          <a class="main-logo text-decoration-none text-white"
-             href="{% url 'termo_list' categoria.id_categoria %}">
-            {% if subcategoria %}
-              {{ subcategoria.nome_subcategoria }}
-            {% else %}
-              {{ categoria.nome_categoria }}
-            {% endif %}
-          </a>
-        </h1>
-      </div>
-    </section>
-  {% endif %}
-
-  
-  <div class="container mb-4">
-    <nav class="az-nav d-flex flex-wrap justify-content-center gap-1" role="navigation" aria-label="Navegação por letras A–Z">
-      <h2 class="visually-hidden">Filtrar termos por inicial</h2>
-      {% with selected=letra|default:'' %}
-        {# 'Todos' clears the letra filter; keep simple ? to reset #}
-        <a href="?" class="inline-flex items-center px-3 py-1.5 rounded text-sm {% if not selected %}bg-primary text-primary-foreground{% else %}border border-border text-muted-foreground hover:bg-surface{% endif %} az-btn" aria-label="Todos os termos" {% if not selected %}aria-current="true"{% endif %}>Todos</a>
-        {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ"|make_list %}
-          {# compare case-insensitively in case view passes lowercase #}
-            {% if selected|default:''|upper == letter %}
-            <a href="?letra={{ letter }}" class="inline-flex items-center px-3 py-1.5 rounded text-sm bg-primary text-primary-foreground az-btn" aria-label="Termos começando com {{ letter }}" aria-current="true">{{ letter }}</a>
-          {% else %}
-            <a href="?letra={{ letter }}" class="inline-flex items-center px-3 py-1.5 rounded text-sm border border-border text-muted-foreground hover:bg-surface az-btn" aria-label="Termos começando com {{ letter }}">{{ letter }}</a>
-          {% endif %}
-        {% endfor %}
-      {% endwith %}
-    </nav>
-  </div>
-
-{% endblock header %}
+{% block title %}Termos{% endblock %}
 
 {% block content %}
-  <div class="container-fluid py-4">
+<div class="space-y-6">
 
-  <div class="row">
-    <!-- Coluna das Subcategorias -->
-    <div class="w-full md:w-1/4 mb-4">
-      {% if subcategorias %}
-        <div>
-          <div class="flex items-center justify-start mb-2">
-            <button id="subcat-toggle-btn" type="button" class="inline-flex items-center px-3 py-1.5 rounded bg-primary text-primary-foreground subcat-toggle" aria-expanded="false" aria-controls="subcat-list" aria-label="Explorar subcategorias">
-            <span id="subcat-toggle-icon" class="me-2 subcat-toggle-icon">
-             <!-- chevron-right SVG -->
-             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
-              <span id="subcat-toggle-text">Explorar subcategorias</span>
-            </button>
-          </div>
-          <small id="subcat-hint" class="text-muted d-block mb-2">Clique em Explorar para abrir as subcategorias.</small>
-
-      <div id="subcat-list" class="list-group shadow-sm rounded-3 d-none subcat-list">
-              {% for subcat in subcategorias %}
-                {% with count=subcat.termo_set.count %}
-                  <a href="{% url 'termos_por_subcategoria' subcat.id_subcategoria %}"
-                     class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 {% if subcategoria and subcat.id_subcategoria == subcategoria.id_subcategoria %}active{% endif %}"
-                     title="{{ subcat.nome_subcategoria }}"
-                     role="listitem"
-                     aria-label="{{ subcat.nome_subcategoria }} — {{ count }} termos">
-                    <div class="d-flex align-items-center me-2" style="min-width:0;">
-                      <i class="bi bi-folder me-2 text-muted" aria-hidden="true" style="font-size:1.05rem"></i>
-                      <span class="subcat-name text-truncate d-inline-block" style="max-width:120px;">{{ subcat.nome_subcategoria }}</span>
-                    </div>
-                    {% if count %}
-                      <span class="badge bg-secondary rounded-pill" aria-label="{{ count }} termos">{{ count }}</span>
-                    {% else %}
-                      <span class="badge bg-light text-muted rounded-pill" aria-label="0 termos">0</span>
-                    {% endif %}
-                  </a>
-                {% endwith %}
-              {% endfor %}
-            </div>
-
-          <script>
-            (function(){
-              var btn = document.getElementById('subcat-toggle-btn');
-              var list = document.getElementById('subcat-list');
-              var icon = document.getElementById('subcat-toggle-icon');
-              var text = document.getElementById('subcat-toggle-text');
-              var hint = document.getElementById('subcat-hint');
-              if(!btn || !list) return;
-                var rightSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-                var downSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-                btn.addEventListener('click', function(){
-                  var isHidden = list.classList.toggle('d-none');
-                  btn.setAttribute('aria-expanded', String(!isHidden));
-                  if(isHidden){
-                    icon.innerHTML = rightSvg;
-                    text.textContent = 'Explorar subcategorias';
-                    hint.textContent = 'Clique em Explorar para abrir as subcategorias.';
-                  } else {
-                    icon.innerHTML = downSvg;
-                    text.textContent = 'Ocultar subcategorias';
-                    hint.textContent = 'Clique em uma subcategoria para ver os termos. Use o botão ao lado para mostrar/esconder a lista.';
-                  }
-                });
-
-              // Scrollspy-like behavior: highlight clicked item and auto-scroll active item into view
-              function setupScrollspy(){
-                var items = list.querySelectorAll('.list-group-item');
-                if(!items || !items.length) return;
-                items.forEach(function(it){
-                  it.addEventListener('click', function(){
-                    items.forEach(function(i){ i.classList.remove('active'); });
-                    it.classList.add('active');
-                    try{ it.scrollIntoView({behavior:'smooth', block:'nearest'}); }catch(e){}
-                  });
-                });
-
-                // On load, ensure server-marked active item is visible
-                var serverActive = list.querySelector('.list-group-item.active');
-                if(serverActive){
-                  try{ serverActive.scrollIntoView({block:'nearest'}); }catch(e){}
-                }
-              }
-
-              // Initialize when DOM is ready
-              if (document.readyState === 'loading'){
-                document.addEventListener('DOMContentLoaded', setupScrollspy);
-              } else {
-                setupScrollspy();
-              }
-
-            })();
-          </script>
-        </div>
-      {% endif %}
+  {% if categoria.c_imagem %}
+  <div class="relative rounded-2xl overflow-hidden mb-6">
+    <img src="{{ categoria.c_imagem.url }}" alt="{{ categoria.nome_categoria }}" class="w-full h-48 object-cover">
+    <div class="absolute inset-0 bg-background/80 flex items-center justify-center">
+      <h1 class="text-3xl font-bold text-foreground">
+        <a href="{% url 'termo_list' categoria.id_categoria %}" class="text-foreground hover:text-primary transition">
+          {% if subcategoria %}
+            {{ subcategoria.nome_subcategoria }}
+          {% else %}
+            {{ categoria.nome_categoria }}
+          {% endif %}
+        </a>
+      </h1>
     </div>
+  </div>
+  {% endif %}
 
-    <!-- Coluna dos Termos -->
-    <div class="w-full md:w-3/4">
-      <div class="flex justify-between items-center mb-3">
-        <h3 class="mb-0">Termos</h3>
+  <nav class="flex flex-wrap justify-center gap-2" role="navigation" aria-label="Navegação por letras A–Z">
+    <h2 class="sr-only">Filtrar termos por inicial</h2>
+    {% with selected=letra|default:'' %}
+      <a href="?" class="inline-flex items-center px-3 py-1.5 rounded text-sm {% if not selected %}bg-primary text-primary-foreground{% else %}border border-border text-muted-foreground hover:bg-surface{% endif %} focus-visible:ring-2 focus-visible:ring-ring" aria-label="Todos os termos" {% if not selected %}aria-current="true"{% endif %}>Todos</a>
+      {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ"|make_list %}
+        {% if selected|default:''|upper == letter %}
+          <a href="?letra={{ letter }}" class="inline-flex items-center px-3 py-1.5 rounded text-sm bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring" aria-label="Termos começando com {{ letter }}" aria-current="true">{{ letter }}</a>
+        {% else %}
+          <a href="?letra={{ letter }}" class="inline-flex items-center px-3 py-1.5 rounded text-sm border border-border text-muted-foreground hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring" aria-label="Termos começando com {{ letter }}">{{ letter }}</a>
+        {% endif %}
+      {% endfor %}
+    {% endwith %}
+  </nav>
+
+  <div class="grid md:grid-cols-4 gap-6">
+    {% if subcategorias %}
+    <div class="md:col-span-1">
+      <div x-data="{ open: false }">
+        <button @click="open = !open" :aria-expanded="open.toString()" aria-controls="subcat-list" class="inline-flex items-center px-3 py-1.5 rounded bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring mb-2">
+          <span x-show="!open">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 mr-2" aria-hidden="true"><path d="M6 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span x-show="open">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 mr-2" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span x-text="open ? 'Ocultar subcategorias' : 'Explorar subcategorias'"></span>
+        </button>
+        <p class="text-sm text-muted-foreground mb-2" x-show="!open">Clique em Explorar para abrir as subcategorias.</p>
+
+        <ul id="subcat-list" x-show="open" x-cloak x-transition class="space-y-2">
+          {% for subcat in subcategorias %}
+            {% with count=subcat.termo_set.count %}
+              <li>
+                <a href="{% url 'termos_por_subcategoria' subcat.id_subcategoria %}"
+                   class="block px-3 py-2 rounded border border-border bg-card hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring {% if subcategoria and subcat.id_subcategoria == subcategoria.id_subcategoria %}bg-primary text-primary-foreground{% endif %}"
+                   aria-label="{{ subcat.nome_subcategoria }} — {{ count }} termos">
+                  <div class="flex items-center justify-between">
+                    <span class="truncate">{{ subcat.nome_subcategoria }}</span>
+                    {% if count %}
+                      <span class="ml-2 px-2 py-0.5 rounded-full text-xs bg-secondary text-secondary-foreground">{{ count }}</span>
+                    {% endif %}
+                  </div>
+                </a>
+              </li>
+            {% endwith %}
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="md:col-span-3">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold text-foreground">Termos</h2>
         {% if user.is_authenticated %}
-          <a class="inline-flex items-center px-3 py-1.5 rounded bg-primary text-primary-foreground text-sm" href="{% url 'cadastrar_termo' %}">
+          <a href="{% url 'cadastrar_termo' %}" class="inline-flex items-center px-3 py-1.5 rounded bg-primary text-primary-foreground text-sm focus-visible:ring-2 focus-visible:ring-ring">
             <i class="fa-solid fa-plus mr-2"></i> Adicionar Sinal
           </a>
         {% endif %}
       </div>
+
       {% if termos %}
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {% for termo in termos %}
-            <div class="w-1/2 md:w-1/3 lg:w-1/4">
-              <div class="card h-100 shadow border-0 hover:shadow-lg transition">
-                <a href="{% url 'sinal_list' termo.id_termo %}" class="stretched-link text-decoration-none">
-                  {% if termo.t_imagem %}
-                    <img src="{{ termo.t_imagem.url }}" 
-                      class="rounded-t-xl block w-full h-44 object-cover"
-                      alt="{{ termo.nome_termo }}">
-                  {% else %}
-                    <div class="flex items-center justify-center bg-surface"
-                         style="height:180px; border-radius:8px;">
-                      <i class="bi bi-play-btn text-muted-foreground" style="font-size:3rem"></i>
-                    </div>
-                  {% endif %}
-                </a>
-                <div class="card-body text-center">
-                  <h6 class="card-title mb-2">{{ termo.nome_termo }}</h6>
-                  <a href="{% url 'sinal_list' termo.id_termo %}" 
-                     class="inline-flex items-center px-3 py-1.5 rounded bg-primary text-primary-foreground w-full text-center">
-                    <i class="fa-regular fa-eye mr-2"></i> Ver Sinal
-                  </a>
-                </div>
-              </div>
-            </div>
+            {% include 'components/cards/catalog-card.html' %}
           {% endfor %}
         </div>
       {% else %}
-        <div class="alert alert-warning text-center">
-          <i class="bi bi-exclamation-triangle me-2"></i> Nenhum termo encontrado.
+        <div class="bg-surface border border-border rounded-2xl p-6 text-center text-muted-foreground">
+          <i class="fa-solid fa-exclamation-triangle mr-2"></i> Nenhum termo encontrado.
         </div>
       {% endif %}
     </div>
   </div>
+
 </div>
-{% endblock content %}
+{% endblock %}
