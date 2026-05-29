@@ -42,44 +42,117 @@
     (function () {
       const storageKey = 'sinalize-theme';
       const root = document.documentElement;
+      
+      // Seletores desktop
+      const toggle = document.getElementById('theme-toggle');
       const iconMoon = document.getElementById('theme-icon-moon');
       const iconSun = document.getElementById('theme-icon-sun');
-      const toggle = document.getElementById('theme-toggle');
+      
+      // Seletores mobile (fallback)
+      const toggleMobile = document.getElementById('theme-toggle-mobile');
+      const iconMoonMobile = document.getElementById('theme-icon-moon-mobile');
+      const iconSunMobile = document.getElementById('theme-icon-sun-mobile');
 
-      function setTheme(theme) {
-        if (theme === 'light') {
-          root.classList.remove('dark');
-          root.classList.add('light');
-          if (iconMoon) iconMoon.classList.add('hidden');
-          if (iconSun) iconSun.classList.remove('hidden');
-          if (toggle) toggle.setAttribute('aria-label', 'Mudar para tema escuro');
-        } else {
-          root.classList.remove('light');
-          root.classList.add('dark');
-          if (iconMoon) iconMoon.classList.remove('hidden');
-          if (iconSun) iconSun.classList.add('hidden');
-          if (toggle) toggle.setAttribute('aria-label', 'Mudar para tema claro');
+      function updateIconVisibility(theme) {
+        // Desktop
+        if (iconMoon && iconSun) {
+          if (theme === 'light') {
+            iconMoon.classList.add('!hidden');
+            iconMoon.classList.remove('!inline-block');
+            iconSun.classList.remove('!hidden');
+            iconSun.classList.add('!inline-block');
+          } else {
+            iconMoon.classList.remove('!hidden');
+            iconMoon.classList.add('!inline-block');
+            iconSun.classList.add('!hidden');
+            iconSun.classList.remove('!inline-block');
+          }
+        }
+        
+        // Mobile
+        if (iconMoonMobile && iconSunMobile) {
+          if (theme === 'light') {
+            iconMoonMobile.classList.add('!hidden');
+            iconMoonMobile.classList.remove('!inline-block');
+            iconSunMobile.classList.remove('!hidden');
+            iconSunMobile.classList.add('!inline-block');
+          } else {
+            iconMoonMobile.classList.remove('!hidden');
+            iconMoonMobile.classList.add('!inline-block');
+            iconSunMobile.classList.add('!hidden');
+            iconSunMobile.classList.remove('!inline-block');
+          }
         }
       }
 
-      try {
-        const saved = localStorage.getItem(storageKey);
-        if (saved) {
-          setTheme(saved);
-        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-          setTheme('light');
-        } else {
-          setTheme('dark');
+      function updateAriaLabel(theme, btn) {
+        if (btn) {
+          const label = theme === 'light' ? 'Mudar para tema escuro' : 'Mudar para tema claro';
+          btn.setAttribute('aria-label', label);
         }
-      } catch (e) {}
+      }
 
+      function setTheme(theme) {
+        // Remove classes conflitantes
+        root.classList.remove('dark', 'light');
+        
+        // Aplica novo tema
+        if (theme === 'light') {
+          root.classList.add('light');
+        } else {
+          root.classList.add('dark');
+        }
+        
+        // Atualiza ícones com modificador '!'
+        updateIconVisibility(theme);
+        
+        // Atualiza aria-labels
+        updateAriaLabel(theme, toggle);
+        updateAriaLabel(theme, toggleMobile);
+      }
+
+      function initTheme() {
+        try {
+          const saved = localStorage.getItem(storageKey);
+          
+          if (saved) {
+            setTheme(saved);
+          } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+            setTheme('light');
+          } else {
+            setTheme('dark');
+          }
+        } catch (e) {
+          console.error('Erro ao inicializar tema:', e);
+          setTheme('dark'); // Fallback
+        }
+      }
+
+      function handleToggle() {
+        const isLight = root.classList.contains('light');
+        const next = isLight ? 'dark' : 'light';
+        setTheme(next);
+        
+        try {
+          localStorage.setItem(storageKey, next);
+        } catch (e) {
+          console.error('Erro ao salvar tema:', e);
+        }
+      }
+
+      // Event listeners
       if (toggle) {
-        toggle.addEventListener('click', function () {
-          const isLight = root.classList.contains('light');
-          const next = isLight ? 'dark' : 'light';
-          setTheme(next);
-          try { localStorage.setItem(storageKey, next); } catch (e) {}
-        });
+        toggle.addEventListener('click', handleToggle);
+      }
+      if (toggleMobile) {
+        toggleMobile.addEventListener('click', handleToggle);
+      }
+
+      // Inicializa ao carregar
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initTheme);
+      } else {
+        initTheme();
       }
     })();
   </script>

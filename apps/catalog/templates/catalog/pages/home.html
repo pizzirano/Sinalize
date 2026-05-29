@@ -1,18 +1,45 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Início{% endblock %}
 
 {% block content %}
 <div class="space-y-12">
 
-  <section class="bg-surface rounded-2xl shadow-lg p-6 md:p-12" role="region" aria-roledescription="hero" aria-label="Introdução ao Sinalize">
-    <div class="max-w-4xl mx-auto text-center">
-      <h1 class="text-3xl md:text-4xl font-display font-bold text-foreground">Sinalize — Dicionário visual de Libras para turismo</h1>
-      <p class="mt-3 text-muted-foreground">Aprenda sinais, explore termos e descubra categorias relevantes para visitantes e profissionais de turismo.</p>
+  <section class="hero-mesh bg-base relative overflow-hidden py-20 md:py-32" aria-labelledby="hero-heading">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 grid md:grid-cols-2 gap-12 items-center">
+      <div class="animate-fadeUp">
+        <p class="mb-3 text-[0.7rem] font-extrabold tracking-widest uppercase text-accent-cyan">Dicionário Visual de Libras</p>
+
+        <h1 id="hero-heading" class="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 font-display">
+          Comunique-se sem<br>
+          <span class="text-accent-cyan">barreiras</span> no turismo
+        </h1>
+
+        <p class="text-secondary text-lg leading-relaxed mb-8 max-w-md">
+          Explore sinais em Libras organizados por contexto turístico. Assista, aprenda e colabore com a comunidade surda.
+        </p>
+
+        <div class="relative max-w-md">
+          <label for="hero-search" class="sr-only">Buscar termos em Libras</label>
+          <span class="absolute inset-y-0 left-4 flex items-center pointer-events-none" aria-hidden="true">
+            <i class="fas fa-search text-secondary"></i>
+          </span>
+          <input id="hero-search" type="search" name="q" placeholder="Buscar sinal... ex: Hotel, Praia, Aeroporto" class="w-full pl-11 pr-4 py-3.5 rounded-xl text-sm bg-surface border border-border text-primary placeholder-text-secondary focus-visible:outline-none" hx-get="/catalog/home/" hx-trigger="keyup changed delay:300ms, search" hx-target="#search-results" hx-indicator="#search-spinner" autocomplete="off" aria-controls="search-results">
+          <span id="search-spinner" class="htmx-indicator absolute inset-y-0 right-4 flex items-center" aria-live="polite" aria-label="Buscando...">
+            <i class="fas fa-circle-notch animate-spin text-accent-cyan text-sm" aria-hidden="true"></i>
+          </span>
+        </div>
+        <div id="search-results" role="region" aria-label="Resultados da busca" aria-live="polite" class="mt-3"></div>
+      </div>
+
+      <div class="flex justify-center animate-fadeUp delay-150" aria-hidden="true">
+        <div class="w-full max-w-[420px]">
+          <lottie-player class="w-full h-auto" src="{% static 'catalog/img/icon2.json' %}" background="transparent" speed="1" loop autoplay></lottie-player>
+        </div>
+      </div>
     </div>
   </section>
-
-  {% include 'components/search/live-search.html' %}
 
   {% include 'components/carousel/featured-carousel.html' %}
 

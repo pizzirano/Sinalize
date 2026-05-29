@@ -30,6 +30,11 @@
             <a href="{% url 'login' %}" class="text-muted-foreground hover:text-primary px-3 py-1.5">Entrar</a>
             <a href="{% url 'register' %}" class="text-muted-foreground hover:text-primary px-3 py-1.5">Registrar</a>
           {% endif %}
+          <!-- BOTÃO ALTERNADOR DE TEMA -->
+          <button id="theme-toggle" type="button" class="p-2 rounded hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring transition-colors" aria-label="Mudar para tema escuro">
+            <i id="theme-icon-moon" class="fas fa-moon !inline-block text-foreground"></i>
+            <i id="theme-icon-sun" class="fas fa-sun !hidden text-foreground"></i>
+          </button>
         </div>
       </div>
     </div>
@@ -56,6 +61,14 @@
           <li><a href="{% url 'login' %}" class="block px-3 py-2 rounded text-muted-foreground hover:text-primary">Entrar</a></li>
           <li><a href="{% url 'register' %}" class="block px-3 py-2 rounded text-muted-foreground hover:text-primary">Registrar</a></li>
         {% endif %}
+        <!-- BOTÃO ALTERNADOR DE TEMA (MOBILE) -->
+        <li>
+          <button id="theme-toggle-mobile" type="button" class="w-full text-left px-3 py-2 rounded hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring transition-colors flex items-center gap-2" aria-label="Mudar tema">
+            <i id="theme-icon-moon-mobile" class="fas fa-moon !inline-block text-foreground"></i>
+            <i id="theme-icon-sun-mobile" class="fas fa-sun !hidden text-foreground"></i>
+            <span>Alternar tema</span>
+          </button>
+        </li>
       </ul>
     </div>
   </div>
