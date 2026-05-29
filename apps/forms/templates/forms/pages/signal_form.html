@@ -1,192 +1,109 @@
-{% extends 'global/base.html' %}
-{% load static %}
+{% extends 'base.html' %}
 
-{% block title %}Adicionar Sinal{% endblock title %}
-{% block body_class %}signal-form-page{% endblock body_class %}
+{% block title %}Adicionar Sinal{% endblock %}
 
-  {% block header %}
-    <div class="signal-hero">
-      <header class="glass-header">
-        <h1 class="display-5">Adicionar Novo Sinal</h1>
-        <p class="lead text-white-50">Cadastre sinais com imagem, vídeo e descrição</p>
-      </header>
+{% block content %}
+
+<div class="max-w-4xl mx-auto">
+  <form id="signalForm" method="POST" enctype="multipart/form-data" hx-post="" hx-target="#signal-form-result" hx-swap="outerHTML" x-data="{ drag:false }" class="space-y-6" novalidate>
+    {% csrf_token %}
+
+    <div class="rounded-2xl p-4 bg-background border border-border">
+      <p class="text-muted-foreground">Dê preferência para vídeos no formato <strong>MP4</strong> para melhor compatibilidade.</p>
     </div>
-  {% endblock header %}
 
-  {% block content %}
-    <form id="signalForm" method="POST" enctype="multipart/form-data" class="signal-form">
-        {% csrf_token %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-foreground">Nome do Termo</label>
+        {{ termo_form.nome_termo }}
+        {% if termo_form.nome_termo.errors %}
+          <p class="mt-1 text-sm text-primary">{{ termo_form.nome_termo.errors }}</p>
+        {% endif %}
+      </div>
 
-        <div class="alert-mp4">
-          ⚠️ Dê preferência para vídeos no formato <strong>MP4</strong> para melhor compatibilidade.
-        </div>
+      <div>
+        <label class="block text-sm font-medium text-foreground">Categoria</label>
+        {{ termo_form.categoria }}
+        {% if termo_form.categoria.errors %}
+          <p class="mt-1 text-sm text-primary">{{ termo_form.categoria.errors }}</p>
+        {% endif %}
+      </div>
 
-        <div class="row g-3">
-          <!-- Nome do Termo -->
-          <div class="col-md-6">
-            <label class="form-label">Nome do Termo</label>
-            {{ termo_form.nome_termo }}
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-foreground">Descrição</label>
+        {{ termo_form.descricao }}
+        {% if termo_form.descricao.errors %}
+          <p class="mt-1 text-sm text-primary">{{ termo_form.descricao.errors }}</p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-foreground">Imagem do Termo</label>
+        {{ termo_form.t_imagem }}
+        {% if termo_form.t_imagem.errors %}
+          <p class="mt-1 text-sm text-primary">{{ termo_form.t_imagem.errors }}</p>
+        {% endif %}
+      </div>
+
+      <div id="categoria_imagem_field">
+        <label class="block text-sm font-medium text-foreground">Imagem da Categoria</label>
+        {{ categoria_form.c_imagem }}
+        {% if categoria_form.c_imagem.errors %}
+          <p class="mt-1 text-sm text-primary">{{ categoria_form.c_imagem.errors }}</p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-foreground">Subcategoria</label>
+        {{ termo_form.subcategoria }}
+        {% if termo_form.subcategoria.errors %}
+          <p class="mt-1 text-sm text-primary">{{ termo_form.subcategoria.errors }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      {{ termo_form.carrossel }}
+      <label class="text-sm text-muted-foreground">Exibir no Carrossel</label>
+    </div>
+
+    <div class="space-y-3">
+      <h2 class="text-lg font-medium text-foreground">Vídeos</h2>
+      {{ formset.management_form }}
+      <div id="videos-container" x-data x-ref="videos">
+        {% for form in formset %}
+          <div class="rounded-2xl p-4 bg-card border border-border" role="group" aria-roledescription="video-form">
+            <label class="block text-sm font-medium text-foreground">Título do Vídeo</label>
+            {{ form.titulo }}
+            <label class="block text-sm font-medium text-foreground mt-2">Tipo de Vídeo</label>
+            {{ form.tipo_video }}
+            <label class="block text-sm font-medium text-foreground mt-2">Arquivo de Vídeo</label>
+            {{ form.video }}
           </div>
+        {% endfor %}
+      </div>
 
-          <!-- Descrição -->
-          <div class="col-md-12">
-            <label class="form-label">Descrição</label>
-            {{ termo_form.descricao }}
-          </div>
+      <button type="button" x-on:click="$el.insertAdjacentHTML('beforebegin', '')" @click="(function(){ const container = document.getElementById('videos-container'); if(container && container.firstElementChild){ const node = container.firstElementChild.cloneNode(true); node.querySelectorAll('input, textarea').forEach(i=>i.value=''); container.appendChild(node); const total = document.getElementById('id_form-TOTAL_FORMS'); if(total) total.value = parseInt(total.value)+1; } })()" class="inline-flex items-center gap-2 px-3 py-2 rounded bg-background border border-border focus-visible:ring-2 focus-visible:ring-ring"> <i class="fas fa-plus" aria-hidden="true"></i> Adicionar Vídeo</button>
+    </div>
 
-          <!-- Imagem do Termo -->
-          <div class="col-md-6">
-            <label class="form-label">Imagem do Termo</label>
-            {{ termo_form.t_imagem }}
-          </div>
+    <div x-data="{ uploading:false, progress:0 }" x-init="document.body.addEventListener('htmx:beforeRequest', ()=>{ uploading=true; progress=0 }); document.body.addEventListener('htmx:progress', (e)=>{ if(e.detail && e.detail.loaded && e.detail.total){ progress = Math.round((e.detail.loaded / e.detail.total)*100) } }); document.body.addEventListener('htmx:afterRequest', ()=>{ uploading=false; progress=100; })" class="space-y-3">
+      <div class="flex gap-3">
+        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring"> <i class="fas fa-save" aria-hidden="true"></i> Salvar</button>
+        <a href="{% url 'home' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded bg-background border border-border focus-visible:ring-2 focus-visible:ring-ring"> <i class="fas fa-times" aria-hidden="true"></i> Cancelar</a>
+      </div>
 
-          <!-- Categoria -->
-          <div class="col-md-6">
-            <label class="form-label">Categoria</label>
-            {{ termo_form.categoria }}
-          </div>
-
-          <!-- Imagem da Categoria -->
-          <div class="col-md-6" id="categoria_imagem_field">
-            <label class="form-label">Imagem da Categoria</label>
-            {{ categoria_form.c_imagem }}
-          </div>
-
-          <!-- Subcategoria -->
-          <div class="col-md-6">
-            <label class="form-label">Subcategoria</label>
-            {{ termo_form.subcategoria }}
-          </div>
+      <div x-show="uploading" x-cloak class="w-full bg-background rounded-2xl border border-border p-2">
+        <div class="w-full h-2 bg-surface rounded-full overflow-hidden">
+          <div :style="`width: ${progress}%`" class="h-2 bg-primary transition-all"></div>
         </div>
+        <div class="text-sm text-muted-foreground mt-2">Enviando... <span x-text="progress"></span>%</div>
+      </div>
 
-        <!-- Checkbox Carrossel -->
-        <div class="form-check mb-3">
-            {{ termo_form.carrossel }}
-            <label class="form-check-label">Exibir no Carrossel</label>
-        </div>
+    </div>
 
-        <!-- Vídeos -->
-        <h4 class="section-title">Vídeos</h4>
-        {{ formset.management_form }}
-        <div id="videos-container">
-            {% for form in formset %}
-                <div class="video-form mb-3">
-                    <label class="form-label">Título do Vídeo</label>
-                    {{ form.titulo }}
-                    <label class="form-label">Tipo de Vídeo</label>
-                    {{ form.tipo_video }}
-                    <label class="form-label">Arquivo de Vídeo</label>
-                    {{ form.video }}
-                </div>
-            {% endfor %}
-        </div>
+    <div id="signal-form-result"></div>
 
-        <!-- Botão Adicionar Vídeo -->
-        <button type="button" id="add-video-btn" class="btn btn-outline-secondary mb-3">
-            <i class="fas fa-plus"></i> Adicionar Vídeo
-        </button>
+  </form>
+</div>
 
-        <!-- Botões Submit -->
-        <div class="mt-3">
-            <button type="submit" class="btn btn-primary">
-              <i class="fas fa-save"></i> Salvar
-            </button>
-            <a href="{% url 'home' %}" class="btn btn-secondary">
-              <i class="fas fa-times"></i> Cancelar
-            </a>
-        </div>
-
-        <!-- Barra de progresso -->
-        <div id="upload-progress" class="progress mt-3">
-          <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar">0%</div>
-        </div>
-
-        <div id="upload-success" class="alert alert-success mt-3" style="display: none;">
-          ✅ Vídeo carregado com sucesso!
-        </div>
-    </form>
-  {% endblock content %}
-
-  {% block extra_js %}
-    <script>
-      // Adicionar vídeo dinamicamente
-      document.addEventListener('DOMContentLoaded', function() {
-        const addBtn = document.getElementById('add-video-btn');
-        if (addBtn) {
-          addBtn.addEventListener('click', function() {
-            let container = document.getElementById('videos-container');
-            let totalForms = document.querySelector('#id_form-TOTAL_FORMS');
-            let newForm = container.firstElementChild.cloneNode(true);
-
-            newForm.querySelectorAll('input, select').forEach(input => input.value = '');
-            container.appendChild(newForm);
-
-            if (totalForms) totalForms.value = parseInt(totalForms.value) + 1;
-          });
-        }
-
-        // Lista de categorias existentes (JSON do contexto)
-        const existentes = {{ categorias_existentes|safe }};
-
-        // Campos do formulário
-        const categoriaInput = document.getElementById('id_categoria');
-        const categoriaImagemField = document.getElementById('categoria_imagem_field');
-        if (categoriaImagemField) categoriaImagemField.style.display = "none";
-
-        if (categoriaInput) {
-          categoriaInput.addEventListener("input", function() {
-              const valor = this.value.trim();
-              if (valor && !existentes.includes(valor)) {
-                  categoriaImagemField.style.display = "block";
-              } else {
-                  categoriaImagemField.style.display = "none";
-              }
-          });
-        }
-
-        // Envio com barra de progresso real
-        const formEl = document.getElementById('signalForm');
-        if (formEl) {
-          formEl.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            let form = this;
-            let formData = new FormData(form);
-            let xhr = new XMLHttpRequest();
-            let progress = document.getElementById('upload-progress');
-            let progressBar = progress.querySelector('.progress-bar');
-            let successMsg = document.getElementById('upload-success');
-
-            progress.style.display = 'block';
-            progressBar.style.width = '0%';
-            progressBar.innerText = '0%';
-
-            xhr.upload.addEventListener('progress', function(evt) {
-              if (evt.lengthComputable) {
-                let percent = Math.round((evt.loaded / evt.total) * 100);
-                progressBar.style.width = percent + '%';
-                progressBar.innerText = percent + '%';
-              }
-            });
-
-            xhr.onload = function() {
-              if (xhr.status >= 200 && xhr.status < 300) {
-                successMsg.style.display = 'block';
-                setTimeout(() => { window.location.href = "{% url 'home' %}"; }, 1500);
-              } else {
-                alert('Erro no upload, tente novamente.');
-              }
-            };
-
-            // CSRF token from the form input
-            const csrfTokenInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
-            const token = csrfTokenInput ? csrfTokenInput.value : '';
-
-            xhr.open('POST', form.action || window.location.href);
-            if (token) xhr.setRequestHeader('X-CSRFToken', token);
-            xhr.send(formData);
-          });
-        }
-      });
-    </script>
-  {% endblock extra_js %}
+{% endblock content %}

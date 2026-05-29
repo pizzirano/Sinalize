@@ -1,0 +1,35 @@
+<section id="featured" class="bg-surface rounded-2xl p-4 md:p-6" role="region" aria-roledescription="carousel" aria-label="Termos em destaque">
+  <div class="max-w-5xl mx-auto">
+    <h2 class="text-xl font-semibold text-foreground">Destaques</h2>
+
+    <div x-data="{ current: 0, total: {{ termos_carrossel|length }}, auto: null, start() { this.auto = setInterval(() => this.next(), 5000) }, stop() { clearInterval(this.auto) }, next() { this.current = (this.current + 1) % this.total }, prev() { this.current = (this.current - 1 + this.total) % this.total } }" x-init="start()" @mouseover="stop()" @mouseleave="start()" @keydown.window="if($event.key==='ArrowLeft') prev(); if($event.key==='ArrowRight') next();" class="relative mt-4">
+
+      <div class="overflow-hidden rounded-2xl bg-card border border-border" role="group" aria-roledescription="slides">
+        {% for termo in termos_carrossel %}
+          <div x-show="current === {{ forloop.counter0 }}" x-transition :aria-hidden="current !== {{ forloop.counter0 }}" class="p-4 md:p-6 flex items-center gap-4">
+            <img src="{{ termo.t_imagem.url }}" alt="{{ termo.nome_termo }}" class="h-28 w-28 rounded-xl object-cover" loading="lazy">
+            <div>
+              <h3 class="text-lg font-medium text-foreground">{{ termo.nome_termo }}</h3>
+            </div>
+          </div>
+        {% empty %}
+          <div class="p-6 text-muted-foreground">Nenhum termo em destaque.</div>
+        {% endfor %}
+      </div>
+
+      <div class="mt-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <button @click="prev()" aria-label="Anterior" class="px-3 py-2 rounded focus-visible:ring-2 focus-visible:ring-ring bg-background border border-border">‹</button>
+          <button @click="next()" aria-label="Próximo" class="px-3 py-2 rounded focus-visible:ring-2 focus-visible:ring-ring bg-background border border-border">›</button>
+        </div>
+
+        <div class="flex items-center gap-2" role="group" aria-label="Indicadores do carrossel">
+          {% for termo in termos_carrossel %}
+            <button @click="current = {{ forloop.counter0 }}" :aria-pressed="current === {{ forloop.counter0 }}" aria-label="Ir para slide {{ forloop.counter }}" class="w-3 h-3 rounded-full" :class="current === {{ forloop.counter0 }} ? 'bg-primary' : 'bg-muted-foreground'" ></button>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

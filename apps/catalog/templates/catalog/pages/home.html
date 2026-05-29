@@ -1,227 +1,56 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Home - Sinalize</title>
 
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+{% block title %}Início{% endblock %}
 
-  <!-- Fontes -->
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Open+Sans:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-  <!-- Fonte elegante para títulos -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+{% block content %}
+<div class="space-y-12">
 
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <section class="hero-mesh bg-base relative overflow-hidden py-20 md:py-32" aria-labelledby="hero-heading">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 grid md:grid-cols-2 gap-12 items-center">
+      <div class="animate-fadeUp">
+        <p class="mb-3 text-[0.7rem] font-extrabold tracking-widest uppercase text-accent-cyan">Dicionário Visual de Libras</p>
 
-  <!-- CSS Customizado (projeto) -->
-  <link rel="stylesheet" href="{% static 'global/css/styles.css' %}">
-  <link rel="stylesheet" href="{% static 'catalog/css/elements.css' %}">
-  <link rel="stylesheet" href="{% static 'catalog/css/classes.css' %}">
-  <link rel="stylesheet" href="{% static 'catalog/css/menu.css' %}">
-  <link rel="stylesheet" href="{% static 'catalog/css/style.css' %}">
-  <link rel="stylesheet" href="{% static 'catalog/css/variables.css' %}">
-  <link rel="stylesheet" href="{% static 'catalog/css/styles.css' %}">
-</head>
-<body class="main-bg">
+        <h1 id="hero-heading" class="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 font-display">
+          Comunique-se sem<br>
+          <span class="text-accent-cyan">barreiras</span> no turismo
+        </h1>
 
-  <!-- Menu -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-    <div class="container">
-      <a class="navbar-brand" href="{% url 'home' %}">
-        <img src="{% static 'catalog/img/logo1 (3).png' %}" alt="LOGO" class="img-fluid" style="max-height:65px;">
-      </a>
+        <p class="text-secondary text-lg leading-relaxed mb-8 max-w-md">
+          Explore sinais em Libras organizados por contexto turístico. Assista, aprenda e colabore com a comunidade surda.
+        </p>
 
-      <!-- Botão hamburguer no celular -->
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="false" aria-label="Alternar navegação">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <!-- Links do menu -->
-      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-        <ul class="navbar-nav text-center">
-          <li class="nav-item">
-            <a class="nav-link" href="#sobre">Sobre</a>
-          </li>
-        </ul>
+        <div class="relative max-w-md">
+          <label for="hero-search" class="sr-only">Buscar termos em Libras</label>
+          <span class="absolute inset-y-0 left-4 flex items-center pointer-events-none" aria-hidden="true">
+            <i class="fas fa-search text-secondary"></i>
+          </span>
+          <input id="hero-search" type="search" name="q" placeholder="Buscar sinal... ex: Hotel, Praia, Aeroporto" class="w-full pl-11 pr-4 py-3.5 rounded-xl text-sm bg-surface border border-border text-primary placeholder-text-secondary focus-visible:outline-none" hx-get="/catalog/home/" hx-trigger="keyup changed delay:300ms, search" hx-target="#search-results" hx-indicator="#search-spinner" autocomplete="off" aria-controls="search-results">
+          <span id="search-spinner" class="htmx-indicator absolute inset-y-0 right-4 flex items-center" aria-live="polite" aria-label="Buscando...">
+            <i class="fas fa-circle-notch animate-spin text-accent-cyan text-sm" aria-hidden="true"></i>
+          </span>
+        </div>
+        <div id="search-results" role="region" aria-label="Resultados da busca" aria-live="polite" class="mt-3"></div>
       </div>
-    </div>
-  </nav>
 
-  <div class="menu-spacing"></div>
-
-  <!--Seção de Introdução -->
-  <section id="intro" class="intro main-bg section">
-    <div class="container py-5">
-      <div class="row align-items-center">
-
-        <!-- Texto à esquerda -->
-        <div class="col-md-6 text-start">
-          <h2><i class="fa-solid fa-handshake"></i> Bem-vindo ao Sinalize</h2>
-          <p>
-            Você está em um espaço criado para aproximar a comunidade surda e ouvinte. Aqui, cada sinal em Libras ganha vida ao lado do termo em português, tornando a comunicação mais acessível e natural para todos.
-          </p>
-          <p>
-            No <strong>Sinalize</strong>, você pode buscar, assistir e colaborar com o registro de sinais, ajudando a construir um acervo digital que cresce junto com a participação dos usuários.
-          </p>
-        </div>
-
-        <!-- Ícone animado à direita -->
-        <div class="col-md-6 text-center">
-          <lottie-player src="{% static 'catalog/img/icon2.json' %}" background="transparent" speed="1" style="max-width:90%;height:auto;" loop autoplay></lottie-player>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- CDN do lottie-player -->
-  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-
-  <!-- 🔹 Carrossel -->
-  <section class="white-bg section">
-    <div class="container py-4">
-      <h1 class="text-center mb-4"><i class="fa-solid fa-lightbulb"></i>Descubra e Inspire-se</h1>
-
-      <div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
-        <!-- Indicadores -->
-        <div class="carousel-indicators">
-          {% for termo in termos_carrossel %}
-          <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" aria-current="{% if forloop.first %}true{% endif %}" aria-label="Slide {{ forloop.counter }}"></button>
-          {% endfor %}
-        </div>
-
-        <!-- Slides -->
-        <div class="carousel-inner">
-          {% for termo in termos_carrossel %}
-          <div class="carousel-item {% if forloop.first %}active{% endif %}">
-            <a href="{% url 'sinal_list' termo.id_termo %}">
-              <img src="{{ termo.t_imagem.url }}" class="d-block w-100 carousel-img" alt="{{ termo.nome_termo }}">
-              <div class="custom-overlay"><h5>{{ termo.nome_termo }}</h5></div>
-            </a>
-          </div>
-          {% endfor %}
-        </div>
-
-        <!-- Controles -->
-        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">Anterior</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
-          <span class="carousel-control-next-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">Próximo</span>
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- 🔹 Grid de Categorias -->
-  <section id="grid-one" class="grid-one main-bg section">
-    <div class="container py-5">
-      <h2 class="grid-main-heading text-center"><i class="fa-solid fa-layer-group"></i> Categorias</h2>
-      <p class="grid-description text-center">Explore nossas categorias</p>
-
-      <div class="row g-4 mt-4">
-        {% for categoria in categorias_galeria %}
-        <div class="col-sm-6 col-md-4 col-lg-3">
-          <div class="gallery-img text-center position-relative">
-            <a href="{% url 'termo_list' categoria.id_categoria %}">
-              <img src="{{ categoria.c_imagem.url }}" class="img-fluid rounded shadow" alt="{{ categoria.nome_categoria }}">
-              <div class="overlay-text">{{ categoria.nome_categoria }}</div>
-            </a>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-  </section>
-
-  <!-- 🔹 Seção Sobre Nós -->
-  <section id="sobre" class="white-bg section">
-    <div class="container py-5">
-      <h2 class="text-center mb-5"><i class="fa-solid fa-users"></i> Sobre Nós</h2>
-
-      <div class="row align-items-center">
-        <div class="col-md-6">
-          <p>
-            O <strong>Sinalize</strong> surgiu como um projeto acadêmico do <em>Instituto Federal Catarinense – Campus Camboriú</em>, com a participação direta de estudantes e Professores. Nosso objetivo é oferecer um recurso didático e tecnológico que apoie tradutores, professores, alunos e comunidade surda.
-          </p>
-          <p>
-            A plataforma permite criar, gerenciar e editar sinais em Libras, organizando-os em domínios e categorias, com vídeos gravados seguindo um padrão de qualidade que garante clareza e compreensão.
-          </p>
-          <p>
-            Com uma busca eficaz, os usuários podem localizar termos de forma rápida em nosso catálogo. Assim, promovemos um ambiente acessível, colaborativo e em constante expansão.
-          </p>
-        </div>
-        <div class="col-md-6 text-center">
-          <lottie-player src="{% static 'catalog/img/sobre.json' %}" background="transparent" speed="1" style="width:100%;max-width:85%;height:auto;" loop autoplay></lottie-player>
+      <div class="flex justify-center animate-fadeUp delay-150" aria-hidden="true">
+        <div class="w-full max-w-[420px]">
+          <lottie-player class="w-full h-auto" src="{% static 'catalog/img/icon2.json' %}" background="transparent" speed="1" loop autoplay></lottie-player>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 🔹 Rodapé -->
-  <footer class="main-footer py-3">
-    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
-      <div class="developer mb-2 mb-md-0 text-center text-md-start text-white">
-        <a href="https://www.camboriu.ifc.edu.br/" target="_blank" rel="noreferrer noopener" class="text-white text-decoration-none">By Sinalize</a>
-      </div>
-      <div class="powered mb-2 mb-md-0 text-center text-white">
-        <a href="https://www.djangoproject.com/" target="_blank" rel="noreferrer noopener" class="text-white text-decoration-none">Powered by Django</a>
-      </div>
-      <div class="footer-logo text-center text-md-end">
-        <a href="https://www.camboriu.ifc.edu.br/" target="_blank" rel="noreferrer noopener">
-          <img src="{% static 'catalog/img/logoifcc.png' %}" alt="Instituto Federal Catarinense" class="logo-footer">
-        </a>
-      </div>
+  {% include 'components/carousel/featured-carousel.html' %}
+
+  {% include 'components/categories/category-grid.html' %}
+
+  <section id="about" class="bg-surface rounded-2xl p-6 md:p-8" role="region" aria-roledescription="about" aria-label="Sobre o projeto">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-xl font-semibold text-foreground">Sobre o Sinalize</h2>
+      <p class="mt-2 text-muted-foreground">Sinalize é um dicionário visual de Libras pensado para o turismo: palavras, categorias e exemplos para facilitar a comunicação e a inclusão.</p>
     </div>
-  </footer>
+  </section>
 
-  <style>
-    :root{--primary:#0d6efd;--dark:#023047;--accent:#ffb703;--muted:#f6fbff;--card-bg:#ffffff;--text:#073b4c}
-    body.main-bg{background:linear-gradient(180deg,var(--muted) 0%,#e9f6ff 100%);color:var(--text)}
-    .nav-link{color:var(--text) !important}.nav-link:hover{color:var(--primary) !important}
-    .carousel-img{height:420px;object-fit:cover;border-radius:6px}
-    .custom-overlay{position:absolute;bottom:15px;left:15px;background:linear-gradient(90deg,rgba(2,48,71,0.85),rgba(0,102,153,0.6));color:#fff;padding:.75rem 1rem;border-radius:8px;box-shadow:0 6px 18px rgba(2,48,71,0.25)}
-    .grid-main-heading{color:var(--dark)}
-
-    /* ===== Ajustes de títulos solicitados ===== */
-    /* H1 do carrossel: 'Descubra e Inspire-se' -> menor e sem caixa alta, fonte elegante */
-    .white-bg.section h1 {
-      font-family: 'Playfair Display', serif;
-      font-weight: 600;
-      text-transform: none; /* remover caixa alta */
-      letter-spacing: 0.01em;
-      color: var(--dark);
-      font-size: clamp(2.0rem, 3.2vw, 2.8rem); /* reduzido */
-      margin-bottom: 1.2rem;
-    }
-
-    /* H2 da seção Sobre Nós -> menor e sem caixa alta, mesma família elegante */
-    #sobre h2 {
-      font-family: 'Playfair Display', serif;
-      font-weight: 600;
-      text-transform: none;
-      letter-spacing: 0.01em;
-      color: var(--dark);
-      font-size: clamp(1.6rem, 2.4vw, 2.2rem);
-      margin-bottom: 1.4rem;
-    }
-
-    .main-footer{background:linear-gradient(90deg,#012a4a 0%,#013a63 100%);color:#fff;padding:1.75rem 0;border-top:4px solid var(--accent)}
-    .main-footer a{color:#f1f7fb;text-decoration:none}.main-footer a:hover{color:var(--accent)}
-    .logo-footer{max-width:110px;height:auto;opacity:.98;transition:transform .2s ease,filter .2s ease}
-    .logo-footer:hover{transform:translateY(-3px);filter:brightness(1.05)}
-    @media (max-width:767px){.footer-columns{flex-direction:column;text-align:center;gap:1rem}}
-  </style>
-
-  <!-- JS Bootstrap -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</div>
+{% endblock %}

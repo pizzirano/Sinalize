@@ -1,0 +1,15 @@
+<section id="categories" class="bg-background rounded-2xl p-4 md:p-6" role="region" aria-roledescription="gallery" aria-label="Categorias">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-xl font-semibold text-foreground">Categorias</h2>
+    <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      {% for categoria in categorias_galeria %}
+        <a href="{% url 'termo_list' categoria.id_categoria %}" class="block bg-card rounded-2xl p-3 border border-border focus-visible:ring-2 focus-visible:ring-ring transition-all" aria-label="Categoria {{ categoria.nome_categoria }}">
+          <img src="{{ categoria.c_imagem.url }}" alt="{{ categoria.nome_categoria }}" class="w-full h-32 object-cover rounded-lg mb-2" loading="lazy">
+          <div class="text-center text-sm font-medium text-foreground">{{ categoria.nome_categoria }}</div>
+        </a>
+      {% empty %}
+        <div class="text-muted-foreground">Nenhuma categoria disponível.</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
