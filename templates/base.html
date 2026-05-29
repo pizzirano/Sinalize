@@ -13,9 +13,7 @@
   <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,12 +22,24 @@
   {% block extra_css %}{% endblock extra_css %}
 </head>
 
-<body class="antialiased">
+<body class="antialiased" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
   <a href="#main" class="skip-link">Pular para o conteúdo</a>
 
   {% include 'components/navigation/menu.html' %}
 
   <main id="main" role="main" class="max-w-7xl mx-auto px-4 py-8">
+    {% if messages %}
+      <div class="max-w-5xl mx-auto mb-6 space-y-2">
+        {% for message in messages %}
+          <div class="rounded-xl border p-4 text-sm flex items-center justify-between {% if message.tags == 'success' %}border-emerald-500/30 bg-emerald-500/10 text-emerald-500{% elif message.tags == 'error' or message.tags == 'danger' %}border-destructive/30 bg-destructive/10 text-destructive{% else %}border-border bg-surface text-foreground{% endif %}" role="alert">
+            <div class="flex items-center gap-2">
+              <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' or message.tags == 'danger' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}"></i>
+              <span>{{ message }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
     {% block content %}{% endblock content %}
   </main>
 

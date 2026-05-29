@@ -8,6 +8,9 @@ urlpatterns = [
     path('subcategoria/<int:subcategoria_id>/termos/', views.termos_por_subcategoria, name='termos_por_subcategoria'),
     path('termo/<int:termo_id>/sinais/', views.sinal_list, name='sinal_list'),
     path('video/<int:video_id>/detalhe/', views.video_detail, name='video_detail'),
+    path('search/', views.live_search, name='live_search'),
+    path('moderacao/', views.moderation_dashboard, name='moderation_dashboard'),
+    path('moderacao/<str:object_type>/<int:object_id>/<str:action>/', views.moderation_action, name='moderation_action'),
 
     # ✅ playground corrigido
     path(

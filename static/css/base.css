@@ -9,7 +9,7 @@
 
 /* Document colors use design tokens */
 body {
-  background: var(--color-background);
+  background: var(--color-base);
   color: var(--color-foreground);
 }
 
@@ -55,7 +55,7 @@ video:focus-visible {
   z-index: 10000;
   padding: 0.75rem 1rem;
   background: var(--color-primary);
-  color: var(--color-primary-fg);
+  color: var(--color-primary-foreground);
   text-decoration: none;
   transform: translateY(-120%);
   transition: transform 0.2s ease;
@@ -64,7 +64,7 @@ video:focus-visible {
 .skip-link:focus-visible {
   top: 0;
   transform: translateY(0);
-  outline: 3px solid var(--color-ring-offset);
+  outline: 3px solid var(--color-ring);
   outline-offset: 3px;
 }
 
@@ -100,6 +100,6 @@ video:focus-visible {
   padding: .125rem .5rem;
   border-radius: .375rem;
   background: var(--color-primary);
-  color: var(--color-primary-fg);
+  color: var(--color-primary-foreground);
   font-size: .75rem;
 }

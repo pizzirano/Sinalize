@@ -17,7 +17,7 @@
         <label class="block text-sm font-medium text-foreground">Nome do Termo</label>
         {{ termo_form.nome_termo }}
         {% if termo_form.nome_termo.errors %}
-          <p class="mt-1 text-sm text-primary">{{ termo_form.nome_termo.errors }}</p>
+          <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.nome_termo.errors }}</p>
         {% endif %}
       </div>
 
@@ -25,7 +25,7 @@
         <label class="block text-sm font-medium text-foreground">Categoria</label>
         {{ termo_form.categoria }}
         {% if termo_form.categoria.errors %}
-          <p class="mt-1 text-sm text-primary">{{ termo_form.categoria.errors }}</p>
+          <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.categoria.errors }}</p>
         {% endif %}
       </div>
 
@@ -33,7 +33,7 @@
         <label class="block text-sm font-medium text-foreground">Descrição</label>
         {{ termo_form.descricao }}
         {% if termo_form.descricao.errors %}
-          <p class="mt-1 text-sm text-primary">{{ termo_form.descricao.errors }}</p>
+          <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.descricao.errors }}</p>
         {% endif %}
       </div>
 
@@ -41,7 +41,7 @@
         <label class="block text-sm font-medium text-foreground">Imagem do Termo</label>
         {{ termo_form.t_imagem }}
         {% if termo_form.t_imagem.errors %}
-          <p class="mt-1 text-sm text-primary">{{ termo_form.t_imagem.errors }}</p>
+          <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.t_imagem.errors }}</p>
         {% endif %}
       </div>
 
@@ -49,7 +49,7 @@
         <label class="block text-sm font-medium text-foreground">Imagem da Categoria</label>
         {{ categoria_form.c_imagem }}
         {% if categoria_form.c_imagem.errors %}
-          <p class="mt-1 text-sm text-primary">{{ categoria_form.c_imagem.errors }}</p>
+          <p class="mt-1 text-sm text-destructive" role="alert">{{ categoria_form.c_imagem.errors }}</p>
         {% endif %}
       </div>
 
@@ -57,7 +57,7 @@
         <label class="block text-sm font-medium text-foreground">Subcategoria</label>
         {{ termo_form.subcategoria }}
         {% if termo_form.subcategoria.errors %}
-          <p class="mt-1 text-sm text-primary">{{ termo_form.subcategoria.errors }}</p>
+          <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.subcategoria.errors }}</p>
         {% endif %}
       </div>
     </div>

@@ -25,7 +25,7 @@
           <span class="absolute inset-y-0 left-4 flex items-center pointer-events-none" aria-hidden="true">
             <i class="fas fa-search text-secondary"></i>
           </span>
-          <input id="hero-search" type="search" name="q" placeholder="Buscar sinal... ex: Hotel, Praia, Aeroporto" class="w-full pl-11 pr-4 py-3.5 rounded-xl text-sm bg-surface border border-border text-primary placeholder-text-secondary focus-visible:outline-none" hx-get="/catalog/home/" hx-trigger="keyup changed delay:300ms, search" hx-target="#search-results" hx-indicator="#search-spinner" autocomplete="off" aria-controls="search-results">
+          <input id="hero-search" type="search" name="q" placeholder="Buscar sinal... ex: Hotel, Praia, Aeroporto" class="w-full pl-11 pr-4 py-3.5 rounded-xl text-sm bg-surface border border-border text-primary placeholder-text-secondary focus-visible:outline-none" hx-get="{% url 'live_search' %}" hx-trigger="keyup changed delay:300ms, search" hx-target="#search-results" hx-indicator="#search-spinner" autocomplete="off" aria-controls="search-results">
           <span id="search-spinner" class="htmx-indicator absolute inset-y-0 right-4 flex items-center" aria-live="polite" aria-label="Buscando...">
             <i class="fas fa-circle-notch animate-spin text-accent-cyan text-sm" aria-hidden="true"></i>
           </span>

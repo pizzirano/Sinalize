@@ -33,17 +33,50 @@ class Subcategoria(models.Model):
 
 
 class Termo(models.Model):
+    STATUS_CHOICES = [
+        ('PENDING', 'Pendente'),
+        ('APPROVED', 'Aprovado'),
+        ('REJECTED', 'Rejeitado'),
+        ('AJUSTE', 'Ajuste Solicitado'),
+    ]
+
     id_termo = models.AutoField(primary_key=True)
     nome_termo = models.CharField(max_length=30)
     descricao = models.TextField(blank=True, null=True)
     t_imagem = models.ImageField(upload_to='termos/', null=True, blank=True)
     carrossel = models.BooleanField(default=False)
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='PENDING',
+        db_index=True
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='termos_criados'
+    )
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    feedback = models.TextField(blank=True, null=True)
+
+    @property
+    def autor(self):
+        return self.created_by
 
     def __str__(self):
         return self.nome_termo
 
 
 class Video(models.Model):
+    STATUS_CHOICES = [
+        ('PENDING', 'Pendente'),
+        ('APPROVED', 'Aprovado'),
+        ('REJECTED', 'Rejeitado'),
+        ('AJUSTE', 'Ajuste Solicitado'),
+    ]
+
     id_video = models.AutoField(primary_key=True)
 
     TIPOS_VIDEO = [
@@ -56,20 +89,27 @@ class Video(models.Model):
     titulo = models.CharField(max_length=30)
     termo = models.ForeignKey('Termo', on_delete=models.CASCADE, related_name='videos')
     video = models.FileField(upload_to='videos/')
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='PENDING',
+        db_index=True
+    )
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='videos_enviados'
+    )
+    feedback = models.TextField(blank=True, null=True)
+    convertido = models.BooleanField(default=False)
 
     def __str__(self):
         return self.titulo
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)  # Salva o original
-
-        if self.video and not self.video.name.lower().endswith('.mp4'):
-            input_path = os.path.join(settings.MEDIA_ROOT, self.video.name)
-            output_path = convert_video_to_mp4(input_path)
-
-            if output_path:
-                self.video.name = os.path.relpath(output_path, settings.MEDIA_ROOT)
-                super().save(update_fields=['video'])  # Salva com o novo caminho
+        super().save(*args, **kwargs)
 
 
 class Classificacao(models.Model):
@@ -96,3 +136,40 @@ class Pertence(models.Model):
 
     def __str__(self):
         return f"{self.termo} pertence a {self.dominio}"
+
+
+class Profile(models.Model):
+    ROLE_CHOICES = [
+        ('COMMON', 'Usuário Comum'),
+        ('MODERATOR', 'Moderador'),
+        ('ADMIN', 'Administrador'),
+    ]
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='profile'
+    )
+    role = models.CharField(
+        max_length=15,
+        choices=ROLE_CHOICES,
+        default='COMMON'
+    )
+
+    def __str__(self):
+        return f"{self.user.username} - {self.get_role_display()}"
+
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.get_or_create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    if hasattr(instance, 'profile'):
+        instance.profile.save()

@@ -1,0 +1,42 @@
+{% if termos %}
+  <div class="bg-card border border-border rounded-2xl shadow-md divide-y divide-border overflow-hidden">
+    {% for termo in termos %}
+      <a href="{% url 'sinal_list' termo.id_termo %}" class="flex items-center gap-4 p-4 hover:bg-surface transition-colors focus:outline-none focus:bg-surface">
+        {% if termo.t_imagem %}
+          <img src="{{ termo.t_imagem.url }}" alt="{{ termo.nome_termo }}" class="w-12 h-12 rounded-lg object-cover shrink-0">
+        {% else %}
+          <div class="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+            <i class="fas fa-sign-language text-secondary-foreground"></i>
+          </div>
+        {% endif %}
+        <div class="min-w-0 flex-1">
+          <h4 class="text-sm font-semibold text-foreground truncate">{{ termo.nome_termo }}</h4>
+          {% if termo.descricao %}
+            <p class="text-xs text-muted-foreground truncate">{{ termo.descricao }}</p>
+          {% endif %}
+        </div>
+        <div class="shrink-0 text-xs text-primary font-medium flex items-center gap-1">
+          Ver sinal <i class="fas fa-chevron-right text-[10px]"></i>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="bg-surface border border-border rounded-2xl p-6 text-center text-muted-foreground space-y-3">
+    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-secondary">
+      <i class="fas fa-search text-secondary-foreground text-lg"></i>
+    </div>
+    <p class="text-sm font-medium text-foreground">Nenhum termo encontrado para "{{ query }}"</p>
+    {% if user.is_authenticated %}
+      <p class="text-xs text-muted-foreground">Não encontrou o que procurava? Você pode sugerir este termo!</p>
+      <a href="{% url 'cadastrar_termo' %}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors">
+        <i class="fas fa-plus"></i> Sugerir Termo
+      </a>
+    {% else %}
+      <p class="text-xs text-muted-foreground">Não encontrou o que procurava? Faça login para sugerir este termo!</p>
+      <a href="{% url 'login' %}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors">
+        <i class="fas fa-sign-in-alt"></i> Entrar e Sugerir
+      </a>
+    {% endif %}
+  </div>
+{% endif %}
