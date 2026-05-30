@@ -1,3 +1,6 @@
+set shell := ["powershell", "-Command"]
+
+
 # Justfile - Atalhos de comandos para o projeto Sinalize
 
 # Lista todos os comandos disponíveis (padrão ao digitar apenas 'just')

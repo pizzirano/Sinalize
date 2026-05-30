@@ -4,8 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from django.urls import reverse
-from django.http import HttpResponse
 from catalog.models import Termo, Video, Categoria, Subcategoria, Classificacao, Pertence, Dominio
+from django.http import HttpResponse
 from .forms import TermoForm, VideoForm, CategoriaForm, CustomAuthenticationForm, CustomUserCreationForm
 
 @login_required
@@ -56,19 +56,20 @@ def cadastrar_termo_e_videos(request):
 
             # Salvar vídeos
             for form in formset:
-                if form.cleaned_data:
+                if form.cleaned_data and form.cleaned_data.get('video'):
                     video = form.save(commit=False)
                     video.termo = termo
                     video.uploaded_by = request.user
                     video.status = 'PENDING'
+                    video.convertido = False
                     video.save()
 
-            messages.success(request, "Sugestão de sinal enviada com sucesso para moderação!")
+            messages.success(
+                request,
+                'Termo enviado com sucesso! Aguarde a análise do administrador.'
+            )
 
-            if request.headers.get('HX-Request') == 'true':
-                response = HttpResponse(status=204)
-                response['HX-Redirect'] = reverse('my_submissions')
-                return response
+            # Always perform a normal redirect so Django messages are shown.
             return redirect('my_submissions')
     else:
         termo_form = TermoForm()
@@ -89,7 +90,7 @@ def cadastrar_termo_e_videos(request):
 
 @login_required
 def my_submissions(request):
-    termos = Termo.objects.filter(created_by=request.user).order_by('-created_at')
+    termos = Termo.objects.filter(created_by=request.user).prefetch_related('videos').order_by('-created_at')
     return render(request, 'forms/pages/my_submissions.html', {
         'termos': termos,
     })
@@ -145,22 +146,15 @@ def editar_termo(request, termo_id):
             Pertence.objects.get_or_create(termo=termo, dominio=dominio_turismo)
             Classificacao.objects.get_or_create(termo=termo, subcategoria=subcategoria_obj)
 
-            # Salvar vídeos
+            # Salvar vídeos e garantir status PENDING
             for form in formset:
-                video = form.save(commit=False)
-                video.termo = termo
-                video.status = 'PENDING'
-                video.feedback = None
-                video.convertido = False
-                video.uploaded_by = request.user
-                video.save()
+                if form.cleaned_data and form.cleaned_data.get('video'):
+                    video = form.save(commit=False)
+                    video.termo = termo
+                    video.status = 'PENDING'
+                    video.save()
 
-            messages.success(request, "Sugestão de sinal atualizada com sucesso!")
-
-            if request.headers.get('HX-Request') == 'true':
-                response = HttpResponse(status=204)
-                response['HX-Redirect'] = reverse('my_submissions')
-                return response
+            messages.success(request, 'Sugestão atualizada! Aguarde nova análise.')
             return redirect('my_submissions')
     else:
         # Preenche com os dados de categoria e subcategoria do termo

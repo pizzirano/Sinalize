@@ -261,8 +261,8 @@ def moderation_dashboard(request):
         from django.core.exceptions import PermissionDenied
         raise PermissionDenied("Apenas moderadores podem acessar o painel administrativo.")
 
-    termos_pendentes = Termo.objects.filter(status='PENDING').order_by('-created_at')
-    videos_pendentes = Video.objects.filter(status='PENDING').order_by('id_video')
+    termos_pendentes = Termo.objects.filter(status='PENDING').select_related('created_by').order_by('-created_at')
+    videos_pendentes = Video.objects.filter(status='PENDING').select_related('uploaded_by', 'termo').order_by('id_video')
 
     return render(request, 'catalog/pages/moderation_dashboard.html', {
         'termos_pendentes': termos_pendentes,
@@ -289,17 +289,21 @@ def moderation_action(request, object_type, object_id, action):
             return HttpResponse("Ação inválida.", status=400)
 
         if object_type == 'termo':
-            obj = get_object_or_404(Termo, id_termo=object_id)
-            obj.status = new_status
-            obj.feedback = feedback if feedback else None
-            obj.save()
-            messages.success(request, f"Termo '{obj.nome_termo}' foi avaliado com sucesso!")
-        elif object_type == 'video':
-            obj = get_object_or_404(Video, id_video=object_id)
-            obj.status = new_status
-            obj.feedback = feedback if feedback else None
-            obj.save()
-            messages.success(request, f"Vídeo '{obj.titulo}' foi avaliado com sucesso!")
+            termo = get_object_or_404(Termo, id_termo=object_id)
+            termo.status = new_status
+            termo.feedback = feedback if feedback else None
+            termo.save(update_fields=['status', 'feedback'])
+            
+            # Cascade status change to all PENDING and AJUSTE videos
+            termo.videos.filter(
+                status__in=['PENDING', 'AJUSTE']
+            ).update(status=new_status)
+            
+            status_label = 'aprovados' if new_status == 'APPROVED' else 'atualizados'
+            messages.success(
+                request,
+                f'Termo "{termo.nome_termo}" e seus vídeos foram {status_label}.'
+            )
         else:
             return HttpResponse("Tipo de objeto inválido.", status=400)
 

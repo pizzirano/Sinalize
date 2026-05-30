@@ -10,19 +10,12 @@
       <h1 class="text-3xl font-display font-extrabold text-foreground mt-1">Painel de Moderação</h1>
     </div>
 
-    <!-- Tab navigation -->
-    <div class="inline-flex rounded-xl bg-secondary p-1 border border-border">
-      <button @click="tab = 'termos'" :class="tab === 'termos' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all focus:outline-none">
-        Termos Pendentes ({{ termos_pendentes.count }})
-      </button>
-      <button @click="tab = 'videos'" :class="tab === 'videos' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all focus:outline-none">
-        Vídeos Pendentes ({{ videos_pendentes.count }})
-      </button>
-    </div>
+    <!-- Subtitle showing pending count -->
+    <p class="text-sm text-muted-foreground">{{ termos_pendentes.count }} termo{{ termos_pendentes|pluralize }} pendente{{ termos_pendentes|pluralize }} de moderação</p>
   </header>
 
   <!-- PENDING TERMS -->
-  <div x-show="tab === 'termos'" class="space-y-6" x-transition>
+  <div class="space-y-6">
     {% if termos_pendentes %}
       <div class="grid md:grid-cols-2 gap-6">
         {% for termo in termos_pendentes %}
@@ -40,7 +33,12 @@
                   <span class="text-xs font-semibold text-primary uppercase">Termo Sugerido</span>
                   <h3 class="text-lg font-bold text-foreground truncate mt-0.5">{{ termo.nome_termo }}</h3>
                   <p class="text-xs text-muted-foreground mt-0.5">
-                    Sugerido por: <strong class="text-foreground">{{ termo.created_by.get_full_name|default:termo.created_by.username }}</strong>
+                    Sugerido por:
+                    {% if termo.created_by %}
+                      <strong class="text-foreground">{{ termo.created_by.get_full_name|default:termo.created_by.username }}</strong>
+                    {% else %}
+                      <strong class="text-foreground">Cadastro legado</strong>
+                    {% endif %}
                   </p>
                 </div>
               </div>
@@ -49,6 +47,28 @@
                 <div>
                   <h4 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Descrição:</h4>
                   <p class="text-sm text-foreground mt-1 bg-surface rounded-xl p-3 border border-border">{{ termo.descricao }}</p>
+                </div>
+              {% endif %}
+
+              <!-- Vídeos vinculados (preview apenas) -->
+              {% if termo.videos.all %}
+                <div>
+                  <h4 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Vídeos vinculados:</h4>
+                  <div class="space-y-2">
+                    {% for video in termo.videos.all %}
+                      <div class="bg-surface rounded-xl p-2 border border-border text-xs">
+                        <p class="font-semibold text-foreground">{{ video.titulo }} — {{ video.get_tipo_video_display }}</p>
+                        {% if video.video %}
+                          <video src="{{ video.video.url }}" controls class="w-full mt-1 rounded max-h-32 object-contain"></video>
+                        {% endif %}
+                        <p class="text-muted-foreground mt-1">Status: <span class="font-semibold">{{ video.get_status_display }}</span></p>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% else %}
+                <div class="text-xs text-muted-foreground italic">
+                  ⚠️ Nenhum vídeo vinculado a este termo.
                 </div>
               {% endif %}
 
@@ -92,78 +112,6 @@
     {% endif %}
   </div>
 
-  <!-- PENDING VIDEOS -->
-  <div x-show="tab === 'videos'" class="space-y-6" x-transition>
-    {% if videos_pendentes %}
-      <div class="grid md:grid-cols-2 gap-6">
-        {% for video in videos_pendentes %}
-          <article class="moderation-card bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col justify-between gap-6 transition-all duration-300">
-            <div class="space-y-4">
-              <div class="flex items-start gap-4">
-                <div class="w-16 h-16 rounded-xl bg-secondary flex items-center justify-center border border-border shrink-0">
-                  <i class="fas fa-video text-secondary-foreground text-xl"></i>
-                </div>
-                <div class="min-w-0">
-                  <span class="text-xs font-semibold text-primary uppercase">Vídeo do Sinal</span>
-                  <h3 class="text-lg font-bold text-foreground truncate mt-0.5">{{ video.titulo }}</h3>
-                  <p class="text-xs text-muted-foreground mt-0.5">
-                    Termo: <strong class="text-foreground">{{ video.termo.nome_termo }}</strong>
-                  </p>
-                  <p class="text-xs text-muted-foreground mt-0.5">
-                    Autor: <strong class="text-foreground">{{ video.uploaded_by.get_full_name|default:video.uploaded_by.username }}</strong>
-                  </p>
-                </div>
-              </div>
 
-              <!-- Video Player -->
-              {% if video.video %}
-                <div class="rounded-xl overflow-hidden border border-border bg-black aspect-video">
-                  <video src="{{ video.video.url }}" controls class="w-full h-full object-contain"></video>
-                </div>
-              {% endif %}
-
-              <div class="flex flex-wrap gap-2 text-xs">
-                <span class="px-2.5 py-0.5 bg-secondary text-secondary-foreground rounded-full">Tipo: {{ video.get_tipo_video_display }}</span>
-                {% if video.convertido %}
-                  <span class="px-2.5 py-0.5 bg-success/10 text-success rounded-full"><i class="fas fa-check mr-1"></i> MP4 Convertido</span>
-                {% else %}
-                  <span class="px-2.5 py-0.5 bg-warning/10 text-warning rounded-full"><i class="fas fa-circle-notch animate-spin mr-1"></i> Processamento Pendente</span>
-                {% endif %}
-              </div>
-            </div>
-
-            <!-- Moderation Form with HTMX -->
-            <form class="border-t border-border pt-4 mt-auto space-y-4">
-              {% csrf_token %}
-              <div>
-                <label for="feedback-video-{{ video.id_video }}" class="block text-xs font-semibold text-muted-foreground uppercase">Observações / Justificativa (Opcional):</label>
-                <textarea id="feedback-video-{{ video.id_video }}" name="feedback" rows="2" class="w-full mt-1.5 rounded-xl p-2.5 bg-background border border-border text-foreground text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all" placeholder="Motivo para rejeição ou orientações de ajuste..."></textarea>
-              </div>
-
-              <div class="flex flex-wrap items-center gap-2">
-                <button type="button" hx-post="{% url 'moderation_action' 'video' video.id_video 'approve' %}" hx-target="closest .moderation-card" hx-swap="outerHTML" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-success text-primary-foreground text-xs font-semibold hover:bg-success/90 transition-colors focus-visible:ring-2 focus-visible:ring-ring">
-                  <i class="fas fa-check"></i> Aprovar
-                </button>
-                <button type="button" hx-post="{% url 'moderation_action' 'video' video.id_video 'adjust' %}" hx-target="closest .moderation-card" hx-swap="outerHTML" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-warning text-primary-foreground text-xs font-semibold hover:bg-warning/90 transition-colors focus-visible:ring-2 focus-visible:ring-ring">
-                  <i class="fas fa-exclamation-triangle"></i> Pedir Ajuste
-                </button>
-                <button type="button" hx-post="{% url 'moderation_action' 'video' video.id_video 'reject' %}" hx-target="closest .moderation-card" hx-swap="outerHTML" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-destructive text-destructive-foreground text-xs font-semibold hover:bg-destructive/90 transition-colors focus-visible:ring-2 focus-visible:ring-ring">
-                  <i class="fas fa-times"></i> Rejeitar
-                </button>
-              </div>
-            </form>
-          </article>
-        {% endfor %}
-      </div>
-    {% else %}
-      <div class="bg-surface border border-border rounded-2xl p-12 text-center text-muted-foreground space-y-3">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-secondary">
-          <i class="fas fa-check-double text-secondary-foreground text-2xl"></i>
-        </div>
-        <h3 class="text-lg font-bold text-foreground">Tudo limpo por aqui!</h3>
-        <p class="text-sm text-muted-foreground">Não há vídeos pendentes de moderação.</p>
-      </div>
-    {% endif %}
-  </div>
 </section>
 {% endblock %}
