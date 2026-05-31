@@ -12,20 +12,20 @@
       <p class="text-muted-foreground">Dê preferência para vídeos no formato <strong>MP4</strong> para melhor compatibilidade.</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" x-data="{ novaCategoria: false, novaSubcategoria: false }">
+      <div>
+        <label class="block text-sm font-medium text-foreground">Domínio</label>
+        {{ termo_form.dominio }}
+        {% if termo_form.dominio.errors %}
+          <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.dominio.errors }}</p>
+        {% endif %}
+      </div>
+
       <div>
         <label class="block text-sm font-medium text-foreground">Nome do Termo</label>
         {{ termo_form.nome_termo }}
         {% if termo_form.nome_termo.errors %}
           <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.nome_termo.errors }}</p>
-        {% endif %}
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-foreground">Categoria</label>
-        {{ termo_form.categoria }}
-        {% if termo_form.categoria.errors %}
-          <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.categoria.errors }}</p>
         {% endif %}
       </div>
 
@@ -37,27 +37,67 @@
         {% endif %}
       </div>
 
+      <div class="md:col-span-2">
+        <div x-show="!novaCategoria">
+          <label class="block text-sm font-medium text-foreground">Categoria existente</label>
+            {{ termo_form.categoria }}
+        </div>
+
+        <label class="cursor-pointer flex items-center gap-2 mt-4">
+          <input type="checkbox" x-model="novaCategoria" class="w-4 h-4 rounded border-border" />
+          <span class="text-sm text-foreground">Não encontrei minha categoria</span>
+        </label>
+
+        <div x-show="novaCategoria" x-cloak class="mt-4 space-y-4">
+          <label class="block text-sm font-medium text-foreground">
+            Nome da nova categoria <span class="text-red-500">*</span>
+          </label>
+          {{ termo_form.nova_categoria }}
+          {% if termo_form.nova_categoria.errors %}
+            <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.nova_categoria.errors }}</p>
+          {% endif %}
+
+          <label class="block text-sm font-medium text-foreground">
+            Imagem da categoria <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="file"
+            name="imagem_categoria"
+            accept="image/*"
+            x-bind:required="novaCategoria"
+            class="mt-2 block w-full rounded-2xl border border-border bg-background px-4 py-3 text-foreground focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          />
+          {% if termo_form.imagem_categoria.errors %}
+            <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.imagem_categoria.errors }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="md:col-span-2">
+        <div x-show="!novaSubcategoria">
+          <label class="block text-sm font-medium text-foreground">Subcategoria existente</label>
+            {{ termo_form.subcategoria }}
+        </div>
+
+        <label class="cursor-pointer flex items-center gap-2 mt-4">
+          <input type="checkbox" x-model="novaSubcategoria" class="w-4 h-4 rounded border-border" />
+          <span class="text-sm text-foreground">Não encontrei minha subcategoria</span>
+        </label>
+
+        <div x-show="novaSubcategoria" x-cloak class="mt-4">
+          <label class="block text-sm font-medium text-foreground">Nome da nova subcategoria</label>
+          {{ termo_form.nova_subcategoria }}
+          {% if termo_form.nova_subcategoria.errors %}
+            <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.nova_subcategoria.errors }}</p>
+          {% endif %}
+        </div>
+      </div>
+
       <div>
         <label class="block text-sm font-medium text-foreground">Imagem do Termo</label>
         {{ termo_form.t_imagem }}
         {% if termo_form.t_imagem.errors %}
           <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.t_imagem.errors }}</p>
-        {% endif %}
-      </div>
-
-      <div id="categoria_imagem_field">
-        <label class="block text-sm font-medium text-foreground">Imagem da Categoria</label>
-        {{ categoria_form.c_imagem }}
-        {% if categoria_form.c_imagem.errors %}
-          <p class="mt-1 text-sm text-destructive" role="alert">{{ categoria_form.c_imagem.errors }}</p>
-        {% endif %}
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-foreground">Subcategoria</label>
-        {{ termo_form.subcategoria }}
-        {% if termo_form.subcategoria.errors %}
-          <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.subcategoria.errors }}</p>
         {% endif %}
       </div>
     </div>

@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.contrib import messages
@@ -35,13 +35,13 @@ def is_moderator(user):
 # ------------------------------
 def termo_list(request, categoria_id):
     try:
-        categoria = get_object_or_404(Categoria, id_categoria=categoria_id)
-        subcategorias = Subcategoria.objects.filter(categoria=categoria)
+        categoria = get_object_or_404(Categoria, id_categoria=categoria_id, status='APPROVED')
+        subcategorias = Subcategoria.objects.filter(categoria=categoria, status='APPROVED')
 
         # Filtro opcional por subcategoria (?sub=ID)
         sub_id = request.GET.get('sub')
         if sub_id:
-            subcategoria = get_object_or_404(Subcategoria, id_subcategoria=sub_id, categoria=categoria)
+            subcategoria = get_object_or_404(Subcategoria, id_subcategoria=sub_id, categoria=categoria, status='APPROVED')
             termos = Termo.objects.filter(
                 classificacoes__subcategoria=subcategoria,
                 status='APPROVED'
@@ -165,8 +165,8 @@ def home(request):
         # Apenas termos APROVADOS no carrossel
         termos_carrossel = Termo.objects.filter(carrossel=True, status='APPROVED').exclude(t_imagem='')
 
-        # Todas as categorias com imagem
-        categorias_galeria = Categoria.objects.exclude(c_imagem='').filter(c_imagem__isnull=False)
+        # Todas as categorias aprovadas com imagem
+        categorias_galeria = Categoria.objects.filter(status='APPROVED').exclude(c_imagem='').filter(c_imagem__isnull=False)
 
         context = {
             'termos_carrossel': termos_carrossel,
@@ -182,10 +182,10 @@ def home(request):
 # ------------------------------
 def termos_por_subcategoria(request, subcategoria_id):
     try:
-        subcategoria = get_object_or_404(Subcategoria, id_subcategoria=subcategoria_id)
+        subcategoria = get_object_or_404(Subcategoria, id_subcategoria=subcategoria_id, status='APPROVED')
         categoria = subcategoria.categoria
         termos = Termo.objects.filter(classificacoes__subcategoria=subcategoria, status='APPROVED').distinct()
-        subcategorias = Subcategoria.objects.filter(categoria=categoria)
+        subcategorias = Subcategoria.objects.filter(categoria=categoria, status='APPROVED')
 
         # Apply A–Z filter
         letra = request.GET.get('letra', '').strip().upper()
@@ -263,10 +263,14 @@ def moderation_dashboard(request):
 
     termos_pendentes = Termo.objects.filter(status='PENDING').select_related('created_by').order_by('-created_at')
     videos_pendentes = Video.objects.filter(status='PENDING').select_related('uploaded_by', 'termo').order_by('id_video')
+    categorias_pendentes = Categoria.objects.filter(status='PENDING').order_by('-id_categoria')
+    subcategorias_pendentes = Subcategoria.objects.filter(status='PENDING').order_by('-id_subcategoria')
 
     return render(request, 'catalog/pages/moderation_dashboard.html', {
         'termos_pendentes': termos_pendentes,
         'videos_pendentes': videos_pendentes,
+        'categorias_pendentes': categorias_pendentes,
+        'subcategorias_pendentes': subcategorias_pendentes,
     })
 
 
@@ -278,39 +282,104 @@ def moderation_action(request, object_type, object_id, action):
 
     if request.method == 'POST':
         feedback = request.POST.get('feedback', '').strip()
+        action = action.strip().lower()
 
-        status_map = {
-            'approve': 'APPROVED',
-            'reject': 'REJECTED',
-            'adjust': 'AJUSTE',
+        MAP = {
+            'aprovar':  'APPROVED',
+            'rejeitar': 'REJECTED',
+            'ajuste':   'AJUSTE',
         }
-        new_status = status_map.get(action)
-        if not new_status:
-            return HttpResponse("Ação inválida.", status=400)
+
+        if action not in MAP:
+            return HttpResponseBadRequest()
+
+        novo_status = MAP[action]
 
         if object_type == 'termo':
             termo = get_object_or_404(Termo, id_termo=object_id)
-            termo.status = new_status
-            termo.feedback = feedback if feedback else None
+
+            # Atualiza o termo
+            termo.status = novo_status
+            termo.feedback = feedback
             termo.save(update_fields=['status', 'feedback'])
-            
-            # Cascade status change to all PENDING and AJUSTE videos
+
+            # Propaga para todos os vídeos vinculados — aprovação em cascata
             termo.videos.filter(
                 status__in=['PENDING', 'AJUSTE']
-            ).update(status=new_status)
-            
-            status_label = 'aprovados' if new_status == 'APPROVED' else 'atualizados'
+            ).update(status=novo_status)
+
             messages.success(
                 request,
-                f'Termo "{termo.nome_termo}" e seus vídeos foram {status_label}.'
+                f'Termo "{termo.nome_termo}" e seus vídeos foram '
+                f'{"aprovados" if novo_status == "APPROVED" else "atualizados"}.'
             )
         else:
-            return HttpResponse("Tipo de objeto inválido.", status=400)
+            return HttpResponseBadRequest()
 
         if request.headers.get('HX-Request') == 'true':
-            # Remove a linha da tabela retornando resposta vazia
             return HttpResponse("")
 
         return redirect('moderation_dashboard')
 
     return HttpResponse("Método de requisição inválido.", status=405)
+
+
+@login_required
+def moderation_action_categoria(request, category_id, action):
+    if not is_moderator(request.user):
+        from django.core.exceptions import PermissionDenied
+        raise PermissionDenied("Apenas moderadores podem avaliar categorias.")
+
+    if request.method != 'POST':
+        return HttpResponse("Método de requisição inválido.", status=405)
+
+    MAP = {
+        'aprovar':  'APPROVED',
+        'rejeitar': 'REJECTED',
+        'ajuste':   'AJUSTE',
+    }
+
+    if action not in MAP:
+        return HttpResponseBadRequest()
+
+    categoria = get_object_or_404(Categoria, id_categoria=category_id)
+    novo_status = MAP[action]
+    categoria.status = novo_status
+    categoria.save(update_fields=['status'])
+
+    if action == 'aprovar':
+        categoria.subcategorias.filter(status='PENDING').update(status='APPROVED')
+
+    messages.success(request, f'Categoria "{categoria.nome_categoria}" atualizada com sucesso.')
+    if request.headers.get('HX-Request') == 'true':
+        return HttpResponse("")
+    return redirect('moderation_dashboard')
+
+
+@login_required
+def moderation_action_subcategoria(request, subcategory_id, action):
+    if not is_moderator(request.user):
+        from django.core.exceptions import PermissionDenied
+        raise PermissionDenied("Apenas moderadores podem avaliar subcategorias.")
+
+    if request.method != 'POST':
+        return HttpResponse("Método de requisição inválido.", status=405)
+
+    MAP = {
+        'aprovar':  'APPROVED',
+        'rejeitar': 'REJECTED',
+        'ajuste':   'AJUSTE',
+    }
+
+    if action not in MAP:
+        return HttpResponseBadRequest()
+
+    subcategoria = get_object_or_404(Subcategoria, id_subcategoria=subcategory_id)
+    novo_status = MAP[action]
+    subcategoria.status = novo_status
+    subcategoria.save(update_fields=['status'])
+
+    messages.success(request, f'Subcategoria "{subcategoria.nome_subcategoria}" atualizada com sucesso.')
+    if request.headers.get('HX-Request') == 'true':
+        return HttpResponse("")
+    return redirect('moderation_dashboard')

@@ -52,7 +52,7 @@ echo "✅ Static files coletados"
 # `exec "$@"` substitui o processo shell pelo CMD declarado no Dockerfile
 # (ou sobrescrito pelo docker-compose). Isso garante que sinais do Docker
 # (SIGTERM ao parar o container) cheguem diretamente ao Django/Gunicorn.
-echo "🚀 Iniciando servidor em modo: ${DEPLOY_MODE}"
+echo "Iniciando servidor em modo: ${DEPLOY_MODE}"
 
 if [ "$DEPLOY_MODE" = "prod" ]; then
   exec gunicorn projeto.wsgi:application \

@@ -14,47 +14,44 @@ def cadastrar_termo_e_videos(request):
 
     if request.method == "POST":
         termo_form = TermoForm(request.POST, request.FILES)
-        categoria_form = CategoriaForm(request.POST, request.FILES)
         formset = VideoFormSet(request.POST, request.FILES, queryset=Video.objects.none())
 
         if termo_form.is_valid() and formset.is_valid():
-            nome_categoria = termo_form.cleaned_data['categoria'].strip()
-            nome_subcategoria = termo_form.cleaned_data['subcategoria'].strip()
+            dominio = termo_form.cleaned_data['dominio']
+            categoria = termo_form.cleaned_data.get('categoria')
+            nova_categoria = termo_form.cleaned_data.get('nova_categoria')
+            imagem_categoria = termo_form.cleaned_data.get('imagem_categoria')
+            subcategoria = termo_form.cleaned_data.get('subcategoria')
+            nova_subcategoria = termo_form.cleaned_data.get('nova_subcategoria')
 
-            dominio_turismo = Dominio.objects.get(pk=1)
-            categoria_obj = Categoria.objects.filter(nome_categoria=nome_categoria, dominio=dominio_turismo).first()
+            if nova_categoria:
+                categoria_obj = Categoria.objects.create(
+                    nome_categoria=nova_categoria.strip(),
+                    dominio=dominio,
+                    c_imagem=imagem_categoria or None,
+                    status='PENDING'
+                )
+            else:
+                categoria_obj = categoria
 
-            # Criar categoria se não existir e salvar a imagem
-            if not categoria_obj:
-                if categoria_form.is_valid() and categoria_form.cleaned_data.get('c_imagem'):
-                    categoria_obj = Categoria.objects.create(
-                        nome_categoria=nome_categoria,
-                        dominio=dominio_turismo,
-                        c_imagem=categoria_form.cleaned_data.get('c_imagem')
-                    )
-                else:
-                    categoria_obj = Categoria.objects.create(
-                        nome_categoria=nome_categoria,
-                        dominio=dominio_turismo
-                    )
+            if nova_subcategoria:
+                subcategoria_obj = Subcategoria.objects.create(
+                    nome_subcategoria=nova_subcategoria.strip(),
+                    categoria=categoria_obj,
+                    status='PENDING'
+                )
+            else:
+                subcategoria_obj = subcategoria
 
-            # Criar ou pegar subcategoria
-            subcategoria_obj, _ = Subcategoria.objects.get_or_create(
-                nome_subcategoria=nome_subcategoria,
-                categoria=categoria_obj
-            )
-
-            # Salvar termo
             termo = termo_form.save(commit=False)
             termo.created_by = request.user
             termo.status = 'PENDING'
             termo.save()
 
-            # Relacionamentos
-            Pertence.objects.get_or_create(termo=termo, dominio=dominio_turismo)
-            Classificacao.objects.get_or_create(termo=termo, subcategoria=subcategoria_obj)
+            Pertence.objects.get_or_create(termo=termo, dominio=dominio)
+            if subcategoria_obj:
+                Classificacao.objects.get_or_create(termo=termo, subcategoria=subcategoria_obj)
 
-            # Salvar vídeos
             for form in formset:
                 if form.cleaned_data and form.cleaned_data.get('video'):
                     video = form.save(commit=False)
@@ -68,23 +65,14 @@ def cadastrar_termo_e_videos(request):
                 request,
                 'Termo enviado com sucesso! Aguarde a análise do administrador.'
             )
-
-            # Always perform a normal redirect so Django messages are shown.
             return redirect('my_submissions')
     else:
         termo_form = TermoForm()
-        categoria_form = CategoriaForm()
         formset = VideoFormSet(queryset=Video.objects.none())
-
-    categorias_existentes = list(Categoria.objects.values_list('nome_categoria', flat=True).distinct())
-    subcategorias_existentes = list(Subcategoria.objects.values_list('nome_subcategoria', flat=True).distinct())
 
     return render(request, 'forms/pages/signal_form.html', {
         'termo_form': termo_form,
-        'categoria_form': categoria_form,
         'formset': formset,
-        'categorias_existentes': categorias_existentes,
-        'subcategorias_existentes': subcategorias_existentes,
     })
 
 
@@ -108,45 +96,44 @@ def editar_termo(request, termo_id):
 
     if request.method == "POST":
         termo_form = TermoForm(request.POST, request.FILES, instance=termo)
-        categoria_form = CategoriaForm(request.POST, request.FILES)
         formset = VideoFormSet(request.POST, request.FILES, queryset=Video.objects.filter(termo=termo))
 
         if termo_form.is_valid() and formset.is_valid():
-            nome_categoria = termo_form.cleaned_data['categoria'].strip()
-            nome_subcategoria = termo_form.cleaned_data['subcategoria'].strip()
+            dominio = termo_form.cleaned_data['dominio']
+            categoria = termo_form.cleaned_data.get('categoria')
+            nova_categoria = termo_form.cleaned_data.get('nova_categoria')
+            imagem_categoria = termo_form.cleaned_data.get('imagem_categoria')
+            subcategoria = termo_form.cleaned_data.get('subcategoria')
+            nova_subcategoria = termo_form.cleaned_data.get('nova_subcategoria')
 
-            dominio_turismo = Dominio.objects.get(pk=1)
-            categoria_obj = Categoria.objects.filter(nome_categoria=nome_categoria, dominio=dominio_turismo).first()
+            if nova_categoria:
+                categoria_obj = Categoria.objects.create(
+                    nome_categoria=nova_categoria.strip(),
+                    dominio=dominio,
+                    c_imagem=imagem_categoria or None,
+                    status='PENDING'
+                )
+            else:
+                categoria_obj = categoria
 
-            if not categoria_obj:
-                if categoria_form.is_valid() and categoria_form.cleaned_data.get('c_imagem'):
-                    categoria_obj = Categoria.objects.create(
-                        nome_categoria=nome_categoria,
-                        dominio=dominio_turismo,
-                        c_imagem=categoria_form.cleaned_data.get('c_imagem')
-                    )
-                else:
-                    categoria_obj = Categoria.objects.create(
-                        nome_categoria=nome_categoria,
-                        dominio=dominio_turismo
-                    )
+            if nova_subcategoria:
+                subcategoria_obj = Subcategoria.objects.create(
+                    nome_subcategoria=nova_subcategoria.strip(),
+                    categoria=categoria_obj,
+                    status='PENDING'
+                )
+            else:
+                subcategoria_obj = subcategoria
 
-            subcategoria_obj, _ = Subcategoria.objects.get_or_create(
-                nome_subcategoria=nome_subcategoria,
-                categoria=categoria_obj
-            )
-
-            # Salvar termo
             termo = termo_form.save(commit=False)
             termo.status = 'PENDING'
-            termo.feedback = None  # limpa feedback da moderação antiga
+            termo.feedback = None
             termo.save()
 
-            # Relacionamentos
-            Pertence.objects.get_or_create(termo=termo, dominio=dominio_turismo)
-            Classificacao.objects.get_or_create(termo=termo, subcategoria=subcategoria_obj)
+            Pertence.objects.get_or_create(termo=termo, dominio=dominio)
+            if subcategoria_obj:
+                Classificacao.objects.get_or_create(termo=termo, subcategoria=subcategoria_obj)
 
-            # Salvar vídeos e garantir status PENDING
             for form in formset:
                 if form.cleaned_data and form.cleaned_data.get('video'):
                     video = form.save(commit=False)
@@ -157,31 +144,30 @@ def editar_termo(request, termo_id):
             messages.success(request, 'Sugestão atualizada! Aguarde nova análise.')
             return redirect('my_submissions')
     else:
-        # Preenche com os dados de categoria e subcategoria do termo
         initial_data = {}
         classificacao = termo.classificacoes.first()
         if classificacao:
             subcat = classificacao.subcategoria
-            initial_data['subcategoria'] = subcat.nome_subcategoria
+            initial_data['subcategoria'] = subcat
             if subcat.categoria:
-                initial_data['categoria'] = subcat.categoria.nome_categoria
+                initial_data['categoria'] = subcat.categoria
+                initial_data['dominio'] = subcat.categoria.dominio
 
         termo_form = TermoForm(instance=termo, initial=initial_data)
-        categoria_form = CategoriaForm()
         formset = VideoFormSet(queryset=Video.objects.filter(termo=termo))
-
-    categorias_existentes = list(Categoria.objects.values_list('nome_categoria', flat=True).distinct())
-    subcategorias_existentes = list(Subcategoria.objects.values_list('nome_subcategoria', flat=True).distinct())
 
     return render(request, 'forms/pages/signal_form.html', {
         'termo_form': termo_form,
-        'categoria_form': categoria_form,
         'formset': formset,
-        'categorias_existentes': categorias_existentes,
-        'subcategorias_existentes': subcategorias_existentes,
         'is_edit': True,
         'termo': termo,
     })
+
+
+def subcategorias_por_categoria(request):
+    categoria_id = request.GET.get('categoria')
+    subs = Subcategoria.objects.filter(categoria_id=categoria_id, status='APPROVED') if categoria_id else Subcategoria.objects.none()
+    return render(request, 'forms/partials/_subcategorias_options.html', {'subs': subs})
 
 
 def login_view(request):

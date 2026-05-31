@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
-from catalog.models import Termo, Video, Categoria, Subcategoria
+from django.db.models import Q
+from catalog.models import Termo, Video, Categoria, Subcategoria, Dominio
 
 # Base Tailwind input class
 TAILWIND_INPUT = 'mt-2 block w-full rounded-2xl border border-border bg-background px-4 py-3 text-foreground focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring'
@@ -52,26 +53,117 @@ class CustomUserCreationForm(UserCreationForm):
 
 
 class TermoForm(forms.ModelForm):
-    categoria = forms.CharField(
-        max_length=30,
+    dominio = forms.ModelChoiceField(
+        queryset=Dominio.objects.none(),
         required=True,
-        widget=forms.TextInput(attrs={'list': 'categorias', 'class': TAILWIND_INPUT})
+        label='Domínio',
+        widget=forms.Select(attrs={'class': TAILWIND_SELECT})
     )
-    subcategoria = forms.CharField(
-        max_length=30,
-        required=True,
-        widget=forms.TextInput(attrs={'list': 'subcategorias', 'class': TAILWIND_INPUT})
+    categoria = forms.ModelChoiceField(
+        queryset=Categoria.objects.none(),
+        required=False,
+        label='Categoria existente',
+        widget=forms.Select(attrs={'class': TAILWIND_SELECT})
+    )
+    subcategoria = forms.ModelChoiceField(
+        queryset=Subcategoria.objects.none(),
+        required=False,
+        label='Subcategoria existente',
+        widget=forms.Select(attrs={'class': TAILWIND_SELECT})
+    )
+    nova_categoria = forms.CharField(
+        required=False,
+        label='Nome da nova categoria',
+        widget=forms.TextInput(attrs={'class': TAILWIND_INPUT})
+    )
+    imagem_categoria = forms.ImageField(
+        required=False,
+        label='Imagem da nova categoria',
+        widget=forms.ClearableFileInput(attrs={'class': 'mt-2 block w-full'})
+    )
+    nova_subcategoria = forms.CharField(
+        required=False,
+        label='Nome da nova subcategoria',
+        widget=forms.TextInput(attrs={'class': TAILWIND_INPUT})
     )
 
     class Meta:
         model = Termo
-        fields = ['nome_termo', 'descricao', 't_imagem', 'carrossel', 'categoria', 'subcategoria']
+        fields = ['dominio', 'categoria', 'subcategoria', 'nova_categoria', 'imagem_categoria', 'nova_subcategoria', 'nome_termo', 'descricao', 't_imagem', 'carrossel']
         widgets = {
             'nome_termo': forms.TextInput(attrs={'class': TAILWIND_INPUT}),
             'descricao': forms.Textarea(attrs={'rows': 3, 'class': TAILWIND_TEXTAREA}),
             't_imagem': forms.ClearableFileInput(attrs={'class': 'mt-2 block w-full'}),
             'carrossel': forms.CheckboxInput(attrs={'class': TAILWIND_CHECKBOX}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['t_imagem'].required = False
+        self.fields['categoria'].required = False
+        self.fields['subcategoria'].required = False
+        approved_categories = Categoria.objects.filter(status='APPROVED').order_by('nome_categoria')
+        approved_subcategories = Subcategoria.objects.filter(status='APPROVED').order_by('nome_subcategoria')
+
+        self.fields['dominio'].queryset = Dominio.objects.all().order_by('nome_dominio')
+        self.fields['categoria'].queryset = approved_categories
+        self.fields['subcategoria'].queryset = approved_subcategories
+
+        base_class = ('mt-2 block w-full rounded-2xl border border-border '
+                      'bg-background px-4 py-3 text-foreground '
+                      'focus:border-primary focus:outline-none '
+                      'focus-visible:ring-2 focus-visible:ring-ring')
+        self.fields['categoria'].widget.attrs.update({
+            'class': base_class,
+            'hx-get': '/forms/subcategorias/',
+            'hx-trigger': 'change',
+            'hx-target': '#subcategoria_select',
+            'hx-swap': 'innerHTML',
+        })
+        self.fields['subcategoria'].widget.attrs.update({
+            'class': base_class,
+            'id': 'subcategoria_select',
+        })
+
+        for field_name in ['nome_termo', 'descricao', 'nova_categoria', 'nova_subcategoria']:
+            if field_name in self.fields:
+                self.fields[field_name].widget.attrs.update({'class': base_class})
+
+        if self.instance and self.instance.pk:
+            classificacao = getattr(self.instance, 'classificacoes', None)
+            if classificacao:
+                classificacao = classificacao.first()
+                if classificacao and classificacao.subcategoria:
+                    current_subcategoria = classificacao.subcategoria
+                    self.fields['subcategoria'].queryset = Subcategoria.objects.filter(
+                        Q(status='APPROVED') | Q(pk=current_subcategoria.pk)
+                    ).order_by('nome_subcategoria')
+                    if current_subcategoria.categoria:
+                        current_categoria = current_subcategoria.categoria
+                        self.fields['categoria'].queryset = Categoria.objects.filter(
+                            Q(status='APPROVED') | Q(pk=current_categoria.pk)
+                        ).order_by('nome_categoria')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        categoria = cleaned_data.get('categoria')
+        nova_categoria = cleaned_data.get('nova_categoria')
+        subcategoria = cleaned_data.get('subcategoria')
+        nova_subcategoria = cleaned_data.get('nova_subcategoria')
+
+        if not categoria and not nova_categoria:
+            self.add_error('categoria', 'Escolha uma categoria existente ou crie uma nova.')
+
+        if nova_categoria and not cleaned_data.get('imagem_categoria'):
+            self.add_error(
+                'imagem_categoria',
+                'A imagem é obrigatória ao sugerir uma nova categoria.'
+            )
+
+        if not subcategoria and not nova_subcategoria:
+            self.add_error('subcategoria', 'Escolha uma subcategoria existente ou crie uma nova.')
+
+        return cleaned_data
 
 
 class CategoriaForm(forms.ModelForm):

@@ -14,19 +14,45 @@ class Dominio(models.Model):
 
 
 class Categoria(models.Model):
+    STATUS_CHOICES = [
+        ('PENDING',  'Pendente'),
+        ('APPROVED', 'Aprovado'),
+        ('REJECTED', 'Rejeitado'),
+        ('AJUSTE',   'Ajuste Solicitado'),
+    ]
+
     id_categoria = models.AutoField(primary_key=True)
     nome_categoria = models.CharField(max_length=30)
     c_imagem = models.ImageField(upload_to='categorias/', null=True, blank=True)
     dominio = models.ForeignKey(Dominio, on_delete=models.CASCADE, related_name='categorias')
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='APPROVED',
+        db_index=True
+    )
 
     def __str__(self):
         return self.nome_categoria
 
 
 class Subcategoria(models.Model):
+    STATUS_CHOICES = [
+        ('PENDING',  'Pendente'),
+        ('APPROVED', 'Aprovado'),
+        ('REJECTED', 'Rejeitado'),
+        ('AJUSTE',   'Ajuste Solicitado'),
+    ]
+
     id_subcategoria = models.AutoField(primary_key=True)
     nome_subcategoria = models.CharField(max_length=30)
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name='subcategorias', null=True, blank=True)
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='APPROVED',
+        db_index=True
+    )
 
     def __str__(self):
         return self.nome_subcategoria

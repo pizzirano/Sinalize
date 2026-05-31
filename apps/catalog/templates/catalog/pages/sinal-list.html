@@ -52,11 +52,10 @@
     {% for video in videos %}
     <div class="bg-card border border-border rounded-2xl overflow-hidden hover:shadow-lg transition">
       {% if video.video %}
-      <video class="w-full"
+        <video class="w-full"
           controls
           preload="metadata"
-          aria-label="Vídeo do sinal: {{ video.titulo }}"
-          poster="{% static 'images/video-placeholder.jpg' %}">
+          aria-label="Vídeo do sinal: {{ video.titulo }}">
         <source src="{{ video.video.url }}" type="video/mp4">
         Seu navegador não suporta vídeo.
       </video>
