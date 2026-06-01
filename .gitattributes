@@ -1,6 +1,0 @@
-echo "*.sh text eol=lf" >> .gitattributes
-echo "*.py text eol=lf" >> .gitattributes
-echo "*.html text eol=lf" >> .gitattributes
-echo "*.css text eol=lf" >> .gitattributes
-echo "*.md text eol=lf" >> .gitattributes
-git add .gitattributes
