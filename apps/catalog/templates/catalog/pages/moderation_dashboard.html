@@ -35,11 +35,11 @@
                 </div>
               </div>
               <div class="mt-4 flex flex-wrap gap-2">
-                <form method="post" action="{% url 'moderation_action_categoria' cat.id_categoria 'aprovar' %}" class="inline-block" hx-post="{% url 'moderation_action_categoria' cat.id_categoria 'aprovar' %}" hx-target="closest article" hx-swap="outerHTML">
+                <form method="post" action="{% url 'moderation_action_categoria' cat.id_categoria 'aprovar' %}" class="inline-block" hx-post="{% url 'moderation_action_categoria' cat.id_categoria 'aprovar' %}" hx-target="closest article" hx-swap="outerHTML" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
                   {% csrf_token %}
                   <button type="submit" class="px-3 py-2 rounded-xl bg-success text-primary-foreground text-xs font-semibold">✅ Aprovar categoria e subcategorias</button>
                 </form>
-                <form method="post" action="{% url 'moderation_action_categoria' cat.id_categoria 'rejeitar' %}" class="inline-block" hx-post="{% url 'moderation_action_categoria' cat.id_categoria 'rejeitar' %}" hx-target="closest article" hx-swap="outerHTML">
+                <form method="post" action="{% url 'moderation_action_categoria' cat.id_categoria 'rejeitar' %}" class="inline-block" hx-post="{% url 'moderation_action_categoria' cat.id_categoria 'rejeitar' %}" hx-target="closest article" hx-swap="outerHTML" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
                   {% csrf_token %}
                   <button type="submit" class="px-3 py-2 rounded-xl bg-destructive text-destructive-foreground text-xs font-semibold">❌ Rejeitar categoria</button>
                 </form>
@@ -61,11 +61,11 @@
               <h3 class="text-lg font-semibold text-foreground">{{ sub.nome_subcategoria }}</h3>
               <p class="text-sm text-muted-foreground mt-1">Categoria: {{ sub.categoria.nome_categoria }}</p>
               <div class="mt-4 flex flex-wrap gap-2">
-                <form method="post" action="{% url 'moderation_action_subcategoria' sub.id_subcategoria 'aprovar' %}" class="inline-block" hx-post="{% url 'moderation_action_subcategoria' sub.id_subcategoria 'aprovar' %}" hx-target="closest article" hx-swap="outerHTML">
+                <form method="post" action="{% url 'moderation_action_subcategoria' sub.id_subcategoria 'aprovar' %}" class="inline-block" hx-post="{% url 'moderation_action_subcategoria' sub.id_subcategoria 'aprovar' %}" hx-target="closest article" hx-swap="outerHTML" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
                   {% csrf_token %}
                   <button type="submit" class="px-3 py-2 rounded-xl bg-success text-primary-foreground text-xs font-semibold">✅ Aprovar subcategoria</button>
                 </form>
-                <form method="post" action="{% url 'moderation_action_subcategoria' sub.id_subcategoria 'rejeitar' %}" class="inline-block" hx-post="{% url 'moderation_action_subcategoria' sub.id_subcategoria 'rejeitar' %}" hx-target="closest article" hx-swap="outerHTML">
+                <form method="post" action="{% url 'moderation_action_subcategoria' sub.id_subcategoria 'rejeitar' %}" class="inline-block" hx-post="{% url 'moderation_action_subcategoria' sub.id_subcategoria 'rejeitar' %}" hx-target="closest article" hx-swap="outerHTML" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
                   {% csrf_token %}
                   <button type="submit" class="px-3 py-2 rounded-xl bg-destructive text-destructive-foreground text-xs font-semibold">❌ Rejeitar subcategoria</button>
                 </form>

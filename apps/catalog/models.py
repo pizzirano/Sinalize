@@ -91,6 +91,24 @@ class Termo(models.Model):
     def autor(self):
         return self.created_by
 
+    def get_subcategorias(self):
+        """
+        Retorna todas as Subcategorias relacionadas via Classificacao.
+        Usado para cascata de aprovação.
+        """
+        return Subcategoria.objects.filter(
+            classificacoes__termo=self
+        ).distinct()
+
+    def get_categorias(self):
+        """
+        Retorna todas as Categorias relacionadas via Classificacao → Subcategoria.
+        Usado para cascata de aprovação.
+        """
+        return Categoria.objects.filter(
+            subcategorias__classificacoes__termo=self
+        ).distinct()
+
     def __str__(self):
         return self.nome_termo
 

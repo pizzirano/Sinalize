@@ -1,41 +1,42 @@
 :root {
   /* Light default theme */
   color-scheme: light;
-
-  --color-base:                 #f8fafc;
-  --color-surface:              #ffffff;
-  --color-card:                 #f1f5f9;
-  --color-border:               #cbd5e1;
+  
+  --color-base:                 #d5e3e6;
+  --color-surface:              #e0ecef;
+  --color-card:                 #edf4f5;
+  --color-border:               #7f9ea3;
   --color-overlay:              rgba(15,23,42,.88);
 
-  --color-foreground:           #0f172a;
-  --color-foreground-secondary: #334155;
-  --color-foreground-muted:     #475569;
+  --color-foreground:           #102a2d;
+  --color-foreground-secondary: #244b4f;
+  --color-foreground-muted:     #446a6f;
   --color-muted:                #e2e8f0;
 
-  --color-accent-cyan:          #06d6c7;
-  --color-accent-amber:         #f59e0b;
-  --color-accent-indigo:        #818cf8;
+  --color-accent-cyan:          #0c4a47;
+  --color-accent-amber:         #6b3800;
+  --color-accent-indigo:        #3730a3;
 
-  --color-primary:              #06d6c7;
-  --color-primary-foreground:   #000000;
-  --color-secondary:            #f59e0b;
-  --color-secondary-foreground: #000000;
-  --color-accent:               #818cf8;
+  --color-primary:              #0c4a47;
+  --color-primary-foreground:   #ffffff;
+  --color-secondary:            #6b3800;
+  --color-secondary-foreground: #ffffff;
+  --color-accent:               #3730a3;
   --color-accent-foreground:    #ffffff;
 
-  --color-success:              #06d6c7;
-  --color-success-subtle:       rgba(6,214,199,.12);
-  --color-success-border:       rgba(6,214,199,.28);
+  /* preserve success/warning/destructive from existing light set where unspecified */
+  --color-success:              #06b6a4;
+  --color-success-subtle:       rgba(6,182,164,.12);
+  --color-success-border:       rgba(6,182,164,.28);
 
-  --color-warning:              #f59e0b;
-  --color-warning-subtle:       rgba(245,158,11,.12);
-  --color-warning-border:       rgba(245,158,11,.28);
+  --color-warning:              #d97706;
+  --color-warning-subtle:       rgba(217,119,6,.12);
+  --color-warning-border:       rgba(217,119,6,.28);
 
-  --color-destructive:          #f87171;
+  --color-destructive:          #9f1239;
   --color-destructive-foreground: #ffffff;
-  --color-destructive-subtle:   rgba(248,113,113,.12);
-  --color-destructive-border:   rgba(248,113,113,.28);
+  --color-destructive-subtle:   rgba(159,18,57,.12);
+  --color-destructive-border:   rgba(159,18,57,.28);
 
   --color-ring:                 #06d6c7;
 }
@@ -43,8 +44,8 @@
 /* Hero mesh: gradient layers driven by theme-aware CSS variables */
 :root {
   /* hero-specific fallbacks mapped to core tokens */
-  --hero-accent: var(--color-success-subtle, rgba(6,214,199,.12));
-  --hero-warm:   var(--color-warning-subtle, rgba(245,158,11,.06));
+  --hero-accent: var(--color-accent, #3730a3);
+  --hero-warm:   var(--color-warning-subtle, rgba(217,119,6,.06));
   --hero-base:   var(--color-base, #ffffff);
 }
 

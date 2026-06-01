@@ -308,6 +308,26 @@ def moderation_action(request, object_type, object_id, action):
                 status__in=['PENDING', 'AJUSTE']
             ).update(status=novo_status)
 
+            # ✅ NOVO: Cascata para Categoria e Subcategoria
+            if novo_status == 'APPROVED':
+                # Aprova todas as subcategorias relacionadas
+                subcategorias = termo.get_subcategorias()
+                subcategorias.filter(
+                    status__in=['PENDING', 'AJUSTE']
+                ).update(status='APPROVED')
+
+                # Aprova todas as categorias relacionadas
+                categorias = termo.get_categorias()
+                categorias.filter(
+                    status__in=['PENDING', 'AJUSTE']
+                ).update(status='APPROVED')
+
+                logger.info(
+                    f"Cascata: Termo {termo.id_termo} aprovado. "
+                    f"Subcategorias: {subcategorias.count()}, "
+                    f"Categorias: {categorias.count()}"
+                )
+
             messages.success(
                 request,
                 f'Termo "{termo.nome_termo}" e seus vídeos foram '
@@ -332,6 +352,8 @@ def moderation_action_categoria(request, category_id, action):
 
     if request.method != 'POST':
         return HttpResponse("Método de requisição inválido.", status=405)
+
+    action = action.strip().lower()
 
     MAP = {
         'aprovar':  'APPROVED',
@@ -364,6 +386,8 @@ def moderation_action_subcategoria(request, subcategory_id, action):
 
     if request.method != 'POST':
         return HttpResponse("Método de requisição inválido.", status=405)
+
+    action = action.strip().lower()
 
     MAP = {
         'aprovar':  'APPROVED',

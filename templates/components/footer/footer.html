@@ -1,6 +1,34 @@
-<footer class="border-t border-border mt-12 bg-surface py-6" role="contentinfo" aria-label="Rodapé">
-  <div class="max-w-7xl mx-auto px-4 text-center text-sm text-muted-foreground">
-    <div>© {% now "Y" %} Sinalize. Todos os direitos reservados.</div>
-    <div class="mt-2">Desenvolvido com apoio do IFC.</div>
+{% load static %}
+<footer class="border-t border-border mt-12 bg-surface py-8"
+        role="contentinfo"
+        aria-label="Rodapé">
+
+  <div class="max-w-7xl mx-auto px-4">
+
+    <div class="flex flex-col md:flex-row md:items-center gap-6">
+
+      <!-- Left: Info -->
+      <div class="flex-1 text-sm text-muted-foreground">
+        <p>Sinalize</p>
+        <p>© {% now "Y" %} Todos os direitos reservados.</p>
+        <p class="mt-1 text-xs">Dicionário Visual de Libras para Turismo</p>
+      </div>
+
+      <!-- Right: IFC -->
+      <a href="https://www.ifc.edu.br"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="hover:opacity-80 transition-opacity shrink-0"
+         aria-label="Instituto Federal Catarinense">
+
+        <img
+          src="{% static 'img/Logo_IFC_horizontal_Camboriu.png' %}"
+          alt="Instituto Federal Catarinense"
+          class="h-12 object-contain">
+      </a>
+
+    </div>
+
   </div>
+
 </footer>

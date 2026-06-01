@@ -13,6 +13,21 @@ body {
   color: var(--color-foreground);
 }
 
+/* Layout: make footer stick to bottom using flexbox (no JS, no fixed positioning) */
+html, body {
+  height: 100%;
+}
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Main content should grow to push footer down on short pages */
+#main {
+  flex: 1 0 auto;
+}
+
 /* Preserve prior behavior (note: :focus reset kept for parity) */
 *:focus { outline: none; }
 
@@ -92,6 +107,22 @@ video:focus-visible {
   height: 4px;
   background: var(--color-primary);
   z-index: 9999;
+}
+
+/* Navbar visual reset: remove glassmorphism, translucency and backdrop blur */
+nav[role="navigation"] {
+  background: var(--color-surface) !important;
+  background-color: var(--color-surface) !important;
+  color: var(--color-foreground) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid var(--color-border) !important;
+}
+
+/* Ensure mobile menu inherits the solid background */
+#main-menu, nav[role="navigation"] .md\:hidden, nav[role="navigation"] .md\:flex {
+  background: var(--color-surface) !important;
 }
 
 /* Badge example */
