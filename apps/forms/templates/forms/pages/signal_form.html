@@ -5,108 +5,149 @@
 {% block content %}
 
 <div class="max-w-4xl mx-auto">
-  <form id="signalForm" method="POST" enctype="multipart/form-data" hx-post="" hx-target="#signal-form-result" hx-swap="outerHTML" x-data="{ drag:false }" class="space-y-6" novalidate>
+  <form id="signalForm" method="POST" enctype="multipart/form-data"
+        x-data="{ drag:false, termoExistente: false, novaCategoria: false, novaSubcategoria: false }"
+        class="space-y-6" novalidate>
     {% csrf_token %}
 
+    <!-- Campo oculto: identifica o fluxo na view -->
+    <input type="hidden" name="termo_existente_id"
+           x-bind:value="termoExistente ? document.getElementById('id_termo_existente')?.value : ''" />
+
+    <!-- Toggle: Termo existente vs Novo termo -->
+    <div class="rounded-2xl p-4 bg-card border border-border flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-foreground">Já existe um termo cadastrado para este sinal?</p>
+        <p class="text-xs text-muted-foreground mt-1">Ative para adicionar apenas o vídeo a um termo existente.</p>
+      </div>
+      <label class="cursor-pointer flex items-center gap-2">
+        <input type="checkbox" x-model="termoExistente" class="w-4 h-4 rounded border-border" />
+        <span class="text-sm text-foreground" x-text="termoExistente ? 'Termo existente' : 'Novo termo'"></span>
+      </label>
+    </div>
+
+    <!-- Aviso MP4 -->
     <div class="rounded-2xl p-4 bg-background border border-border">
       <p class="text-muted-foreground">Dê preferência para vídeos no formato <strong>MP4</strong> para melhor compatibilidade.</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" x-data="{ novaCategoria: false, novaSubcategoria: false }">
-      <div>
-        <label class="block text-sm font-medium text-foreground">Domínio</label>
-        {{ termo_form.dominio }}
-        {% if termo_form.dominio.errors %}
-          <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.dominio.errors }}</p>
-        {% endif %}
-      </div>
+    <!-- Seleção de termo existente -->
+    <div x-show="termoExistente" x-cloak>
+      <label class="block text-sm font-medium text-foreground">
+        Termo existente <span class="text-red-500">*</span>
+      </label>
+      <select
+        id="id_termo_existente"
+        name="termo_existente_select"
+        class="mt-2 block w-full rounded-2xl border border-border bg-background px-4 py-3 text-foreground focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        x-bind:required="termoExistente"
+      >
+        <option value="">Selecione um termo...</option>
+        {% for termo in termos_aprovados %}
+          <option value="{{ termo.id_termo }}">{{ termo.nome_termo }}</option>
+        {% endfor %}
+      </select>
+    </div>
 
-      <div>
-        <label class="block text-sm font-medium text-foreground">Nome do Termo</label>
-        {{ termo_form.nome_termo }}
-        {% if termo_form.nome_termo.errors %}
-          <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.nome_termo.errors }}</p>
-        {% endif %}
-      </div>
+    <!-- Bloco completo de criação de Termo novo -->
+    <div x-show="!termoExistente">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-foreground">Domínio</label>
+          {{ termo_form.dominio }}
+          {% if termo_form.dominio.errors %}
+            <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.dominio.errors }}</p>
+          {% endif %}
+        </div>
 
-      <div class="md:col-span-2">
-        <label class="block text-sm font-medium text-foreground">Descrição</label>
-        {{ termo_form.descricao }}
-        {% if termo_form.descricao.errors %}
-          <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.descricao.errors }}</p>
-        {% endif %}
-      </div>
+        <div>
+          <label class="block text-sm font-medium text-foreground">Nome do Termo</label>
+          {{ termo_form.nome_termo }}
+          {% if termo_form.nome_termo.errors %}
+            <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.nome_termo.errors }}</p>
+          {% endif %}
+        </div>
 
-      <div class="md:col-span-2">
-        <div x-show="!novaCategoria">
-          <label class="block text-sm font-medium text-foreground">Categoria existente</label>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-foreground">Descrição</label>
+          {{ termo_form.descricao }}
+          {% if termo_form.descricao.errors %}
+            <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.descricao.errors }}</p>
+          {% endif %}
+        </div>
+
+        <div class="md:col-span-2">
+          <div x-show="!novaCategoria">
+            <label class="block text-sm font-medium text-foreground">Categoria existente</label>
             {{ termo_form.categoria }}
+          </div>
+
+          <label class="cursor-pointer flex items-center gap-2 mt-4">
+            <input type="checkbox" x-model="novaCategoria" class="w-4 h-4 rounded border-border" />
+            <span class="text-sm text-foreground">Não encontrei minha categoria</span>
+          </label>
+
+          <div x-show="novaCategoria" x-cloak class="mt-4 space-y-4">
+            <label class="block text-sm font-medium text-foreground">
+              Nome da nova categoria <span class="text-red-500">*</span>
+            </label>
+            {{ termo_form.nova_categoria }}
+            {% if termo_form.nova_categoria.errors %}
+              <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.nova_categoria.errors }}</p>
+            {% endif %}
+
+            <label class="block text-sm font-medium text-foreground">
+              Imagem da categoria <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="file"
+              name="imagem_categoria"
+              accept="image/*"
+              x-bind:required="novaCategoria"
+              class="mt-2 block w-full rounded-2xl border border-border bg-background px-4 py-3 text-foreground focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            />
+            {% if termo_form.imagem_categoria.errors %}
+              <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.imagem_categoria.errors }}</p>
+            {% endif %}
+          </div>
         </div>
 
-        <label class="cursor-pointer flex items-center gap-2 mt-4">
-          <input type="checkbox" x-model="novaCategoria" class="w-4 h-4 rounded border-border" />
-          <span class="text-sm text-foreground">Não encontrei minha categoria</span>
-        </label>
-
-        <div x-show="novaCategoria" x-cloak class="mt-4 space-y-4">
-          <label class="block text-sm font-medium text-foreground">
-            Nome da nova categoria <span class="text-red-500">*</span>
-          </label>
-          {{ termo_form.nova_categoria }}
-          {% if termo_form.nova_categoria.errors %}
-            <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.nova_categoria.errors }}</p>
-          {% endif %}
-
-          <label class="block text-sm font-medium text-foreground">
-            Imagem da categoria <span class="text-red-500">*</span>
-          </label>
-          <input
-            type="file"
-            name="imagem_categoria"
-            accept="image/*"
-            x-bind:required="novaCategoria"
-            class="mt-2 block w-full rounded-2xl border border-border bg-background px-4 py-3 text-foreground focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          />
-          {% if termo_form.imagem_categoria.errors %}
-            <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.imagem_categoria.errors }}</p>
-          {% endif %}
-        </div>
-      </div>
-
-      <div class="md:col-span-2">
-        <div x-show="!novaSubcategoria">
-          <label class="block text-sm font-medium text-foreground">Subcategoria existente</label>
+        <div class="md:col-span-2">
+          <div x-show="!novaSubcategoria">
+            <label class="block text-sm font-medium text-foreground">Subcategoria existente</label>
             {{ termo_form.subcategoria }}
+          </div>
+
+          <label class="cursor-pointer flex items-center gap-2 mt-4">
+            <input type="checkbox" x-model="novaSubcategoria" class="w-4 h-4 rounded border-border" />
+            <span class="text-sm text-foreground">Não encontrei minha subcategoria</span>
+          </label>
+
+          <div x-show="novaSubcategoria" x-cloak class="mt-4">
+            <label class="block text-sm font-medium text-foreground">Nome da nova subcategoria</label>
+            {{ termo_form.nova_subcategoria }}
+            {% if termo_form.nova_subcategoria.errors %}
+              <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.nova_subcategoria.errors }}</p>
+            {% endif %}
+          </div>
         </div>
 
-        <label class="cursor-pointer flex items-center gap-2 mt-4">
-          <input type="checkbox" x-model="novaSubcategoria" class="w-4 h-4 rounded border-border" />
-          <span class="text-sm text-foreground">Não encontrei minha subcategoria</span>
-        </label>
-
-        <div x-show="novaSubcategoria" x-cloak class="mt-4">
-          <label class="block text-sm font-medium text-foreground">Nome da nova subcategoria</label>
-          {{ termo_form.nova_subcategoria }}
-          {% if termo_form.nova_subcategoria.errors %}
-            <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.nova_subcategoria.errors }}</p>
+        <div>
+          <label class="block text-sm font-medium text-foreground">Imagem do Termo</label>
+          {{ termo_form.t_imagem }}
+          {% if termo_form.t_imagem.errors %}
+            <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.t_imagem.errors }}</p>
           {% endif %}
         </div>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium text-foreground">Imagem do Termo</label>
-        {{ termo_form.t_imagem }}
-        {% if termo_form.t_imagem.errors %}
-          <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.t_imagem.errors }}</p>
-        {% endif %}
+      <div class="flex items-center gap-3 mt-4">
+        {{ termo_form.carrossel }}
+        <label class="text-sm text-muted-foreground">Exibir no Carrossel</label>
       </div>
     </div>
 
-    <div class="flex items-center gap-3">
-      {{ termo_form.carrossel }}
-      <label class="text-sm text-muted-foreground">Exibir no Carrossel</label>
-    </div>
-
+    <!-- Bloco de vídeos (sempre visível) -->
     <div class="space-y-3">
       <h2 class="text-lg font-medium text-foreground">Vídeos</h2>
       {{ formset.management_form }}
@@ -123,22 +164,30 @@
         {% endfor %}
       </div>
 
-      <button type="button" x-on:click="$el.insertAdjacentHTML('beforebegin', '')" @click="(function(){ const container = document.getElementById('videos-container'); if(container && container.firstElementChild){ const node = container.firstElementChild.cloneNode(true); node.querySelectorAll('input, textarea').forEach(i=>i.value=''); container.appendChild(node); const total = document.getElementById('id_form-TOTAL_FORMS'); if(total) total.value = parseInt(total.value)+1; } })()" class="inline-flex items-center gap-2 px-3 py-2 rounded bg-background border border-border focus-visible:ring-2 focus-visible:ring-ring"> <i class="fas fa-plus" aria-hidden="true"></i> Adicionar Vídeo</button>
+      <button type="button"
+        @click="(function(){
+          const container = document.getElementById('videos-container');
+          if(container && container.firstElementChild){
+            const node = container.firstElementChild.cloneNode(true);
+            node.querySelectorAll('input, textarea').forEach(i=>i.value='');
+            container.appendChild(node);
+            const total = document.getElementById('id_form-TOTAL_FORMS');
+            if(total) total.value = parseInt(total.value)+1;
+          }
+        })()"
+        class="inline-flex items-center gap-2 px-3 py-2 rounded bg-background border border-border focus-visible:ring-2 focus-visible:ring-ring">
+        <i class="fas fa-plus" aria-hidden="true"></i> Adicionar Vídeo
+      </button>
     </div>
 
-    <div x-data="{ uploading:false, progress:0 }" x-init="document.body.addEventListener('htmx:beforeRequest', ()=>{ uploading=true; progress=0 }); document.body.addEventListener('htmx:progress', (e)=>{ if(e.detail && e.detail.loaded && e.detail.total){ progress = Math.round((e.detail.loaded / e.detail.total)*100) } }); document.body.addEventListener('htmx:afterRequest', ()=>{ uploading=false; progress=100; })" class="space-y-3">
-      <div class="flex gap-3">
-        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring"> <i class="fas fa-save" aria-hidden="true"></i> Salvar</button>
-        <a href="{% url 'home' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded bg-background border border-border focus-visible:ring-2 focus-visible:ring-ring"> <i class="fas fa-times" aria-hidden="true"></i> Cancelar</a>
-      </div>
-
-      <div x-show="uploading" x-cloak class="w-full bg-background rounded-2xl border border-border p-2">
-        <div class="w-full h-2 bg-surface rounded-full overflow-hidden">
-          <div :style="`width: ${progress}%`" class="h-2 bg-primary transition-all"></div>
-        </div>
-        <div class="text-sm text-muted-foreground mt-2">Enviando... <span x-text="progress"></span>%</div>
-      </div>
-
+    <!-- Ações -->
+    <div class="flex gap-3">
+      <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring">
+        <i class="fas fa-save" aria-hidden="true"></i> Salvar
+      </button>
+      <a href="{% url 'home' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded bg-background border border-border focus-visible:ring-2 focus-visible:ring-ring">
+        <i class="fas fa-times" aria-hidden="true"></i> Cancelar
+      </a>
     </div>
 
     <div id="signal-form-result"></div>

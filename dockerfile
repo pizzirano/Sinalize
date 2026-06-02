@@ -22,7 +22,8 @@ RUN apk add --no-cache \
     postgresql-dev \
     postgresql-client \
     nodejs \
-    npm
+    npm \
+    ffmpeg
 
 # ─── Virtualenv Python ────────────────────────────────────────────────────────
 RUN python -m venv /venv

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import modelformset_factory
 from django.contrib.auth.decorators import login_required
@@ -8,11 +9,58 @@ from catalog.models import Termo, Video, Categoria, Subcategoria, Classificacao,
 from django.http import HttpResponse
 from .forms import TermoForm, VideoForm, CategoriaForm, CustomAuthenticationForm, CustomUserCreationForm
 
+
 @login_required
 def cadastrar_termo_e_videos(request):
     VideoFormSet = modelformset_factory(Video, form=VideoForm, extra=1, can_delete=False)
 
     if request.method == "POST":
+        termo_existente_id = request.POST.get('termo_existente_id', '').strip()
+
+        # ── FLUXO: adicionar vídeo a termo existente ──────────────────────
+        if termo_existente_id:
+            try:
+                termo = Termo.objects.get(pk=termo_existente_id, status='APPROVED')
+            except Termo.DoesNotExist:
+                messages.error(request, 'Termo não encontrado ou não aprovado.')
+                return redirect('cadastrar_termo_e_videos')
+
+            formset = VideoFormSet(request.POST, request.FILES, queryset=Video.objects.none())
+            if formset.is_valid():
+                for form in formset:
+                    if form.cleaned_data and form.cleaned_data.get('video'):
+                        video = form.save(commit=False)
+                        video.termo = termo
+                        video.uploaded_by = request.user
+                        video.status = 'PENDING'
+                        video.convertido = False
+                        video.save()
+                        if video.video.name.lower().endswith('.mov'):
+                            from apps.forms.utils import convert_video_to_mp4
+                            mp4_path = convert_video_to_mp4(video.video.path)
+                            if mp4_path:
+                                video.video.name = mp4_path.replace(settings.MEDIA_ROOT + '/', '')
+                                video.convertido = True
+                                video.save()
+                                import os
+                                os.remove(video.video.path)
+
+                messages.success(
+                    request,
+                    f'Vídeo(s) adicionado(s) ao termo "{termo.nome_termo}" e enviado(s) para moderação.'
+                )
+                return redirect('my_submissions')
+            else:
+                # formset inválido: reexibe o form com erros
+                termo_form = TermoForm()
+                termos_aprovados = Termo.objects.filter(status='APPROVED').order_by('nome_termo')
+                return render(request, 'forms/pages/signal_form.html', {
+                    'termo_form': termo_form,
+                    'formset': formset,
+                    'termos_aprovados': termos_aprovados,
+                })
+
+        # ── FLUXO: criar termo novo (comportamento original intacto) ───────
         termo_form = TermoForm(request.POST, request.FILES)
         formset = VideoFormSet(request.POST, request.FILES, queryset=Video.objects.none())
 
@@ -60,19 +108,32 @@ def cadastrar_termo_e_videos(request):
                     video.status = 'PENDING'
                     video.convertido = False
                     video.save()
+                    if video.video.name.lower().endswith('.mov'):
+                        from apps.forms.utils import convert_video_to_mp4
+                        mp4_path = convert_video_to_mp4(video.video.path)
+                        if mp4_path:
+                            video.video.name = mp4_path.replace(settings.MEDIA_ROOT + '/', '')
+                            video.convertido = True
+                            video.save()
+                            import os
+                            os.remove(video.video.path)
 
             messages.success(
                 request,
                 'Termo enviado com sucesso! Aguarde a análise do administrador.'
             )
             return redirect('my_submissions')
+
+    # ── GET ────────────────────────────────────────────────────────────────
     else:
         termo_form = TermoForm()
         formset = VideoFormSet(queryset=Video.objects.none())
 
+    termos_aprovados = Termo.objects.filter(status='APPROVED').order_by('nome_termo')
     return render(request, 'forms/pages/signal_form.html', {
         'termo_form': termo_form,
         'formset': formset,
+        'termos_aprovados': termos_aprovados,
     })
 
 
@@ -156,9 +217,11 @@ def editar_termo(request, termo_id):
         termo_form = TermoForm(instance=termo, initial=initial_data)
         formset = VideoFormSet(queryset=Video.objects.filter(termo=termo))
 
+    termos_aprovados = Termo.objects.filter(status='APPROVED').order_by('nome_termo')
     return render(request, 'forms/pages/signal_form.html', {
         'termo_form': termo_form,
         'formset': formset,
+        'termos_aprovados': termos_aprovados,
         'is_edit': True,
         'termo': termo,
     })
@@ -171,7 +234,6 @@ def subcategorias_por_categoria(request):
 
 
 def login_view(request):
-    """Custom login view with Tailwind-styled form"""
     if request.method == 'POST':
         form = CustomAuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -181,15 +243,11 @@ def login_view(request):
             return redirect(next_page)
     else:
         form = CustomAuthenticationForm()
-    
+
     return render(request, 'registration/login.html', {'form': form})
 
 
 def register(request):
-    """Cadastro simples de usuário usando CustomUserCreationForm.
-
-    Depois do registro o usuário é automaticamente autenticado e redirecionado para a home.
-    """
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():

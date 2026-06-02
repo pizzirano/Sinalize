@@ -174,6 +174,7 @@ class CategoriaForm(forms.ModelForm):
             'c_imagem': forms.ClearableFileInput(attrs={'class': 'mt-2 block w-full'}),
         }
 
+
 class VideoForm(forms.ModelForm):
     class Meta:
         model = Video
@@ -183,3 +184,36 @@ class VideoForm(forms.ModelForm):
             'tipo_video': forms.Select(attrs={'class': TAILWIND_SELECT}),
             'video': forms.ClearableFileInput(attrs={'class': 'mt-2 block w-full'}),
         }
+
+
+class VideoParaTermoExistenteForm(forms.Form):
+    """
+    Formulário para adicionar vídeo(s) a um Termo já aprovado.
+    Segue o mesmo padrão de widgets Tailwind do projeto.
+    """
+    termo = forms.ModelChoiceField(
+        queryset=Termo.objects.filter(status='APPROVED').order_by('nome_termo'),
+        required=True,
+        label='Termo existente',
+        empty_label='Selecione um termo...',
+        widget=forms.Select(attrs={
+            'class': TAILWIND_SELECT,
+            'id': 'id_termo_existente',
+        })
+    )
+    titulo = forms.CharField(
+        required=True,
+        label='Título do Vídeo',
+        widget=forms.TextInput(attrs={'class': TAILWIND_INPUT})
+    )
+    tipo_video = forms.ChoiceField(
+        choices=Video.TIPOS_VIDEO,
+        required=True,
+        label='Tipo de Vídeo',
+        widget=forms.Select(attrs={'class': TAILWIND_SELECT})
+    )
+    video = forms.FileField(
+        required=True,
+        label='Arquivo de Vídeo',
+        widget=forms.ClearableFileInput(attrs={'class': 'mt-2 block w-full'})
+    )
