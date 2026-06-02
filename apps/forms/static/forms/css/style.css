@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&display=swap');
+
+form.custom-form {
+    background: var(--color-white);
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+    max-width: 60rem;
+    margin: 4rem auto;
+}
+
+form.custom-form h4 {
+    color: var(--color-primary-dark);
+    font-family: var(--font-headings);
+    margin-bottom: 1.5rem;
+    font-size: 2.2rem;
+}
+
+form.custom-form label {
+    display: block;
+    font-weight: bold;
+    color: var(--color-dark-text);
+    margin-bottom: 0.5rem;
+}
+
+form.custom-form input,
+form.custom-form select,
+form.custom-form textarea {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.6rem;
+    border: 1px solid var(--color-gray-3);
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    background: var(--color-gray-0);
+}
+
+form.custom-form input:focus,
+form.custom-form select:focus,
+form.custom-form textarea:focus {
+    border-color: var(--color-primary-dark-hover);
+    outline: none;
+    background: var(--color-primary-light);
+}
+
+form.custom-form button {
+    background: var(--color-primary-dark);
+    color: var(--color-white);
+    padding: 1.2rem 2.5rem;
+    font-size: 1.6rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 0.6rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+form.custom-form button:hover {
+    background: var(--color-primary-dark-hover);
+}

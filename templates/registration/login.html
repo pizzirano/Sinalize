@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Entrar{% endblock %}
+
+{% block content %}
+<section class="max-w-lg mx-auto rounded-3xl border border-border bg-surface p-8 shadow-sm">
+  <div class="space-y-6">
+    <div>
+      <p class="text-sm uppercase tracking-[0.2em] text-primary">Acesso</p>
+      <h1 class="mt-3 text-3xl font-semibold text-foreground">Entrar na sua conta</h1>
+      <p class="mt-2 text-sm text-muted-foreground">Use seu nome de usuário e senha para acessar o painel de conteúdo.</p>
+    </div>
+
+    {% if form.non_field_errors %}
+      <div class="rounded-2xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive" role="alert">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    <form method="post" novalidate class="space-y-5">
+      {% csrf_token %}
+      {% if next %}
+        <input type="hidden" name="next" value="{{ next }}">
+      {% endif %}
+
+      <div>
+        <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-foreground">{{ form.username.label }}</label>
+        {{ form.username }}
+        {% if form.username.errors %}
+          <p class="mt-2 text-sm text-destructive" role="alert">{{ form.username.errors }}</p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-foreground">{{ form.password.label }}</label>
+        {{ form.password }}
+        {% if form.password.errors %}
+          <p class="mt-2 text-sm text-destructive" role="alert">{{ form.password.errors }}</p>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="inline-flex w-full justify-center rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring">Entrar</button>
+    </form>
+
+    <p class="text-sm text-muted-foreground">Não tem uma conta? <a href="{% url 'register' %}" class="font-semibold text-primary hover:underline">Registrar</a></p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,5 @@
+{% for sub in subs %}
+  <option value="{{ sub.id_subcategoria }}">{{ sub.nome_subcategoria }}</option>
+{% empty %}
+  <option value="">Nenhuma subcategoria disponível</option>
+{% endfor %}

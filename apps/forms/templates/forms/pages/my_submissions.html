@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Minhas Submissões{% endblock %}
+
+{% block content %}
+<section class="max-w-5xl mx-auto space-y-6">
+  <header class="flex justify-between items-center">
+    <div>
+      <p class="text-xs uppercase tracking-widest text-primary font-bold">Painel do Usuário</p>
+      <h1 class="text-3xl font-display font-extrabold text-foreground mt-1">Minhas Sugestões</h1>
+    </div>
+    <a href="{% url 'cadastrar_termo' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors focus-visible:ring-2 focus-visible:ring-ring">
+      <i class="fas fa-plus"></i> Sugerir Novo Sinal
+    </a>
+  </header>
+
+  {% if messages %}
+    <div class="space-y-2">
+      {% for message in messages %}
+        <div class="rounded-xl border p-4 text-sm flex items-center justify-between {% if message.tags == 'success' %}border-success/30 bg-success/10 text-success{% elif message.tags == 'error' %}border-destructive/30 bg-destructive/10 text-destructive{% else %}border-border bg-surface text-foreground{% endif %}" role="alert">
+          <div class="flex items-center gap-2">
+            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}"></i>
+            <span>{{ message }}</span>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if termos %}
+    <div class="grid gap-6">
+      {% for termo in termos %}
+        <article class="bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col md:flex-row justify-between gap-6">
+          <div class="flex flex-col md:flex-row gap-4 items-start md:items-center flex-1">
+            {% if termo.t_imagem %}
+              <img src="{{ termo.t_imagem.url }}" alt="{{ termo.nome_termo }}" class="w-20 h-20 rounded-xl object-cover border border-border">
+            {% else %}
+              <div class="w-20 h-20 rounded-xl bg-secondary flex items-center justify-center border border-border shrink-0">
+                <i class="fas fa-sign-language text-secondary-foreground text-2xl"></i>
+              </div>
+            {% endif %}
+
+            <div class="space-y-2 min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="text-xl font-bold text-foreground truncate">{{ termo.nome_termo }}</h3>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                  {% if termo.status == 'APPROVED' %}bg-success/10 text-success border border-success/20
+                  {% elif termo.status == 'PENDING' %}bg-warning/10 text-warning border border-warning/20
+                  {% elif termo.status == 'AJUSTE' %}bg-accent/10 text-accent border border-accent/20
+                  {% else %}bg-destructive/10 text-destructive border border-destructive/20{% endif %}">
+                  {{ termo.get_status_display }}
+                </span>
+              </div>
+
+              {% if termo.descricao %}
+                <p class="text-sm text-muted-foreground line-clamp-2 max-w-2xl">{{ termo.descricao }}</p>
+              {% endif %}
+
+              <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                <span><i class="far fa-calendar-alt mr-1"></i> Sugerido em {{ termo.created_at|date:"SHORT_DATETIME_FORMAT" }}</span>
+                {% with count=termo.videos.count %}
+                  <span><i class="fas fa-video mr-1"></i> {{ count }} vídeo{{ count|pluralize }}</span>
+                {% endwith %}
+              </div>
+
+              {% if termo.feedback %}
+                <div class="rounded-xl border border-accent/20 bg-accent/5 p-3 text-xs text-accent mt-2">
+                  <strong><i class="fas fa-comment-dots mr-1"></i> Feedback do Moderador:</strong>
+                  <p class="mt-1 italic">{{ termo.feedback }}</p>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="flex items-center shrink-0 gap-3 justify-end">
+            {% if termo.status == 'APPROVED' %}
+              <a href="{% url 'sinal_list' termo.id_termo %}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary text-secondary-foreground text-xs font-semibold hover:bg-secondary/80 transition-colors">
+                <i class="fas fa-eye"></i> Ver no Dicionário
+              </a>
+            {% endif %}
+
+            {% if termo.status == 'PENDING' or termo.status == 'AJUSTE' %}
+              <a href="{% url 'editar_termo' termo.id_termo %}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors">
+                <i class="fas fa-edit"></i> Ajustar / Editar
+              </a>
+            {% endif %}
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="bg-surface border border-border rounded-2xl p-12 text-center text-muted-foreground space-y-4">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-secondary">
+        <i class="fas fa-folder-open text-secondary-foreground text-2xl"></i>
+      </div>
+      <div>
+        <h3 class="text-lg font-bold text-foreground">Nenhuma submissão encontrada</h3>
+        <p class="text-sm text-muted-foreground mt-1">Você ainda não sugeriu nenhum termo ou sinal de Libras.</p>
+      </div>
+      <a href="{% url 'cadastrar_termo' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors">
+        <i class="fas fa-plus"></i> Sugerir Meu Primeiro Sinal
+      </a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

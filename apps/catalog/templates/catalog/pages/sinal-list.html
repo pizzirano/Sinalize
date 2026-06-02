@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ termo.nome_termo }} | Sinais{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  {% if termo.t_imagem %}
+  <div class="relative rounded-2xl overflow-hidden mb-6">
+    <img src="{{ termo.t_imagem.url }}" alt="{{ termo.nome_termo }}" class="w-full h-48 object-cover">
+    <div class="absolute inset-0 bg-background/80 flex items-center justify-center">
+      <h1 class="text-3xl font-bold text-foreground">{{ termo.nome_termo }}</h1>
+    </div>
+  </div>
+  {% endif %}
+
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="flex items-center space-x-2 text-sm text-muted-foreground bg-surface p-3 rounded-lg border border-border">
+      <li><a href="{% url 'home' %}" class="hover:text-primary focus-visible:ring-2 focus-visible:ring-ring rounded">Início</a></li>
+      {% for classificacao in classificacoes %}
+        <li class="flex items-center">
+          <span class="mx-2">/</span>
+          <a href="{% url 'termo_list' classificacao.subcategoria.categoria.id_categoria %}" class="hover:text-primary focus-visible:ring-2 focus-visible:ring-ring rounded">
+            {{ classificacao.subcategoria.categoria.nome_categoria }}
+          </a>
+        </li>
+        <li class="flex items-center">
+          <span class="mx-2">/</span>
+          <a href="{% url 'termo_list' classificacao.subcategoria.categoria.id_categoria %}?sub={{ classificacao.subcategoria.id_subcategoria %}" class="hover:text-primary focus-visible:ring-2 focus-visible:ring-ring rounded">
+            {{ classificacao.subcategoria.nome_subcategoria }}
+          </a>
+        </li>
+      {% endfor %}
+      <li class="flex items-center">
+        <span class="mx-2">/</span>
+        <span class="text-foreground font-medium" aria-current="page">{{ termo.nome_termo }}</span>
+      </li>
+    </ol>
+  </nav>
+
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-semibold text-foreground">Vídeos relacionados</h2>
+    {% if user.is_authenticated %}
+      <a href="{% url 'cadastrar_termo' %}" class="inline-flex items-center px-3 py-1.5 rounded border border-border text-muted-foreground hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring">
+        <i class="fa-solid fa-plus mr-2"></i> Adicionar Sinal
+      </a>
+    {% endif %}
+  </div>
+
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for video in videos %}
+    <div class="bg-card border border-border rounded-2xl overflow-hidden hover:shadow-lg transition">
+      {% if video.video %}
+        <video class="w-full"
+          controls
+          preload="metadata"
+          aria-label="Vídeo do sinal: {{ video.titulo }}">
+        <source src="{{ video.video.url }}" type="video/mp4">
+        Seu navegador não suporta vídeo.
+      </video>
+      {% else %}
+      <div class="flex items-center justify-center bg-surface h-48">
+        <span class="text-muted-foreground">Sem vídeo</span>
+      </div>
+      {% endif %}
+
+      <div class="p-4">
+        <h3 class="text-lg font-medium text-foreground mb-2">{{ video.titulo }}</h3>
+        <div class="mb-3">
+          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-accent text-accent-foreground">
+            <i class="fa-solid fa-play mr-1"></i> {{ video.get_tipo_video_display }}
+          </span>
+        </div>
+        <a href="{% url 'video_detail' video.id_video %}" class="inline-flex items-center justify-center w-full px-3 py-1.5 rounded bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring">
+          <i class="fa-regular fa-eye mr-2"></i> Ver mais
+        </a>
+      </div>
+    </div>
+    {% empty %}
+      <p class="text-muted-foreground text-center col-span-full">Não há vídeos cadastrados para este termo.</p>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

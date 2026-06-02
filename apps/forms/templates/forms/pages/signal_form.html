@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}Adicionar Sinal{% endblock %}
+
+{% block content %}
+
+<div class="max-w-4xl mx-auto">
+  <form id="signalForm" method="POST" enctype="multipart/form-data" hx-post="" hx-target="#signal-form-result" hx-swap="outerHTML" x-data="{ drag:false }" class="space-y-6" novalidate>
+    {% csrf_token %}
+
+    <div class="rounded-2xl p-4 bg-background border border-border">
+      <p class="text-muted-foreground">Dê preferência para vídeos no formato <strong>MP4</strong> para melhor compatibilidade.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" x-data="{ novaCategoria: false, novaSubcategoria: false }">
+      <div>
+        <label class="block text-sm font-medium text-foreground">Domínio</label>
+        {{ termo_form.dominio }}
+        {% if termo_form.dominio.errors %}
+          <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.dominio.errors }}</p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-foreground">Nome do Termo</label>
+        {{ termo_form.nome_termo }}
+        {% if termo_form.nome_termo.errors %}
+          <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.nome_termo.errors }}</p>
+        {% endif %}
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-foreground">Descrição</label>
+        {{ termo_form.descricao }}
+        {% if termo_form.descricao.errors %}
+          <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.descricao.errors }}</p>
+        {% endif %}
+      </div>
+
+      <div class="md:col-span-2">
+        <div x-show="!novaCategoria">
+          <label class="block text-sm font-medium text-foreground">Categoria existente</label>
+            {{ termo_form.categoria }}
+        </div>
+
+        <label class="cursor-pointer flex items-center gap-2 mt-4">
+          <input type="checkbox" x-model="novaCategoria" class="w-4 h-4 rounded border-border" />
+          <span class="text-sm text-foreground">Não encontrei minha categoria</span>
+        </label>
+
+        <div x-show="novaCategoria" x-cloak class="mt-4 space-y-4">
+          <label class="block text-sm font-medium text-foreground">
+            Nome da nova categoria <span class="text-red-500">*</span>
+          </label>
+          {{ termo_form.nova_categoria }}
+          {% if termo_form.nova_categoria.errors %}
+            <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.nova_categoria.errors }}</p>
+          {% endif %}
+
+          <label class="block text-sm font-medium text-foreground">
+            Imagem da categoria <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="file"
+            name="imagem_categoria"
+            accept="image/*"
+            x-bind:required="novaCategoria"
+            class="mt-2 block w-full rounded-2xl border border-border bg-background px-4 py-3 text-foreground focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          />
+          {% if termo_form.imagem_categoria.errors %}
+            <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.imagem_categoria.errors }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="md:col-span-2">
+        <div x-show="!novaSubcategoria">
+          <label class="block text-sm font-medium text-foreground">Subcategoria existente</label>
+            {{ termo_form.subcategoria }}
+        </div>
+
+        <label class="cursor-pointer flex items-center gap-2 mt-4">
+          <input type="checkbox" x-model="novaSubcategoria" class="w-4 h-4 rounded border-border" />
+          <span class="text-sm text-foreground">Não encontrei minha subcategoria</span>
+        </label>
+
+        <div x-show="novaSubcategoria" x-cloak class="mt-4">
+          <label class="block text-sm font-medium text-foreground">Nome da nova subcategoria</label>
+          {{ termo_form.nova_subcategoria }}
+          {% if termo_form.nova_subcategoria.errors %}
+            <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.nova_subcategoria.errors }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-foreground">Imagem do Termo</label>
+        {{ termo_form.t_imagem }}
+        {% if termo_form.t_imagem.errors %}
+          <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.t_imagem.errors }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      {{ termo_form.carrossel }}
+      <label class="text-sm text-muted-foreground">Exibir no Carrossel</label>
+    </div>
+
+    <div class="space-y-3">
+      <h2 class="text-lg font-medium text-foreground">Vídeos</h2>
+      {{ formset.management_form }}
+      <div id="videos-container" x-data x-ref="videos">
+        {% for form in formset %}
+          <div class="rounded-2xl p-4 bg-card border border-border" role="group" aria-roledescription="video-form">
+            <label class="block text-sm font-medium text-foreground">Título do Vídeo</label>
+            {{ form.titulo }}
+            <label class="block text-sm font-medium text-foreground mt-2">Tipo de Vídeo</label>
+            {{ form.tipo_video }}
+            <label class="block text-sm font-medium text-foreground mt-2">Arquivo de Vídeo</label>
+            {{ form.video }}
+          </div>
+        {% endfor %}
+      </div>
+
+      <button type="button" x-on:click="$el.insertAdjacentHTML('beforebegin', '')" @click="(function(){ const container = document.getElementById('videos-container'); if(container && container.firstElementChild){ const node = container.firstElementChild.cloneNode(true); node.querySelectorAll('input, textarea').forEach(i=>i.value=''); container.appendChild(node); const total = document.getElementById('id_form-TOTAL_FORMS'); if(total) total.value = parseInt(total.value)+1; } })()" class="inline-flex items-center gap-2 px-3 py-2 rounded bg-background border border-border focus-visible:ring-2 focus-visible:ring-ring"> <i class="fas fa-plus" aria-hidden="true"></i> Adicionar Vídeo</button>
+    </div>
+
+    <div x-data="{ uploading:false, progress:0 }" x-init="document.body.addEventListener('htmx:beforeRequest', ()=>{ uploading=true; progress=0 }); document.body.addEventListener('htmx:progress', (e)=>{ if(e.detail && e.detail.loaded && e.detail.total){ progress = Math.round((e.detail.loaded / e.detail.total)*100) } }); document.body.addEventListener('htmx:afterRequest', ()=>{ uploading=false; progress=100; })" class="space-y-3">
+      <div class="flex gap-3">
+        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring"> <i class="fas fa-save" aria-hidden="true"></i> Salvar</button>
+        <a href="{% url 'home' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded bg-background border border-border focus-visible:ring-2 focus-visible:ring-ring"> <i class="fas fa-times" aria-hidden="true"></i> Cancelar</a>
+      </div>
+
+      <div x-show="uploading" x-cloak class="w-full bg-background rounded-2xl border border-border p-2">
+        <div class="w-full h-2 bg-surface rounded-full overflow-hidden">
+          <div :style="`width: ${progress}%`" class="h-2 bg-primary transition-all"></div>
+        </div>
+        <div class="text-sm text-muted-foreground mt-2">Enviando... <span x-text="progress"></span>%</div>
+      </div>
+
+    </div>
+
+    <div id="signal-form-result"></div>
+
+  </form>
+</div>
+
+{% endblock content %}

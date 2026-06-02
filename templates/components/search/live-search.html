@@ -1,0 +1,13 @@
+<section id="live-search" class="bg-background rounded-2xl p-4 md:p-6" role="region" aria-roledescription="search" aria-label="Busca ao vivo" aria-live="polite">
+  <div class="max-w-3xl mx-auto">
+    <label for="q" class="sr-only">Pesquisar termos</label>
+    <div class="relative">
+      <input id="q" name="q" type="search" autocomplete="off" placeholder="Buscar termos, categorias..." class="w-full rounded-2xl p-3 bg-card text-foreground border border-border focus-visible:ring-2 focus-visible:ring-ring transition-all" hx-get="{% url 'live_search' %}" hx-trigger="keyup changed delay:300ms, search" hx-target="#search-results" hx-indicator="#search-spinner" aria-controls="search-results">
+      <div id="search-spinner" aria-hidden="true" class="absolute right-3 top-1/2 -translate-y-1/2" hidden>
+        <svg class="h-5 w-5 text-muted-foreground animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+      </div>
+    </div>
+
+    <div id="search-results" class="mt-4 grid gap-3" aria-live="polite" role="region" aria-label="Resultados da busca"></div>
+  </div>
+</section>

@@ -1,0 +1,7 @@
+tunnel: 166ae553-d35c-4e57-913e-310c504f7048
+credentials-file: /etc/cloudflared/tunnel-credentials.json
+
+ingress:
+  - hostname: sinalize.nodx.uk
+    service: http://projeto:8000
+  - service: http_status:404

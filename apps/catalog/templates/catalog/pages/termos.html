@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Termos{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  {% if categoria.c_imagem %}
+  <div class="relative rounded-2xl overflow-hidden mb-6">
+    <img src="{{ categoria.c_imagem.url }}" alt="{{ categoria.nome_categoria }}" class="w-full h-48 object-cover">
+    <div class="absolute inset-0 bg-background/80 flex items-center justify-center">
+      <h1 class="text-3xl font-bold text-foreground">
+        <a href="{% url 'termo_list' categoria.id_categoria %}" class="text-foreground hover:text-primary transition">
+          {% if subcategoria %}
+            {{ subcategoria.nome_subcategoria }}
+          {% else %}
+            {{ categoria.nome_categoria }}
+          {% endif %}
+        </a>
+      </h1>
+    </div>
+  </div>
+  {% endif %}
+
+  <nav class="flex flex-wrap justify-center gap-2" role="navigation" aria-label="Navegação por letras A–Z">
+    <h2 class="sr-only">Filtrar termos por inicial</h2>
+    {% with selected=letra|default:'' %}
+      <a href="?" class="inline-flex items-center px-3 py-1.5 rounded text-sm {% if not selected %}bg-primary text-primary-foreground{% else %}border border-border text-muted-foreground hover:bg-surface{% endif %} focus-visible:ring-2 focus-visible:ring-ring" aria-label="Todos os termos" {% if not selected %}aria-current="true"{% endif %}>Todos</a>
+      {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ"|make_list %}
+        {% if selected|default:''|upper == letter %}
+          <a href="?letra={{ letter }}" class="inline-flex items-center px-3 py-1.5 rounded text-sm bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring" aria-label="Termos começando com {{ letter }}" aria-current="true">{{ letter }}</a>
+        {% else %}
+          <a href="?letra={{ letter }}" class="inline-flex items-center px-3 py-1.5 rounded text-sm border border-border text-muted-foreground hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring" aria-label="Termos começando com {{ letter }}">{{ letter }}</a>
+        {% endif %}
+      {% endfor %}
+    {% endwith %}
+  </nav>
+
+  <div class="grid md:grid-cols-4 gap-6">
+    {% if subcategorias %}
+    <div class="md:col-span-1">
+      <div x-data="{ open: false }">
+        <button @click="open = !open" :aria-expanded="open.toString()" aria-controls="subcat-list" class="inline-flex items-center px-3 py-1.5 rounded bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring mb-2">
+          <span x-show="!open">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 mr-2" aria-hidden="true"><path d="M6 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span x-show="open">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 mr-2" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span x-text="open ? 'Ocultar subcategorias' : 'Explorar subcategorias'"></span>
+        </button>
+        <p class="text-sm text-muted-foreground mb-2" x-show="!open">Clique em Explorar para abrir as subcategorias.</p>
+
+        <ul id="subcat-list" x-show="open" x-cloak x-transition class="space-y-2">
+          {% for subcat in subcategorias %}
+            {% with count=subcat.termo_set.count %}
+              <li>
+                <a href="{% url 'termos_por_subcategoria' subcat.id_subcategoria %}"
+                   class="block px-3 py-2 rounded border border-border bg-card hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring {% if subcategoria and subcat.id_subcategoria == subcategoria.id_subcategoria %}bg-primary text-primary-foreground{% endif %}"
+                   aria-label="{{ subcat.nome_subcategoria }} — {{ count }} termos">
+                  <div class="flex items-center justify-between">
+                    <span class="truncate">{{ subcat.nome_subcategoria }}</span>
+                    {% if count %}
+                      <span class="ml-2 px-2 py-0.5 rounded-full text-xs bg-secondary text-secondary-foreground">{{ count }}</span>
+                    {% endif %}
+                  </div>
+                </a>
+              </li>
+            {% endwith %}
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="md:col-span-3">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold text-foreground">Termos</h2>
+        {% if user.is_authenticated %}
+          <a href="{% url 'cadastrar_termo' %}" class="inline-flex items-center px-3 py-1.5 rounded bg-primary text-primary-foreground text-sm focus-visible:ring-2 focus-visible:ring-ring">
+            <i class="fa-solid fa-plus mr-2"></i> Adicionar Sinal
+          </a>
+        {% endif %}
+      </div>
+
+      {% if termos %}
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {% for termo in termos %}
+            {% include 'components/cards/catalog-card.html' %}
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="bg-surface border border-border rounded-2xl p-6 text-center text-muted-foreground">
+          <i class="fa-solid fa-exclamation-triangle mr-2"></i> Nenhum termo encontrado.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

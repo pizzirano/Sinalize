@@ -1,0 +1,50 @@
+networks:
+  app-network:
+    driver: bridge
+
+services:
+  projeto:
+    user: "1000:1000"
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - REQUIREMENTS_FILE=production.txt
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/Sinalize
+      - ./data/web/static:/data/web/static/
+      - ./data/web/media:/data/web/media/
+      - ./scripts/entrypoint.sh:/Sinalize/scripts/entrypoint.sh
+    env_file:
+      - ./dotenv_files/.env
+    environment:
+      - DEPLOY_MODE=prod
+      - DJANGO_SETTINGS_MODULE=config.settings.production
+    depends_on:
+      - psql
+    networks:
+      - app-network
+
+  psql:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    volumes:
+      - ./data/postgres/data:/var/lib/postgresql/data/
+    env_file:
+      - ./dotenv_files/.env
+    networks:
+      - app-network
+
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    volumes:
+      - ./cloudflare:/etc/cloudflared
+    command: tunnel --config /etc/cloudflared/config.yml run --protocol http2
+    depends_on:
+      - projeto
+    networks:
+      - app-network

@@ -1,0 +1,13 @@
+{
+  "name": "sinalize-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:dev": "npx tailwindcss -i ./src/css/input.css -o ../static/css/output.css",
+    "build": "npx tailwindcss -i ./src/css/input.css -o ../static/css/output.css --minify",
+    "watch": "npx tailwindcss -i ./src/css/input.css -o ../static/css/output.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}

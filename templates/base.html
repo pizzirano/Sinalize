@@ -1,0 +1,173 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>{% block title %}{% endblock %} | Sinalize</title>
+
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@900&display=swap" rel="stylesheet">
+
+  {% block extra_css %}{% endblock extra_css %}
+</head>
+
+<body class="antialiased" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  <a href="#main" class="skip-link">Pular para o conteúdo</a>
+
+  {% include 'components/navigation/menu.html' %}
+
+  <main id="main" role="main" class="max-w-7xl mx-auto px-4 py-8">
+    {% if messages %}
+      <div class="max-w-5xl mx-auto mb-6 space-y-2">
+        {% for message in messages %}
+          <div class="rounded-xl border p-4 text-sm flex items-center justify-between {% if message.tags == 'success' %}border-emerald-500/30 bg-emerald-500/10 text-emerald-500{% elif message.tags == 'error' or message.tags == 'danger' %}border-destructive/30 bg-destructive/10 text-destructive{% else %}border-border bg-surface text-foreground{% endif %}" role="alert">
+            <div class="flex items-center gap-2">
+              <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' or message.tags == 'danger' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}"></i>
+              <span>{{ message }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% block content %}{% endblock content %}
+  </main>
+
+  {% include 'components/footer/footer.html' %}
+
+  <script src="https://unpkg.com/htmx.org@1.9.3"></script>
+  <script src="https://unpkg.com/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
+
+  <script>
+    (function () {
+      const storageKey = 'sinalize-theme';
+      const root = document.documentElement;
+      
+      // Seletores desktop
+      const toggle = document.getElementById('theme-toggle');
+      const iconMoon = document.getElementById('theme-icon-moon');
+      const iconSun = document.getElementById('theme-icon-sun');
+      
+      // Seletores mobile (fallback)
+      const toggleMobile = document.getElementById('theme-toggle-mobile');
+      const iconMoonMobile = document.getElementById('theme-icon-moon-mobile');
+      const iconSunMobile = document.getElementById('theme-icon-sun-mobile');
+
+      function updateIconVisibility(theme) {
+        // Desktop
+        if (iconMoon && iconSun) {
+          if (theme === 'light') {
+            iconMoon.classList.add('!hidden');
+            iconMoon.classList.remove('!inline-block');
+            iconSun.classList.remove('!hidden');
+            iconSun.classList.add('!inline-block');
+          } else {
+            iconMoon.classList.remove('!hidden');
+            iconMoon.classList.add('!inline-block');
+            iconSun.classList.add('!hidden');
+            iconSun.classList.remove('!inline-block');
+          }
+        }
+        
+        // Mobile
+        if (iconMoonMobile && iconSunMobile) {
+          if (theme === 'light') {
+            iconMoonMobile.classList.add('!hidden');
+            iconMoonMobile.classList.remove('!inline-block');
+            iconSunMobile.classList.remove('!hidden');
+            iconSunMobile.classList.add('!inline-block');
+          } else {
+            iconMoonMobile.classList.remove('!hidden');
+            iconMoonMobile.classList.add('!inline-block');
+            iconSunMobile.classList.add('!hidden');
+            iconSunMobile.classList.remove('!inline-block');
+          }
+        }
+      }
+
+      function updateAriaLabel(theme, btn) {
+        if (btn) {
+          const label = theme === 'light' ? 'Mudar para tema escuro' : 'Mudar para tema claro';
+          btn.setAttribute('aria-label', label);
+        }
+      }
+
+      function setTheme(theme) {
+        // Remove classes conflitantes
+        root.classList.remove('dark', 'light');
+        
+        // Aplica novo tema
+        if (theme === 'light') {
+          root.classList.add('light');
+        } else {
+          root.classList.add('dark');
+        }
+        
+        // Atualiza ícones com modificador '!'
+        updateIconVisibility(theme);
+        
+        // Atualiza aria-labels
+        updateAriaLabel(theme, toggle);
+        updateAriaLabel(theme, toggleMobile);
+      }
+
+      function initTheme() {
+        try {
+          const saved = localStorage.getItem(storageKey);
+          
+          if (saved) {
+            setTheme(saved);
+          } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+            setTheme('light');
+          } else {
+            setTheme('dark');
+          }
+        } catch (e) {
+          console.error('Erro ao inicializar tema:', e);
+          setTheme('dark'); // Fallback
+        }
+      }
+
+      function handleToggle() {
+        const isLight = root.classList.contains('light');
+        const next = isLight ? 'dark' : 'light';
+        setTheme(next);
+        
+        try {
+          localStorage.setItem(storageKey, next);
+        } catch (e) {
+          console.error('Erro ao salvar tema:', e);
+        }
+      }
+
+      // Event listeners
+      if (toggle) {
+        toggle.addEventListener('click', handleToggle);
+      }
+      if (toggleMobile) {
+        toggleMobile.addEventListener('click', handleToggle);
+      }
+
+      // Inicializa ao carregar
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initTheme);
+      } else {
+        initTheme();
+      }
+    })();
+  </script>
+
+  {% block extra_js %}{% endblock extra_js %}
+</body>
+
+</html>
