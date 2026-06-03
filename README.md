@@ -15,6 +15,8 @@
 - [Executando o Projeto](#executando-o-projeto)
 - [Comandos de Desenvolvimento (justfile)](#comandos-de-desenvolvimento-justfile)
 - [Ambientes: Dev e Produção](#ambientes-dev-e-produção)
+- [Configuração do Servidor de Produção](#configuração-do-servidor-de-produção)
+- [Monitoramento de Acessos](#monitoramento-de-acessos)
 - [Testando o Sistema](#testando-o-sistema)
 - [Estrutura do Banco de Dados](#estrutura-do-banco-de-dados)
 - [Licença](#licença)
@@ -53,7 +55,8 @@ O projeto está vinculado ao **Edital PIBITI nº 110/2023 do IFC/CNPq** e foca i
 | **Frontend** | Tailwind CSS, Alpine.js, HTMX |
 | **Banco de Dados** | PostgreSQL 15 |
 | **Containerização** | Docker + Docker Compose |
-| **Tunnel / Proxy** | Cloudflare Tunnel (produção) |
+| **Servidor WSGI** | Gunicorn + gevent (worker assíncrono) |
+| **Tunnel / Proxy** | Cloudflare Tunnel — serviço do sistema Ubuntu (não Docker) |
 | **Automação de tarefas** | [just](https://github.com/casey/just) |
 
 ---
@@ -69,7 +72,14 @@ sinalize/
 │       └── production.py
 ├── catalog/                  # App principal (termos, vídeos, categorias)
 ├── scripts/
-│   └── entrypoint.sh         # Init: aguarda DB, migrate, collectstatic, runserver
+│   └── entrypoint.sh         # Init: aguarda DB, migrate, collectstatic, gunicorn
+├── requirements/
+│   ├── base.txt              # Dependências comuns
+│   ├── production.txt        # gunicorn, whitenoise, gevent
+│   └── development.txt
+├── cloudflare/
+│   ├── config.yml            # Configuração do tunnel (referência)
+│   └── tunnel-credentials.json
 ├── dotenv_files/
 │   └── .env                  # Variáveis de ambiente (não versionar)
 ├── data/
@@ -78,7 +88,7 @@ sinalize/
 │       ├── static/
 │       └── media/
 ├── docker-compose.yml        # Ambiente de desenvolvimento
-├── docker-compose.prod.yml   # Ambiente de produção
+├── docker-compose.prod.yml   # Ambiente de produção (sem cloudflared)
 └── justfile                  # Comandos de automação
 ```
 
@@ -256,6 +266,149 @@ ENV=dev  just resumo    # Roda em contexto de desenvolvimento
 
 ---
 
+## Configuração do Servidor de Produção
+
+Esta seção documenta as decisões técnicas tomadas para estabilizar o ambiente de produção sob acesso simultâneo de múltiplos usuários.
+
+### Gunicorn: workers e classe assíncrona
+
+O projeto usa **4 workers com worker class `gevent`** em produção. Essa configuração está em `scripts/entrypoint.sh`:
+
+```bash
+exec /venv/bin/gunicorn config.wsgi:application \
+  --bind 0.0.0.0:8000 \
+  --workers 4 \
+  --worker-class gevent \
+  --worker-connections 100 \
+  --timeout 60 \
+  --access-logfile=-
+```
+
+**Por que gevent em vez do worker síncrono padrão?**
+
+O worker padrão (`sync`) do Gunicorn processa uma requisição por vez por worker. Quando o servidor entrega arquivos de mídia pesados (vídeos `.MOV` de vídeos em LIBRAS), o worker fica bloqueado durante todo o download — nenhuma outra requisição consegue ser atendida por aquele worker nesse período. Com apenas 2 workers síncronos e múltiplos usuários simultâneos, isso gera erros 502 Bad Gateway.
+
+O worker `gevent` é assíncrono por I/O: enquanto aguarda o envio de um arquivo grande, o mesmo worker atende outras requisições em paralelo. Cada worker consegue lidar com até 100 conexões simultâneas (`--worker-connections 100`) sem bloquear.
+
+**Opções de worker disponíveis:**
+
+| Worker | Quando usar | Dependência |
+|---|---|---|
+| `sync` (padrão) | Aplicações simples, sem I/O pesado | nenhuma |
+| `gevent` | I/O pesado, arquivos de mídia, muitos usuários simultâneos | `pip install gevent` |
+| `gthread` | Alternativa thread-based ao gevent | nenhuma extra |
+| `uvicorn.workers.UvicornWorker` | Apps ASGI (Django Channels, FastAPI) | `pip install uvicorn` |
+
+> O projeto **não usa Redis, Celery ou BullMQ**. O gevent resolve o problema de concorrência sem adicionar infraestrutura de filas.
+
+**Fórmula recomendada para número de workers:**
+
+```
+workers = (2 × núcleos_de_CPU) + 1
+```
+
+Para um servidor com 2 núcleos: `(2 × 2) + 1 = 5 workers`. O projeto usa 4 por ser um ambiente de teste/pesquisa com recursos limitados.
+
+---
+
+### Cloudflare Tunnel: arquitetura correta
+
+O projeto usa Cloudflare Tunnel para expor o servidor local à internet sem abrir portas no roteador ou contratar IP fixo. **O tunnel roda como serviço do sistema Ubuntu — não como container Docker.**
+
+**Por que não rodar o cloudflared dentro do Docker?**
+
+Rodar `cloudflared` dentro do Docker e também como serviço do sistema cria dois processos concorrendo pelo mesmo tunnel, causando falhas intermitentes de conexão (502). A decisão foi manter apenas o serviço do sistema, removendo o container `cloudflare-tunnel` do `docker-compose.prod.yml`.
+
+**Configuração do tunnel (`/etc/cloudflared/config.yml`):**
+
+```yaml
+tunnel: SEU_TUNNEL_ID
+credentials-file: /etc/cloudflared/tunnel-credentials.json
+
+ingress:
+  - hostname: seu-dominio.com
+    service: http://localhost:8000
+    originRequest:
+      http2Origin: true
+      noTLSVerify: true
+  - service: http_status:404
+```
+
+- `http2Origin: true` — usa HTTP/2 entre o tunnel e o Gunicorn, reduzindo latência e melhorando estabilidade sob carga
+- `noTLSVerify: true` — necessário porque a conexão interna (`localhost:8000`) não usa TLS
+
+**Gerenciamento do serviço:**
+
+```bash
+# Ver status
+sudo systemctl status cloudflared
+
+# Reiniciar após alterar o config.yml
+sudo systemctl restart cloudflared
+
+# Ver logs em tempo real
+sudo journalctl -u cloudflared -f
+
+# Habilitar na inicialização do sistema
+sudo systemctl enable cloudflared
+```
+
+> **Atenção:** após qualquer alteração em `/etc/cloudflared/config.yml`, execute `sudo systemctl restart cloudflared` para aplicar.
+
+---
+
+### Arquivos de mídia em produção
+
+O Gunicorn não é otimizado para servir arquivos estáticos ou de mídia diretamente — cada arquivo entregue ocupa um worker durante o download. Para o estágio atual do projeto isso é aceitável, mas para escalar existem duas opções:
+
+**Opção 1 — Cache na Cloudflare (sem custo, recomendada a curto prazo):**
+
+No painel da Cloudflare, crie uma Cache Rule para o path `/media/*`. A Cloudflare passa a entregar os vídeos do edge sem tocar no Gunicorn após o primeiro acesso.
+
+Dashboard → seu domínio → **Rules → Cache Rules → Create rule**
+- Expression: `http.request.uri.path wildcard "/media/*"`
+- Cache status: `Eligible for cache`
+
+**Opção 2 — Storage externo (recomendada para produção definitiva):**
+
+Migrar os arquivos de mídia para Cloudflare R2 ou AWS S3 e configurar o Django para usar o storage externo via `django-storages`. Os vídeos passam a ser servidos diretamente pelo CDN, sem passar pelo servidor.
+
+---
+
+## Monitoramento de Acessos
+
+Para acompanhar os acessos em tempo real no terminal com colunas organizadas:
+
+```bash
+docker compose -f docker-compose.prod.yml logs projeto -f --tail=50 \
+  | grep --line-buffered -E '"GET |"POST ' \
+  | awk '
+BEGIN {
+  printf "\033[1;37m%-10s %-6s %-45s %-5s %-8s\033[0m\n", "HORA", "MÉTODO", "ROTA", "ST", "TAMANHO"
+  printf "%s\n", "─────────────────────────────────────────────────────────────────────────────"
+}
+{
+  for(i=1;i<=NF;i++) {
+    if ($i ~ /^\[/) { split($i, t, ":"); hora = t[2]":"t[3]":"t[4] }
+    if ($i ~ /^"(GET|POST)/) { metodo = substr($i,2); rota = $(i+1) }
+    if ($i ~ /^[0-9]{3}$/) { status = $i; tamanho = $(i+1) }
+  }
+  cor = "\033[0m"
+  if (status ~ /^2/) cor = "\033[32m"
+  else if (status ~ /^3/) cor = "\033[33m"
+  else if (status ~ /^4/) cor = "\033[31m"
+  else if (status ~ /^5/) cor = "\033[1;31m"
+  printf cor"%-10s %-6s %-45s %-5s %-8s\033[0m\n", hora, metodo, rota, status, tamanho
+  fflush()
+}'
+```
+
+Cores: verde = 2xx, amarelo = 3xx, vermelho = 4xx/5xx. `Ctrl+C` para sair.
+
+> **Observação:** o IP exibido nos logs (`172.18.0.1`) é o gateway interno do Docker, não o IP real do usuário. O IP real é enviado pelo Cloudflare no header `CF-Connecting-IP` e pode ser capturado configurando o `--access-logformat` do Gunicorn para incluir esse header.
+
+---
+
 ## Testando o Sistema
 
 Após subir o projeto com `just up`, siga o fluxo abaixo para validar o funcionamento:
@@ -266,7 +419,7 @@ Após subir o projeto com `just up`, siga o fluxo abaixo para validar o funciona
 just ps
 ```
 
-Todos os serviços (`projeto`, `psql`, e em prod `cloudflare-tunnel`) devem estar `Up`.
+Em produção, apenas `projeto` e `psql` devem aparecer (o tunnel roda fora do Docker).
 
 ### 2. Verificar o banco
 
@@ -334,4 +487,4 @@ Vinculado ao Edital PIBITI nº 110/2023 — IFC/CNPq.
 
 ---
 
-*Desenvolvido com 🤟 para a comunidade surda.*
+*Desenvolvido com apoio do Instituto Federal Catarinense - Campus Camboriú SC
