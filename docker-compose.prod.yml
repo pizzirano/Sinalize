@@ -37,14 +37,3 @@ services:
       - ./dotenv_files/.env
     networks:
       - app-network
-
-  cloudflare-tunnel:
-    image: cloudflare/cloudflared:latest
-    restart: unless-stopped
-    volumes:
-      - ./cloudflare:/etc/cloudflared
-    command: tunnel --config /etc/cloudflared/config.yml run --protocol http2
-    depends_on:
-      - projeto
-    networks:
-      - app-network
