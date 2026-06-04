@@ -262,15 +262,9 @@ def moderation_dashboard(request):
         raise PermissionDenied("Apenas moderadores podem acessar o painel administrativo.")
 
     termos_pendentes = Termo.objects.filter(status='PENDING').select_related('created_by').order_by('-created_at')
-    videos_pendentes = Video.objects.filter(status='PENDING').select_related('uploaded_by', 'termo').order_by('id_video')
-    categorias_pendentes = Categoria.objects.filter(status='PENDING').order_by('-id_categoria')
-    subcategorias_pendentes = Subcategoria.objects.filter(status='PENDING').order_by('-id_subcategoria')
 
     return render(request, 'catalog/pages/moderation_dashboard.html', {
         'termos_pendentes': termos_pendentes,
-        'videos_pendentes': videos_pendentes,
-        'categorias_pendentes': categorias_pendentes,
-        'subcategorias_pendentes': subcategorias_pendentes,
     })
 
 
@@ -278,6 +272,8 @@ def moderation_dashboard(request):
 def moderation_action(request, object_type, object_id, action):
     if not is_moderator(request.user):
         from django.core.exceptions import PermissionDenied
+        if request.headers.get('HX-Request') == 'true':
+            return HttpResponse("Sem permissão.", status=403)
         raise PermissionDenied("Apenas moderadores podem avaliar submissões.")
 
     if request.method == 'POST':
@@ -291,6 +287,8 @@ def moderation_action(request, object_type, object_id, action):
         }
 
         if action not in MAP:
+            if request.headers.get('HX-Request') == 'true':
+                return HttpResponse("Requisição inválida.", status=400)
             return HttpResponseBadRequest()
 
         novo_status = MAP[action]
@@ -312,20 +310,20 @@ def moderation_action(request, object_type, object_id, action):
             if novo_status == 'APPROVED':
                 # Aprova todas as subcategorias relacionadas
                 subcategorias = termo.get_subcategorias()
-                subcategorias.filter(
+                sub_atualizadas = subcategorias.filter(
                     status__in=['PENDING', 'AJUSTE']
                 ).update(status='APPROVED')
 
                 # Aprova todas as categorias relacionadas
                 categorias = termo.get_categorias()
-                categorias.filter(
+                cat_atualizadas = categorias.filter(
                     status__in=['PENDING', 'AJUSTE']
                 ).update(status='APPROVED')
 
                 logger.info(
                     f"Cascata: Termo {termo.id_termo} aprovado. "
-                    f"Subcategorias: {subcategorias.count()}, "
-                    f"Categorias: {categorias.count()}"
+                    f"Subcategorias: {sub_atualizadas}, "
+                    f"Categorias: {cat_atualizadas}"
                 )
 
             messages.success(
@@ -334,6 +332,8 @@ def moderation_action(request, object_type, object_id, action):
                 f'{"aprovados" if novo_status == "APPROVED" else "atualizados"}.'
             )
         else:
+            if request.headers.get('HX-Request') == 'true':
+                return HttpResponse("Requisição inválida.", status=400)
             return HttpResponseBadRequest()
 
         if request.headers.get('HX-Request') == 'true':
@@ -348,7 +348,9 @@ def moderation_action(request, object_type, object_id, action):
 def moderation_action_categoria(request, category_id, action):
     if not is_moderator(request.user):
         from django.core.exceptions import PermissionDenied
-        raise PermissionDenied("Apenas moderadores podem avaliar categorias.")
+        if request.headers.get('HX-Request') == 'true':
+            return HttpResponse("Sem permissão.", status=403)
+        raise PermissionDenied("Apenas moderadores podem avaliar submissões.")
 
     if request.method != 'POST':
         return HttpResponse("Método de requisição inválido.", status=405)
@@ -362,15 +364,21 @@ def moderation_action_categoria(request, category_id, action):
     }
 
     if action not in MAP:
+        if request.headers.get('HX-Request') == 'true':
+            return HttpResponse("Requisição inválida.", status=400)
         return HttpResponseBadRequest()
 
     categoria = get_object_or_404(Categoria, id_categoria=category_id)
+    if categoria.status not in ['PENDING', 'AJUSTE']:
+        if request.headers.get('HX-Request') == 'true':
+            return HttpResponse("", status=409)
+        return redirect('moderation_dashboard')
     novo_status = MAP[action]
     categoria.status = novo_status
     categoria.save(update_fields=['status'])
 
     if action == 'aprovar':
-        categoria.subcategorias.filter(status='PENDING').update(status='APPROVED')
+        categoria.subcategorias.filter(status__in=['PENDING', 'AJUSTE']).update(status='APPROVED')
 
     messages.success(request, f'Categoria "{categoria.nome_categoria}" atualizada com sucesso.')
     if request.headers.get('HX-Request') == 'true':
@@ -382,7 +390,9 @@ def moderation_action_categoria(request, category_id, action):
 def moderation_action_subcategoria(request, subcategory_id, action):
     if not is_moderator(request.user):
         from django.core.exceptions import PermissionDenied
-        raise PermissionDenied("Apenas moderadores podem avaliar subcategorias.")
+        if request.headers.get('HX-Request') == 'true':
+            return HttpResponse("Sem permissão.", status=403)
+        raise PermissionDenied("Apenas moderadores podem avaliar submissões.")
 
     if request.method != 'POST':
         return HttpResponse("Método de requisição inválido.", status=405)
@@ -396,9 +406,15 @@ def moderation_action_subcategoria(request, subcategory_id, action):
     }
 
     if action not in MAP:
+        if request.headers.get('HX-Request') == 'true':
+            return HttpResponse("Requisição inválida.", status=400)
         return HttpResponseBadRequest()
 
     subcategoria = get_object_or_404(Subcategoria, id_subcategoria=subcategory_id)
+    if subcategoria.status not in ['PENDING', 'AJUSTE']:
+        if request.headers.get('HX-Request') == 'true':
+            return HttpResponse("", status=409)
+        return redirect('moderation_dashboard')
     novo_status = MAP[action]
     subcategoria.status = novo_status
     subcategoria.save(update_fields=['status'])

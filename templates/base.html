@@ -6,6 +6,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token }}">
 
   <title>{% block title %}{% endblock %} | Sinalize</title>
 
@@ -168,6 +169,12 @@
   </script>
 
   {% block extra_js %}{% endblock extra_js %}
+  <script>
+    document.addEventListener('htmx:configRequest', function(evt) {
+      const cookie = document.cookie.split('; ').find(r => r.startsWith('csrftoken='));
+      if (cookie) evt.detail.headers['X-CSRFToken'] = cookie.split('=')[1];
+    });
+  </script>
 </body>
 
 </html>

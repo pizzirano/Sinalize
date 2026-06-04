@@ -167,13 +167,23 @@
       <button type="button"
         @click="(function(){
           const container = document.getElementById('videos-container');
-          if(container && container.firstElementChild){
-            const node = container.firstElementChild.cloneNode(true);
-            node.querySelectorAll('input, textarea').forEach(i=>i.value='');
-            container.appendChild(node);
-            const total = document.getElementById('id_form-TOTAL_FORMS');
-            if(total) total.value = parseInt(total.value)+1;
-          }
+          const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+          if (!container || !container.firstElementChild || !totalForms) return;
+
+          const newIndex = parseInt(totalForms.value);
+          const clone = container.firstElementChild.cloneNode(true);
+
+          clone.querySelectorAll('input, select, textarea').forEach(function(el) {
+            if (el.name) el.name = el.name.replace(/form-\d+-/, 'form-' + newIndex + '-');
+            if (el.id)   el.id   = el.id.replace(/form-\d+-/,   'form-' + newIndex + '-');
+            el.value = '';
+          });
+          clone.querySelectorAll('label').forEach(function(label) {
+            if (label.htmlFor) label.htmlFor = label.htmlFor.replace(/form-\d+-/, 'form-' + newIndex + '-');
+          });
+
+          container.appendChild(clone);
+          totalForms.value = newIndex + 1;
         })()"
         class="inline-flex items-center gap-2 px-3 py-2 rounded bg-background border border-border focus-visible:ring-2 focus-visible:ring-ring">
         <i class="fas fa-plus" aria-hidden="true"></i> Adicionar Vídeo
