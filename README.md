@@ -270,45 +270,56 @@ ENV=dev  just resumo    # Roda em contexto de desenvolvimento
 
 Esta seção documenta as decisões técnicas tomadas para estabilizar o ambiente de produção sob acesso simultâneo de múltiplos usuários.
 
-### Gunicorn: workers e classe assíncrona
-
-O projeto usa **4 workers com worker class `gevent`** em produção. Essa configuração está em `scripts/entrypoint.sh`:
-
+### Servidor de aplicação — Gunicorn + gevent
+ 
+O projeto usa Gunicorn com worker class `gevent` em produção:
+ 
 ```bash
-exec /venv/bin/gunicorn config.wsgi:application \
+gunicorn config.wsgi:application \
   --bind 0.0.0.0:8000 \
   --workers 4 \
   --worker-class gevent \
   --worker-connections 100 \
-  --timeout 60 \
-  --access-logfile=-
+  --timeout 60
 ```
-
-**Por que gevent em vez do worker síncrono padrão?**
-
-O worker padrão (`sync`) do Gunicorn processa uma requisição por vez por worker. Quando o servidor entrega arquivos de mídia pesados (vídeos `.MOV` de vídeos em LIBRAS), o worker fica bloqueado durante todo o download — nenhuma outra requisição consegue ser atendida por aquele worker nesse período. Com apenas 2 workers síncronos e múltiplos usuários simultâneos, isso gera erros 502 Bad Gateway.
-
-O worker `gevent` é assíncrono por I/O: enquanto aguarda o envio de um arquivo grande, o mesmo worker atende outras requisições em paralelo. Cada worker consegue lidar com até 100 conexões simultâneas (`--worker-connections 100`) sem bloquear.
-
-**Opções de worker disponíveis:**
-
+ 
+**Por que gevent?**
+ 
+O worker padrão (`sync`) do Gunicorn processa uma requisição por vez por worker. Como o Sinalize serve arquivos de vídeo pesados (`.MOV`, `.MP4` de sinais em Libras), o worker ficaria bloqueado durante todo o download, impedindo outras requisições. Com `gevent`, cada worker atende até 100 conexões simultâneas por I/O assíncrono — sem adicionar Redis, Celery ou qualquer fila de mensagens.
+ 
 | Worker | Quando usar | Dependência |
 |---|---|---|
-| `sync` (padrão) | Aplicações simples, sem I/O pesado | nenhuma |
-| `gevent` | I/O pesado, arquivos de mídia, muitos usuários simultâneos | `pip install gevent` |
+| `sync` (padrão) | Apps simples, sem I/O pesado | nenhuma |
+| `gevent` | I/O pesado, arquivos de mídia, muitos usuários | `pip install gevent` |
 | `gthread` | Alternativa thread-based ao gevent | nenhuma extra |
-| `uvicorn.workers.UvicornWorker` | Apps ASGI (Django Channels, FastAPI) | `pip install uvicorn` |
-
-> O projeto **não usa Redis, Celery ou BullMQ**. O gevent resolve o problema de concorrência sem adicionar infraestrutura de filas.
-
-**Fórmula recomendada para número de workers:**
-
+| `uvicorn` | Apps ASGI (Django Channels, FastAPI) | `pip install uvicorn` |
+ 
+**Fórmula para número de workers:**
 ```
 workers = (2 × núcleos_de_CPU) + 1
 ```
-
-Para um servidor com 2 núcleos: `(2 × 2) + 1 = 5 workers`. O projeto usa 4 por ser um ambiente de teste/pesquisa com recursos limitados.
-
+Para 2 núcleos → 5 workers. O projeto usa 4 por ser ambiente de pesquisa com recursos limitados.
+ 
+---
+ 
+### Conversão de vídeo — management command assíncrono
+ 
+Vídeos enviados pelos usuários são salvos no formato original (`.MOV`, `.WebM`, etc.) com `status=PENDING`. A conversão para `.MP4` acontece fora do request HTTP via:
+ 
+```bash
+docker compose exec projeto python manage.py convert_videos
+```
+ 
+**Por que não converter no `save()`?**
+ 
+A conversão síncrona dentro do request trava o servidor por 30s–2min por vídeo. A solução adotada separa o upload (instantâneo) da conversão (assíncrona), sem Redis ou Celery.
+ 
+Agende via cron ou rode manualmente antes de moderar:
+```bash
+# Exemplo: rodar todo dia às 3h
+0 3 * * * docker compose exec -T projeto python manage.py convert_videos
+```
+ 
 ---
 
 ### Cloudflare Tunnel: arquitetura correta
