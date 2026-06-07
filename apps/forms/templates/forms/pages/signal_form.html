@@ -6,7 +6,66 @@
 
 <div class="max-w-4xl mx-auto">
   <form id="signalForm" method="POST" enctype="multipart/form-data"
-        x-data="{ drag:false, termoExistente: false, novaCategoria: false, novaSubcategoria: false }"
+        action="{% url 'cadastrar_termo' %}"
+        x-data="{
+          drag: false,
+          termoExistente: false,
+          novaCategoria: false,
+          novaSubcategoria: false,
+          enviando: false,
+          progresso: 0,
+          validarVideos() {
+            const inputs = document.querySelectorAll('input[type=file][name*=video]');
+            const extensoesValidas = ['mp4', 'webm', 'mov', 'MOV'];
+            const maxBytes = 100 * 1024 * 1024;
+            for (const input of inputs) {
+              if (!input.files.length) continue;
+              const file = input.files[0];
+              const ext = file.name.split('.').pop().toLowerCase();
+              if (!extensoesValidas.map(e => e.toLowerCase()).includes(ext)) {
+                alert('Formato inválido: ' + file.name + '. Use MP4, WebM ou MOV.');
+                return false;
+              }
+              if (file.size > maxBytes) {
+                alert('Arquivo muito grande: ' + file.name + '. Máximo 100MB.');
+                return false;
+              }
+            }
+            return true;
+          },
+          async enviarForm(event) {
+            if (!this.validarVideos()) return;
+            this.enviando = true;
+            this.progresso = 0;
+            const form = event.target;
+            const formData = new FormData(form);
+            await new Promise((resolve, reject) => {
+              const xhr = new XMLHttpRequest();
+              xhr.upload.addEventListener('progress', (e) => {
+                if (e.lengthComputable)
+                  this.progresso = Math.round((e.loaded / e.total) * 100);
+              });
+              xhr.onload = () => {
+                if (xhr.responseURL.includes('minhas-submissoes')) {
+                  window.location.href = '{% url "my_submissions" %}';
+                  resolve();
+                } else if (xhr.status >= 200 && xhr.status < 400) {
+                  this.enviando = false;
+                  alert('Erro ao enviar. Verifique os campos e tente novamente.');
+                  reject();
+                } else {
+                  this.enviando = false;
+                  alert('Erro ao enviar. Tente novamente.');
+                  reject();
+                }
+              };
+              xhr.onerror = () => { this.enviando = false; reject(); };
+              xhr.open('POST', form.action || window.location.href);
+              xhr.send(formData);
+            });
+          }
+        }"
+        @submit.prevent="enviarForm($event)"
         class="space-y-6" novalidate>
     {% csrf_token %}
 
@@ -159,7 +218,23 @@
             <label class="block text-sm font-medium text-foreground mt-2">Tipo de Vídeo</label>
             {{ form.tipo_video }}
             <label class="block text-sm font-medium text-foreground mt-2">Arquivo de Vídeo</label>
-            {{ form.video }}
+            <input type="file"
+                   name="{{ form.video.html_name }}"
+                   id="{{ form.video.id_for_label }}"
+                   accept="video/mp4,video/webm,video/quicktime,.mov"
+                   class="mt-2 block w-full"
+                   @change="
+                     const file = $event.target.files[0];
+                     if (file) {
+                       const url = URL.createObjectURL(file);
+                       $refs.preview_{{ forloop.counter }}.src = url;
+                       $refs.preview_{{ forloop.counter }}.style.display = 'block';
+                     }
+                   ">
+            <video x-ref="preview_{{ forloop.counter }}"
+                   controls
+                   style="display:none; max-width:100%; margin-top:8px; border-radius:8px">
+            </video>
           </div>
         {% endfor %}
       </div>
@@ -181,6 +256,10 @@
           clone.querySelectorAll('label').forEach(function(label) {
             if (label.htmlFor) label.htmlFor = label.htmlFor.replace(/form-\d+-/, 'form-' + newIndex + '-');
           });
+          clone.querySelectorAll('video').forEach(function(v) {
+            v.style.display = 'none';
+            v.removeAttribute('src');
+          });
 
           container.appendChild(clone);
           totalForms.value = newIndex + 1;
@@ -191,9 +270,22 @@
     </div>
 
     <!-- Ações -->
+    <div x-show="enviando" class="mt-4">
+      <div class="w-full bg-gray-200 rounded-full h-2">
+        <div class="bg-primary h-2 rounded-full transition-all duration-300"
+             :style="`width: ${progresso}%`"></div>
+      </div>
+      <p class="text-sm text-muted-foreground mt-1 text-center"
+         x-text="`Enviando... ${progresso}%`"></p>
+    </div>
+
     <div class="flex gap-3">
-      <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring">
-        <i class="fas fa-save" aria-hidden="true"></i> Salvar
+      <button type="submit"
+              :disabled="enviando"
+              class="inline-flex items-center gap-2 px-4 py-2 rounded bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 disabled:cursor-not-allowed">
+        <i class="fas fa-save" aria-hidden="true" x-show="!enviando"></i>
+        <span x-show="!enviando">Salvar</span>
+        <span x-show="enviando">Enviando...</span>
       </button>
       <a href="{% url 'home' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded bg-background border border-border focus-visible:ring-2 focus-visible:ring-ring">
         <i class="fas fa-times" aria-hidden="true"></i> Cancelar

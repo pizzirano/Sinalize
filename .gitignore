@@ -150,3 +150,10 @@ GitHub.sublime-settings
 gunicorn-error-log
 # Cloudflare Tunnel Credentials
 cloudflare/
+
+# Backups locais e arquivos de perfil do sistema
+backups/*
+!backups/.gitkeep
+*.sql
+%USERPROFILE%*
+*Downloads*

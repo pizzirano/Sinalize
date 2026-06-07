@@ -15,10 +15,6 @@ class Command(BaseCommand):
         self.stdout.write(f'{pendentes.count()} vídeos para converter')
 
         for video in pendentes:
-            if not video.video:
-                self.stdout.write(f'  ✗ {video.titulo} (sem arquivo associado)')
-                continue
-
             input_path = os.path.join(settings.MEDIA_ROOT, video.video.name)
             output_path = convert_video_to_mp4(input_path)
             if output_path:

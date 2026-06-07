@@ -1,8 +1,5 @@
 from django.db import models
-import os
-import subprocess
 from django.conf import settings
-from .utils import convert_video_to_mp4
 
 
 class Dominio(models.Model):

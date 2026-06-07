@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import modelformset_factory
 from django.contrib.auth.decorators import login_required
@@ -35,15 +34,6 @@ def cadastrar_termo_e_videos(request):
                         video.status = 'PENDING'
                         video.convertido = False
                         video.save()
-                        if video.video.name.lower().endswith('.mov'):
-                            from apps.forms.utils import convert_video_to_mp4
-                            mp4_path = convert_video_to_mp4(video.video.path)
-                            if mp4_path:
-                                video.video.name = mp4_path.replace(settings.MEDIA_ROOT + '/', '')
-                                video.convertido = True
-                                video.save()
-                                import os
-                                os.remove(video.video.path)
 
                 messages.success(
                     request,
@@ -108,15 +98,6 @@ def cadastrar_termo_e_videos(request):
                     video.status = 'PENDING'
                     video.convertido = False
                     video.save()
-                    if video.video.name.lower().endswith('.mov'):
-                        from apps.forms.utils import convert_video_to_mp4
-                        mp4_path = convert_video_to_mp4(video.video.path)
-                        if mp4_path:
-                            video.video.name = mp4_path.replace(settings.MEDIA_ROOT + '/', '')
-                            video.convertido = True
-                            video.save()
-                            import os
-                            os.remove(video.video.path)
 
             messages.success(
                 request,
