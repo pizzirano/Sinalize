@@ -37,3 +37,5 @@ services:
       - ./dotenv_files/.env
     networks:
       - app-network
+    ports:                    # ← porta para usar no windows
+      - "5432:5432"
