@@ -1,48 +1,50 @@
-version: "3.9"
-
-networks:
-  app-network:
-    driver: bridge
-
 services:
   projeto:
-    user: "1000:1000"
     build:
       context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
+      dockerfile: dockerfile
+    container_name: sinalize-web
+    restart: unless-stopped
     volumes:
-      # Monta o código do projeto no container
       - ./:/Sinalize
-
-      # ─── CRÍTICO: impede que o volume acima sobrescreva o node_modules
-      # instalado dentro do container (que é Linux/Alpine).
-      # Sem isso, o node_modules do host (Windows/Mac) sobrescreve o do
-      # container e os binários ficam incompatíveis.
       - /Sinalize/frontend/node_modules
-
-      # Volumes de dados persistentes (fora do código)
       - ./data/web/static:/data/web/static/
       - ./data/web/media:/data/web/media/
     env_file:
       - ./dotenv_files/.env
     environment:
-      # Garante que o entrypoint saiba que está em modo dev
-      - DEPLOY_MODE=dev
+      - DEPLOY_MODE=prod
     depends_on:
-      - psql
+      psql:
+        condition: service_healthy
     networks:
       - app-network
+      - proxy-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sinalize.rule=Host(`sinalize.nodx.uk`)"
+      - "traefik.http.routers.sinalize.entrypoints=web"
+      - "traefik.http.services.sinalize.loadbalancer.server.port=8000"
 
   psql:
     image: postgres:15-alpine
+    container_name: sinalize-db
     restart: unless-stopped
     volumes:
       - ./data/postgres/data:/var/lib/postgresql/data/
     env_file:
       - ./dotenv_files/.env
-    ports:
-      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - app-network
+
+networks:
+  app-network:
+    driver: bridge
+  proxy-net:
+    external: true
+    name: proxy-net

@@ -14,7 +14,7 @@ urlpatterns = [
     path('accounts/password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
     path('accounts/reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('accounts/reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
-    path('', RedirectView.as_view(url='/catalog/home/', permanent=False)),
+    path('', RedirectView.as_view(pattern_name='home', permanent=False)),
     path('catalog/', include('catalog.urls')),
     path('forms/', include('forms.urls')),
 ]

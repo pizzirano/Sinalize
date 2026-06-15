@@ -125,7 +125,7 @@ class Video(models.Model):
 
     TIPOS_VIDEO = [
         ('Sinal', 'Sinal'),
-        ('Soletrando', 'Termo em Libras Soletrando'),
+        ('Datilologia', 'Datilologia'),
         ('Significado', 'Significado'),
     ]
 
