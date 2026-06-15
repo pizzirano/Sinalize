@@ -53,6 +53,10 @@ class CustomUserCreationForm(UserCreationForm):
 
 
 class TermoForm(forms.ModelForm):
+    nao_encontrei_categoria = forms.BooleanField(
+        required=False,
+        label='Não encontrei minha categoria'
+    )
     dominio = forms.ModelChoiceField(
         queryset=Dominio.objects.none(),
         required=True,
@@ -147,14 +151,22 @@ class TermoForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         categoria = cleaned_data.get('categoria')
+        nao_encontrei_categoria = cleaned_data.get('nao_encontrei_categoria')
         nova_categoria = cleaned_data.get('nova_categoria')
         subcategoria = cleaned_data.get('subcategoria')
         nova_subcategoria = cleaned_data.get('nova_subcategoria')
 
-        if not categoria and not nova_categoria:
+        if nao_encontrei_categoria:
+            cleaned_data['categoria'] = None
+            if not nova_categoria:
+                self.add_error(
+                    'nova_categoria',
+                    'Informe o nome da nova categoria.'
+                )
+        elif not categoria:
             self.add_error('categoria', 'Escolha uma categoria existente ou crie uma nova.')
 
-        if nova_categoria and not cleaned_data.get('imagem_categoria'):
+        if nao_encontrei_categoria and not cleaned_data.get('imagem_categoria'):
             self.add_error(
                 'imagem_categoria',
                 'A imagem é obrigatória ao sugerir uma nova categoria.'
@@ -177,9 +189,10 @@ class CategoriaForm(forms.ModelForm):
 class VideoForm(forms.ModelForm):
     class Meta:
         model = Video
-        fields = ['titulo', 'tipo_video', 'video']
+        fields = ['titulo', 'tipo_video', 'descricao', 'video']
         widgets = {
             'titulo': forms.TextInput(attrs={'class': TAILWIND_INPUT}),
             'tipo_video': forms.Select(attrs={'class': TAILWIND_SELECT}),
+            'descricao': forms.Textarea(attrs={'rows': 3, 'class': TAILWIND_TEXTAREA}),
             'video': forms.ClearableFileInput(attrs={'class': 'mt-2 block w-full'}),
         }

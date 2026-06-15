@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 import sys
 from django.core.exceptions import ImproperlyConfigured
+from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -104,6 +105,6 @@ MEDIA_ROOT = '/data/web/media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Auth
-LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/catalog/home/'
-LOGOUT_REDIRECT_URL = '/catalog/home/'
+LOGIN_URL = 'forms:login'
+LOGIN_REDIRECT_URL = reverse_lazy('catalog:home')
+LOGOUT_REDIRECT_URL = reverse_lazy('catalog:home')

@@ -4,15 +4,13 @@
 
 {% block content %}
 
-<div class="max-w-4xl mx-auto">
+<div class="max-w-[1800px] mx-auto">
   <form id="signalForm" method="POST" enctype="multipart/form-data" hx-post="" hx-target="#signal-form-result" hx-swap="outerHTML" x-data="{ drag:false }" class="space-y-6" novalidate>
     {% csrf_token %}
 
-    <div class="rounded-2xl p-4 bg-background border border-border">
-      <p class="text-muted-foreground">Dê preferência para vídeos no formato <strong>MP4</strong> para melhor compatibilidade.</p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" x-data="{ novaCategoria: false, novaSubcategoria: false }">
+    <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(420px,0.95fr)] items-start">
+    <section class="bg-card border border-border rounded-2xl p-4 sm:p-6 shadow-sm">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" x-data="{ novaCategoria: {{ termo_form.nao_encontrei_categoria.value|yesno:'true,false' }}, novaSubcategoria: false }">
       <div>
         <label class="block text-sm font-medium text-foreground">Domínio</label>
         {{ termo_form.dominio }}
@@ -40,43 +38,57 @@
       <div class="md:col-span-2">
         <div x-show="!novaCategoria">
           <label class="block text-sm font-medium text-foreground">Categoria existente</label>
-            {{ termo_form.categoria }}
+          {{ termo_form.categoria }}
+          {% if termo_form.categoria.errors %}
+            <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.categoria.errors }}</p>
+          {% endif %}
         </div>
 
         <label class="cursor-pointer flex items-center gap-2 mt-4">
-          <input type="checkbox" x-model="novaCategoria" class="w-4 h-4 rounded border-border" />
+          <input type="checkbox" name="nao_encontrei_categoria" x-model="novaCategoria" class="w-4 h-4 rounded border-border" {% if termo_form.nao_encontrei_categoria.value %}checked{% endif %} />
           <span class="text-sm text-foreground">Não encontrei minha categoria</span>
         </label>
 
         <div x-show="novaCategoria" x-cloak class="mt-4 space-y-4">
-          <label class="block text-sm font-medium text-foreground">
-            Nome da nova categoria <span class="text-red-500">*</span>
-          </label>
-          {{ termo_form.nova_categoria }}
-          {% if termo_form.nova_categoria.errors %}
-            <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.nova_categoria.errors }}</p>
-          {% endif %}
+          <div>
+            <label class="block text-sm font-medium text-foreground">
+              Nome da nova categoria <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="{{ termo_form.nova_categoria.html_name }}"
+              id="{{ termo_form.nova_categoria.id_for_label }}"
+              value="{{ termo_form.nova_categoria.value|default_if_none:'' }}"
+              x-bind:required="novaCategoria"
+              class="mt-2 block w-full rounded-2xl border border-border bg-background px-4 py-3 text-foreground focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            />
+            {% if termo_form.nova_categoria.errors %}
+              <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.nova_categoria.errors }}</p>
+            {% endif %}
+          </div>
 
-          <label class="block text-sm font-medium text-foreground">
-            Imagem da categoria <span class="text-red-500">*</span>
-          </label>
-          <input
-            type="file"
-            name="imagem_categoria"
-            accept="image/*"
-            x-bind:required="novaCategoria"
-            class="mt-2 block w-full rounded-2xl border border-border bg-background px-4 py-3 text-foreground focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          />
-          {% if termo_form.imagem_categoria.errors %}
-            <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.imagem_categoria.errors }}</p>
-          {% endif %}
+          <div>
+            <label class="block text-sm font-medium text-foreground">
+              Imagem da categoria <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="file"
+              name="imagem_categoria"
+              accept="image/*"
+              x-bind:required="novaCategoria"
+              class="mt-2 block w-full rounded-2xl border border-border bg-background px-4 py-3 text-foreground focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            />
+            {% if termo_form.imagem_categoria.errors %}
+              <p class="mt-1 text-sm text-destructive" role="alert">{{ termo_form.imagem_categoria.errors }}</p>
+            {% endif %}
+          </div>
         </div>
       </div>
 
       <div class="md:col-span-2">
         <div x-show="!novaSubcategoria">
           <label class="block text-sm font-medium text-foreground">Subcategoria existente</label>
-            {{ termo_form.subcategoria }}
+          {{ termo_form.subcategoria }}
         </div>
 
         <label class="cursor-pointer flex items-center gap-2 mt-4">
@@ -106,30 +118,63 @@
       {{ termo_form.carrossel }}
       <label class="text-sm text-muted-foreground">Exibir no Carrossel</label>
     </div>
+    </section>
 
-    <div class="space-y-3">
+    <section class="space-y-3 bg-card border border-border rounded-2xl p-4 sm:p-6 shadow-sm">
       <h2 class="text-lg font-medium text-foreground">Vídeos</h2>
+      <p class="text-sm text-muted-foreground">D&ecirc; prefer&ecirc;ncia para v&iacute;deos no formato MP4 para melhor compatibilidade.</p>
       {{ formset.management_form }}
-      <div id="videos-container" x-data x-ref="videos">
+      {% if formset.non_form_errors %}
+        <div class="rounded-2xl p-4 bg-red-50 border border-red-200 text-red-700">
+          {{ formset.non_form_errors }}
+        </div>
+      {% endif %}
+      <div id="videos-container" class="space-y-4" x-data x-ref="videos">
         {% for form in formset %}
-          <div class="rounded-2xl p-4 bg-card border border-border" role="group" aria-roledescription="video-form">
+          <div class="rounded-2xl p-4 bg-background border border-border" role="group" aria-roledescription="video-form">
+            {% for hidden in form.hidden_fields %}
+              {{ hidden }}
+            {% endfor %}
+            {% if form.non_field_errors %}
+              <div class="mb-3 rounded-2xl p-3 bg-red-50 border border-red-200 text-red-700">
+                {{ form.non_field_errors }}
+              </div>
+            {% endif %}
             <label class="block text-sm font-medium text-foreground">Título do Vídeo</label>
             {{ form.titulo }}
+            {% if form.titulo.errors %}
+              <p class="mt-1 text-sm text-destructive" role="alert">{{ form.titulo.errors }}</p>
+            {% endif %}
+
             <label class="block text-sm font-medium text-foreground mt-2">Tipo de Vídeo</label>
             {{ form.tipo_video }}
+            {% if form.tipo_video.errors %}
+              <p class="mt-1 text-sm text-destructive" role="alert">{{ form.tipo_video.errors }}</p>
+            {% endif %}
+
+            <label class="block text-sm font-medium text-foreground mt-2">Descrição do Vídeo</label>
+            {{ form.descricao }}
+            {% if form.descricao.errors %}
+              <p class="mt-1 text-sm text-destructive" role="alert">{{ form.descricao.errors }}</p>
+            {% endif %}
+
             <label class="block text-sm font-medium text-foreground mt-2">Arquivo de Vídeo</label>
             {{ form.video }}
+            {% if form.video.errors %}
+              <p class="mt-1 text-sm text-destructive" role="alert">{{ form.video.errors }}</p>
+            {% endif %}
           </div>
         {% endfor %}
       </div>
 
-      <button type="button" x-on:click="$el.insertAdjacentHTML('beforebegin', '')" @click="(function(){ const container = document.getElementById('videos-container'); if(container && container.firstElementChild){ const node = container.firstElementChild.cloneNode(true); node.querySelectorAll('input, textarea').forEach(i=>i.value=''); container.appendChild(node); const total = document.getElementById('id_form-TOTAL_FORMS'); if(total) total.value = parseInt(total.value)+1; } })()" class="inline-flex items-center gap-2 px-3 py-2 rounded bg-background border border-border focus-visible:ring-2 focus-visible:ring-ring"> <i class="fas fa-plus" aria-hidden="true"></i> Adicionar Vídeo</button>
+      <button type="button" @click="(function(){ const container = document.getElementById('videos-container'); const total = document.getElementById('id_form-TOTAL_FORMS'); if(container && container.firstElementChild && total){ const index = parseInt(total.value, 10); const node = container.firstElementChild.cloneNode(true); node.querySelectorAll('input, textarea, select, label').forEach((el) => { ['name', 'id', 'for'].forEach((attr) => { const value = el.getAttribute(attr); if(value){ el.setAttribute(attr, value.replace(/form-\d+-/g, `form-${index}-`)); } }); if(el.tagName === 'SELECT'){ el.selectedIndex = 0; } else if(el.type === 'checkbox' || el.type === 'radio'){ el.checked = false; } else if(el.type === 'hidden'){ el.value = ''; } else if(el.type === 'file'){ el.value = ''; } else if(el.tagName === 'INPUT' || el.tagName === 'TEXTAREA'){ el.value = ''; } }); container.appendChild(node); total.value = index + 1; } })()" class="inline-flex items-center gap-2 px-3 py-2 rounded bg-background border border-border focus-visible:ring-2 focus-visible:ring-ring"> <i class="fas fa-plus" aria-hidden="true"></i> Adicionar Vídeo</button>
+    </section>
     </div>
 
     <div x-data="{ uploading:false, progress:0 }" x-init="document.body.addEventListener('htmx:beforeRequest', ()=>{ uploading=true; progress=0 }); document.body.addEventListener('htmx:progress', (e)=>{ if(e.detail && e.detail.loaded && e.detail.total){ progress = Math.round((e.detail.loaded / e.detail.total)*100) } }); document.body.addEventListener('htmx:afterRequest', ()=>{ uploading=false; progress=100; })" class="space-y-3">
-      <div class="flex gap-3">
+      <div class="flex flex-wrap gap-3">
         <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring"> <i class="fas fa-save" aria-hidden="true"></i> Salvar</button>
-        <a href="{% url 'home' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded bg-background border border-border focus-visible:ring-2 focus-visible:ring-ring"> <i class="fas fa-times" aria-hidden="true"></i> Cancelar</a>
+        <a href="{% url 'catalog:home' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded bg-background border border-border focus-visible:ring-2 focus-visible:ring-ring"> <i class="fas fa-times" aria-hidden="true"></i> Cancelar</a>
       </div>
 
       <div x-show="uploading" x-cloak class="w-full bg-background rounded-2xl border border-border p-2">

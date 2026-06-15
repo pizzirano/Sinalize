@@ -24,11 +24,11 @@ def cadastrar_termo_e_videos(request):
             subcategoria = termo_form.cleaned_data.get('subcategoria')
             nova_subcategoria = termo_form.cleaned_data.get('nova_subcategoria')
 
-            if nova_categoria:
+            if termo_form.cleaned_data.get('nao_encontrei_categoria'):
                 categoria_obj = Categoria.objects.create(
                     nome_categoria=nova_categoria.strip(),
                     dominio=dominio,
-                    c_imagem=imagem_categoria or None,
+                    c_imagem=imagem_categoria,
                     status='PENDING'
                 )
             else:
@@ -65,7 +65,7 @@ def cadastrar_termo_e_videos(request):
                 request,
                 'Termo enviado com sucesso! Aguarde a análise do administrador.'
             )
-            return redirect('my_submissions')
+            return redirect('forms:my_submissions')
     else:
         termo_form = TermoForm()
         formset = VideoFormSet(queryset=Video.objects.none())
@@ -90,7 +90,7 @@ def editar_termo(request, termo_id):
 
     if termo.status not in ['PENDING', 'AJUSTE']:
         messages.error(request, "Você não pode editar um termo que já foi avaliado.")
-        return redirect('my_submissions')
+        return redirect('forms:my_submissions')
 
     VideoFormSet = modelformset_factory(Video, form=VideoForm, extra=0, can_delete=False)
 
@@ -106,11 +106,11 @@ def editar_termo(request, termo_id):
             subcategoria = termo_form.cleaned_data.get('subcategoria')
             nova_subcategoria = termo_form.cleaned_data.get('nova_subcategoria')
 
-            if nova_categoria:
+            if termo_form.cleaned_data.get('nao_encontrei_categoria'):
                 categoria_obj = Categoria.objects.create(
                     nome_categoria=nova_categoria.strip(),
                     dominio=dominio,
-                    c_imagem=imagem_categoria or None,
+                    c_imagem=imagem_categoria,
                     status='PENDING'
                 )
             else:
@@ -135,14 +135,18 @@ def editar_termo(request, termo_id):
                 Classificacao.objects.get_or_create(termo=termo, subcategoria=subcategoria_obj)
 
             for form in formset:
-                if form.cleaned_data and form.cleaned_data.get('video'):
+                if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
                     video = form.save(commit=False)
                     video.termo = termo
+                    if not video.pk:
+                        video.uploaded_by = request.user
+                        video.convertido = False
                     video.status = 'PENDING'
-                    video.save()
+                    if video.video:
+                        video.save()
 
             messages.success(request, 'Sugestão atualizada! Aguarde nova análise.')
-            return redirect('my_submissions')
+            return redirect('forms:my_submissions')
     else:
         initial_data = {}
         classificacao = termo.classificacoes.first()
@@ -177,7 +181,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            next_page = request.GET.get('next', 'home')
+            next_page = request.GET.get('next', 'catalog:home')
             return redirect(next_page)
     else:
         form = CustomAuthenticationForm()
@@ -195,7 +199,7 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('home')
+            return redirect('catalog:home')
     else:
         form = CustomUserCreationForm()
 

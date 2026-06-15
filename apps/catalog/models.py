@@ -131,6 +131,10 @@ class Video(models.Model):
 
     tipo_video = models.CharField(max_length=20, choices=TIPOS_VIDEO)
     titulo = models.CharField(max_length=30)
+    descricao = models.TextField(
+        blank=True,
+        verbose_name="Descrição do Vídeo"
+    )
     termo = models.ForeignKey('Termo', on_delete=models.CASCADE, related_name='videos')
     video = models.FileField(upload_to='videos/')
     status = models.CharField(

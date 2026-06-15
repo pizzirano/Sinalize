@@ -9,7 +9,7 @@
 
   <title>{% block title %}{% endblock %} | Sinalize</title>
 
-  <link rel="stylesheet" href="{% static 'css/output.css' %}">
+  <link rel="stylesheet" href="{% static 'css/output.css' %}?v=20260615-carousel">
   <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
 
@@ -27,9 +27,9 @@
 
   {% include 'components/navigation/menu.html' %}
 
-  <main id="main" role="main" class="max-w-7xl mx-auto px-4 py-8">
+  <main id="main" role="main" class="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
     {% if messages %}
-      <div class="max-w-5xl mx-auto mb-6 space-y-2">
+      <div class="max-w-screen-2xl mx-auto mb-6 space-y-2">
         {% for message in messages %}
           <div class="rounded-xl border p-4 text-sm flex items-center justify-between {% if message.tags == 'success' %}border-emerald-500/30 bg-emerald-500/10 text-emerald-500{% elif message.tags == 'error' or message.tags == 'danger' %}border-destructive/30 bg-destructive/10 text-destructive{% else %}border-border bg-surface text-foreground{% endif %}" role="alert">
             <div class="flex items-center gap-2">

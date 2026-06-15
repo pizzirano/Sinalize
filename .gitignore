@@ -148,3 +148,6 @@ GitHub.sublime-settings
 
 # Gunicorn logs
 gunicorn-error-log
+
+# Documentos locais de atualização/onboarding para anexos e entregas
+/update/

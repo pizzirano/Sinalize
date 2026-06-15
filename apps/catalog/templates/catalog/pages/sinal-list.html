@@ -17,17 +17,17 @@
 
   <nav aria-label="breadcrumb" class="mb-4">
     <ol class="flex items-center space-x-2 text-sm text-muted-foreground bg-surface p-3 rounded-lg border border-border">
-      <li><a href="{% url 'home' %}" class="hover:text-primary focus-visible:ring-2 focus-visible:ring-ring rounded">Início</a></li>
+      <li><a href="{% url 'catalog:home' %}" class="hover:text-primary focus-visible:ring-2 focus-visible:ring-ring rounded">Início</a></li>
       {% for classificacao in classificacoes %}
         <li class="flex items-center">
           <span class="mx-2">/</span>
-          <a href="{% url 'termo_list' classificacao.subcategoria.categoria.id_categoria %}" class="hover:text-primary focus-visible:ring-2 focus-visible:ring-ring rounded">
+          <a href="{% url 'catalog:termo_list' classificacao.subcategoria.categoria.id_categoria %}" class="hover:text-primary focus-visible:ring-2 focus-visible:ring-ring rounded">
             {{ classificacao.subcategoria.categoria.nome_categoria }}
           </a>
         </li>
         <li class="flex items-center">
           <span class="mx-2">/</span>
-          <a href="{% url 'termo_list' classificacao.subcategoria.categoria.id_categoria %}?sub={{ classificacao.subcategoria.id_subcategoria %}" class="hover:text-primary focus-visible:ring-2 focus-visible:ring-ring rounded">
+          <a href="{% url 'catalog:termo_list' classificacao.subcategoria.categoria.id_categoria %}?sub={{ classificacao.subcategoria.id_subcategoria %}" class="hover:text-primary focus-visible:ring-2 focus-visible:ring-ring rounded">
             {{ classificacao.subcategoria.nome_subcategoria }}
           </a>
         </li>
@@ -42,17 +42,17 @@
   <div class="flex justify-between items-center mb-4">
     <h2 class="text-xl font-semibold text-foreground">Vídeos relacionados</h2>
     {% if user.is_authenticated %}
-      <a href="{% url 'cadastrar_termo' %}" class="inline-flex items-center px-3 py-1.5 rounded border border-border text-muted-foreground hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring">
+      <a href="{% url 'forms:cadastrar_termo' %}" class="inline-flex items-center px-3 py-1.5 rounded border border-border text-muted-foreground hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring">
         <i class="fa-solid fa-plus mr-2"></i> Adicionar Sinal
       </a>
     {% endif %}
   </div>
 
-  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
     {% for video in videos %}
     <div class="bg-card border border-border rounded-2xl overflow-hidden hover:shadow-lg transition">
       {% if video.video %}
-        <video class="w-full"
+        <video class="w-full bg-background"
           controls
           preload="metadata"
           aria-label="Vídeo do sinal: {{ video.titulo }}">
@@ -72,7 +72,7 @@
             <i class="fa-solid fa-play mr-1"></i> {{ video.get_tipo_video_display }}
           </span>
         </div>
-        <a href="{% url 'video_detail' video.id_video %}" class="inline-flex items-center justify-center w-full px-3 py-1.5 rounded bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring">
+        <a href="{% url 'catalog:video_detail' video.id_video %}" class="inline-flex items-center justify-center w-full px-3 py-1.5 rounded bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring">
           <i class="fa-regular fa-eye mr-2"></i> Ver mais
         </a>
       </div>

@@ -9,6 +9,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN apk add --no-cache \
     bash \
     build-base \
+    ffmpeg \
     postgresql-dev \
     postgresql-client \
     nodejs \

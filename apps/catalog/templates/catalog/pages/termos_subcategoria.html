@@ -9,7 +9,7 @@
     <h1 class="text-2xl md:text-3xl font-semibold text-foreground">Termos de {{ subcategoria.nome_subcategoria }}</h1>
   </div>
 
-  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
     {% for termo in termos %}
       {% include 'components/cards/catalog-card.html' %}
     {% empty %}

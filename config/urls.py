@@ -14,11 +14,7 @@ urlpatterns = [
     path('accounts/password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
     path('accounts/reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('accounts/reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
-    path('', RedirectView.as_view(pattern_name='home', permanent=False)),
-    path('catalog/', include('catalog.urls')),
-    path('forms/', include('forms.urls')),
-]
-
-# Se estiver usando arquivos de mídia ou estáticos no dev
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('', RedirectView.as_view(pattern_name='catalog:home', permanent=False)),
+    path('catalog/', include(('catalog.urls', 'catalog'), namespace='catalog')),
+    path('forms/', include(('forms.urls', 'forms'), namespace='forms')),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

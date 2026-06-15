@@ -1,7 +1,7 @@
 <nav x-data="{ open:false }" class="sticky top-0 z-50 bg-surface/90 backdrop-blur-md border-b border-border" role="navigation" aria-label="Navegação principal">
-  <div class="max-w-7xl mx-auto px-4">
+  <div class="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
-      <a href="{% url 'home' %}" class="font-display font-bold text-xl text-primary focus-visible:rounded" aria-label="Sinalize — página inicial">Sinalize</a>
+      <a href="{% url 'catalog:home' %}" class="font-display font-bold text-xl text-primary focus-visible:rounded" aria-label="Sinalize — página inicial">Sinalize</a>
 
       <div class="flex items-center gap-3">
         <button @click="open = !open" :aria-expanded="open.toString()" aria-controls="main-menu" class="md:hidden p-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Abrir menu">
@@ -12,14 +12,14 @@
 
         <div class="hidden md:flex items-center gap-3">
           {% if user.is_authenticated %}
-            <a href="{% url 'cadastrar_termo' %}" class="inline-flex items-center px-3 py-1.5 rounded bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring">Adicionar vídeo</a>
+            <a href="{% url 'forms:cadastrar_termo' %}" class="inline-flex items-center px-3 py-1.5 rounded bg-primary text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring">Adicionar vídeo</a>
 
             <div x-data="{ openUser:false }" class="relative" @keydown.escape.window="openUser=false">
               <button @click="openUser = !openUser" @click.outside="openUser = false" :aria-expanded="openUser.toString()" aria-haspopup="true" class="px-3 py-1.5 rounded hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring">{{ user.get_username }}</button>
               <ul x-show="openUser" x-cloak x-transition role="menu" class="absolute right-0 mt-2 w-48 rounded-lg border border-border bg-card py-2">
-                <li role="none"><a href="{% url 'my_submissions' %}" role="menuitem" class="block px-4 py-2 hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring rounded">Minhas Sugestões</a></li>
+                <li role="none"><a href="{% url 'forms:my_submissions' %}" role="menuitem" class="block px-4 py-2 hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring rounded">Minhas Sugestões</a></li>
                 {% if user.is_staff or user.is_superuser or user.profile.role == 'MODERATOR' or user.profile.role == 'ADMIN' %}
-                  <li role="none"><a href="{% url 'moderation_dashboard' %}" role="menuitem" class="block px-4 py-2 hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring rounded text-primary font-semibold">Moderação</a></li>
+                  <li role="none"><a href="{% url 'catalog:moderation_dashboard' %}" role="menuitem" class="block px-4 py-2 hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring rounded text-primary font-semibold">Moderação</a></li>
                 {% endif %}
                 <li role="none">
                   <form method="post" action="{% url 'logout' %}">
@@ -30,8 +30,8 @@
               </ul>
             </div>
           {% else %}
-            <a href="{% url 'login' %}" class="text-muted-foreground hover:text-primary px-3 py-1.5">Entrar</a>
-            <a href="{% url 'register' %}" class="text-muted-foreground hover:text-primary px-3 py-1.5">Registrar</a>
+            <a href="{% url 'forms:login' %}" class="text-muted-foreground hover:text-primary px-3 py-1.5">Entrar</a>
+            <a href="{% url 'forms:register' %}" class="text-muted-foreground hover:text-primary px-3 py-1.5">Registrar</a>
           {% endif %}
           <!-- BOTÃO ALTERNADOR DE TEMA -->
           <button id="theme-toggle" type="button" class="p-2 rounded hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring transition-colors" aria-label="Mudar para tema escuro">
@@ -45,14 +45,14 @@
     <div id="main-menu" x-show="open" x-cloak x-transition class="md:hidden mt-2">
       <ul class="flex flex-col gap-2 py-2">
         {% if user.is_authenticated %}
-          <li><a href="{% url 'cadastrar_termo' %}" class="block px-3 py-2 rounded bg-primary text-primary-foreground">Adicionar vídeo</a></li>
+          <li><a href="{% url 'forms:cadastrar_termo' %}" class="block px-3 py-2 rounded bg-primary text-primary-foreground">Adicionar vídeo</a></li>
           <li>
             <div x-data="{ openUserMobile:false }" class="relative">
               <button @click="openUserMobile = !openUserMobile" @click.outside="openUserMobile = false" :aria-expanded="openUserMobile.toString()" aria-haspopup="true" class="w-full text-left px-3 py-2 rounded hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring">{{ user.get_username }}</button>
               <ul x-show="openUserMobile" x-cloak x-transition role="menu" class="mt-1 space-y-1">
-                <li role="none"><a href="{% url 'my_submissions' %}" role="menuitem" class="block px-3 py-2 hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring rounded">Minhas Sugestões</a></li>
+                <li role="none"><a href="{% url 'forms:my_submissions' %}" role="menuitem" class="block px-3 py-2 hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring rounded">Minhas Sugestões</a></li>
                 {% if user.is_staff or user.is_superuser or user.profile.role == 'MODERATOR' or user.profile.role == 'ADMIN' %}
-                  <li role="none"><a href="{% url 'moderation_dashboard' %}" role="menuitem" class="block px-3 py-2 hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring rounded text-primary font-semibold">Moderação</a></li>
+                  <li role="none"><a href="{% url 'catalog:moderation_dashboard' %}" role="menuitem" class="block px-3 py-2 hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring rounded text-primary font-semibold">Moderação</a></li>
                 {% endif %}
                 <li role="none">
                   <form method="post" action="{% url 'logout' %}">
@@ -64,8 +64,8 @@
             </div>
           </li>
         {% else %}
-          <li><a href="{% url 'login' %}" class="block px-3 py-2 rounded text-muted-foreground hover:text-primary">Entrar</a></li>
-          <li><a href="{% url 'register' %}" class="block px-3 py-2 rounded text-muted-foreground hover:text-primary">Registrar</a></li>
+          <li><a href="{% url 'forms:login' %}" class="block px-3 py-2 rounded text-muted-foreground hover:text-primary">Entrar</a></li>
+          <li><a href="{% url 'forms:register' %}" class="block px-3 py-2 rounded text-muted-foreground hover:text-primary">Registrar</a></li>
         {% endif %}
         <!-- BOTÃO ALTERNADOR DE TEMA (MOBILE) -->
         <li>

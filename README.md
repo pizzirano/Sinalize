@@ -168,6 +168,20 @@ O ambiente é detectado automaticamente pelo `DEPLOY_MODE=prod` no `.env`.
 
 ## Configuração de Produção
 
+### ⚠️ Importante: Alterar Domínio em production.py
+
+**ANTES de fazer deploy em produção**, edite `config/settings/production.py` e altere o domínio em `CSRF_TRUSTED_ORIGINS`:
+
+```python
+# config/settings/production.py
+CSRF_TRUSTED_ORIGINS = [
+    'https://seudominio.com.br',      # ← ALTERE AQUI
+    'http://seudominio.com.br',
+]
+```
+
+Se esta configuração não for atualizada, você receberá erro **403 (Proibido) — Verificação CSRF falhou** ao fazer login. Substitua `seudominio.com.br` pelo seu domínio real (ex: `sinalize.nodx.uk`).
+
 ### Gunicorn + gevent
 
 O projeto usa `gevent` para suportar múltiplas conexões simultâneas sem bloquear workers em downloads de vídeo:
@@ -215,6 +229,151 @@ Para escalar o serving de mídia sem adicionar infraestrutura, crie uma Cache Ru
 Dashboard → seu domínio → **Rules → Cache Rules → Create rule**
 - Expression: `http.request.uri.path wildcard "/media/*"`
 - Cache status: `Eligible for cache`
+
+## Infraestrutura
+
+A infraestrutura de producao usa cinco pecas principais:
+
+- **Cloudflared**: mantem o Cloudflare Tunnel aberto e entrega o trafego da Cloudflare para a rede Docker interna.
+- **Traefik**: recebe o trafego HTTP dentro da rede `proxy-net`, le labels Docker e roteia por `Host` e `PathPrefix`.
+- **Django/Gunicorn**: atende paginas, formularios, administracao, autenticacao e regras de negocio.
+- **PostgreSQL**: armazena os dados relacionais da aplicacao.
+- **Nginx Media**: atende diretamente arquivos em `/media/*` a partir do volume `./data/web/media`.
+
+Fluxo de midia:
+
+```text
+Usuario
+↓
+Cloudflare Edge
+↓
+Cloudflare Tunnel
+↓
+Traefik
+↓
+Nginx Media (/media)
+↓
+Volume media
+```
+
+Fluxo da aplicacao:
+
+```text
+Usuario
+↓
+Cloudflare Edge
+↓
+Cloudflare Tunnel
+↓
+Traefik
+↓
+Django/Gunicorn
+```
+
+### Por que /media nao passa pelo Django
+
+Com `DEBUG=False`, o helper `static(settings.MEDIA_URL, ...)` do Django nao registra rotas de midia. Em producao, a midia deve ser servida por um componente dedicado. Neste projeto, o Traefik envia `PathPrefix('/media/')` para o servico `media`, que roda Nginx com o volume de midia montado como somente leitura.
+
+Beneficios:
+
+- menor uso de CPU no Django;
+- menor uso de memoria nos workers Gunicorn;
+- cache mais simples no Cloudflare;
+- streaming e suporte a `Range` mais eficientes;
+- menor carga no Gunicorn durante downloads de videos.
+
+### Cloudflare
+
+Cache Rule recomendada para midia:
+
+```text
+Condicao: URI Path starts with /media/
+Acao: Cache Eligible
+TTL: 30 dias
+```
+
+O Nginx Media tambem envia headers de cache para midia:
+
+```text
+Expires: 30 dias
+Cache-Control: public, max-age=2592000, immutable
+```
+
+### Deploy
+
+Depois de alterar Dockerfile, compose, Nginx ou dependencias de sistema:
+
+```bash
+docker compose up -d --build
+docker compose ps
+```
+
+Para reprocessar videos que ainda nao foram convertidos:
+
+```bash
+docker compose exec projeto python manage.py convert_videos
+docker compose exec projeto python manage.py convert_videos --dry-run
+```
+
+### Infra example
+
+Existe uma arvore sanitizada em `../infra/example` para onboarding de novos desenvolvedores. Ela contem exemplos de Traefik e Cloudflared sem tokens, senhas, certificados, IDs reais de tunel ou dominios privados. Substitua os placeholders antes de usar:
+
+```text
+<CLOUDFLARE_TUNNEL_TOKEN>
+<CLOUDFLARE_TUNNEL_ID>
+<DOMAIN>
+<EMAIL>
+<API_TOKEN>
+<PASSWORD>
+```
+
+### Troubleshooting
+
+**Midia retornando 404**
+
+- Confirme que o arquivo existe em `./data/web/media`.
+- Confirme que o servico `media` esta rodando: `docker compose ps`.
+- Teste via Traefik: `curl -I -H "Host: <DOMAIN>" http://localhost/media/caminho/do/arquivo`.
+- Se o 404 vier de `Server: gunicorn`, o roteamento `/media/` nao chegou ao Nginx Media.
+
+**Traefik nao encontra o servico**
+
+- Confirme que o servico tem `traefik.enable=true`.
+- Confirme que o router usa `PathPrefix('/media/')` para midia.
+- Confirme que Traefik e servico estao na mesma rede Docker (`proxy-net`).
+- Confirme `providers.docker.network: proxy-net` no Traefik.
+
+**Cloudflared offline**
+
+- Verifique logs: `docker logs cloudflared`.
+- Confirme se o token do tunel e valido.
+- Confirme se o tunel aponta para o endpoint HTTP do Traefik.
+
+**ffmpeg ausente**
+
+- Valide dentro do container: `docker compose exec projeto ffmpeg -version`.
+- Se falhar, reconstrua a imagem: `docker compose up -d --build`.
+
+**Videos nao convertendo**
+
+- Rode `docker compose exec projeto python manage.py convert_videos --dry-run`.
+- Confirme que o arquivo apontado pelo banco existe em `/data/web/media`.
+- Se houver erro, o comando imprime o `stderr` do ffmpeg para diagnostico.
+
+**convert_videos retornando 0 itens**
+
+- Isso agora significa que nao existem registros com `convertido=False` e arquivo associado.
+- Confira no shell do Django:
+
+```bash
+docker compose exec projeto python manage.py shell
+```
+
+```python
+from catalog.models import Video
+Video.objects.filter(convertido=False).exclude(video='').count()
+```
 
 ## Testando o Sistema
 

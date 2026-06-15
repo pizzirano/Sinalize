@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 
+app_name = 'forms'
+
 urlpatterns = [
     path('cadastrar-termo/', views.cadastrar_termo_e_videos, name='cadastrar_termo'),
     path('minhas-submissoes/', views.my_submissions, name='my_submissions'),

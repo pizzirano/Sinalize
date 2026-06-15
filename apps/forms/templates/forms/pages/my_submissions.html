@@ -3,13 +3,13 @@
 {% block title %}Minhas Submissões{% endblock %}
 
 {% block content %}
-<section class="max-w-5xl mx-auto space-y-6">
+<section class="max-w-[1600px] mx-auto space-y-6">
   <header class="flex justify-between items-center">
     <div>
       <p class="text-xs uppercase tracking-widest text-primary font-bold">Painel do Usuário</p>
       <h1 class="text-3xl font-display font-extrabold text-foreground mt-1">Minhas Sugestões</h1>
     </div>
-    <a href="{% url 'cadastrar_termo' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors focus-visible:ring-2 focus-visible:ring-ring">
+    <a href="{% url 'forms:cadastrar_termo' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors focus-visible:ring-2 focus-visible:ring-ring">
       <i class="fas fa-plus"></i> Sugerir Novo Sinal
     </a>
   </header>
@@ -28,10 +28,10 @@
   {% endif %}
 
   {% if termos %}
-    <div class="grid gap-6">
+    <div class="grid gap-6 xl:grid-cols-2">
       {% for termo in termos %}
-        <article class="bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col md:flex-row justify-between gap-6">
-          <div class="flex flex-col md:flex-row gap-4 items-start md:items-center flex-1">
+        <article class="bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col justify-between gap-6">
+          <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center flex-1">
             {% if termo.t_imagem %}
               <img src="{{ termo.t_imagem.url }}" alt="{{ termo.nome_termo }}" class="w-20 h-20 rounded-xl object-cover border border-border">
             {% else %}
@@ -53,7 +53,7 @@
               </div>
 
               {% if termo.descricao %}
-                <p class="text-sm text-muted-foreground line-clamp-2 max-w-2xl">{{ termo.descricao }}</p>
+                <p class="text-sm text-muted-foreground line-clamp-2 max-w-3xl">{{ termo.descricao }}</p>
               {% endif %}
 
               <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
@@ -74,13 +74,13 @@
 
           <div class="flex items-center shrink-0 gap-3 justify-end">
             {% if termo.status == 'APPROVED' %}
-              <a href="{% url 'sinal_list' termo.id_termo %}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary text-secondary-foreground text-xs font-semibold hover:bg-secondary/80 transition-colors">
+              <a href="{% url 'catalog:sinal_list' termo.id_termo %}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary text-secondary-foreground text-xs font-semibold hover:bg-secondary/80 transition-colors">
                 <i class="fas fa-eye"></i> Ver no Dicionário
               </a>
             {% endif %}
 
             {% if termo.status == 'PENDING' or termo.status == 'AJUSTE' %}
-              <a href="{% url 'editar_termo' termo.id_termo %}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors">
+              <a href="{% url 'forms:editar_termo' termo.id_termo %}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors">
                 <i class="fas fa-edit"></i> Ajustar / Editar
               </a>
             {% endif %}
@@ -97,7 +97,7 @@
         <h3 class="text-lg font-bold text-foreground">Nenhuma submissão encontrada</h3>
         <p class="text-sm text-muted-foreground mt-1">Você ainda não sugeriu nenhum termo ou sinal de Libras.</p>
       </div>
-      <a href="{% url 'cadastrar_termo' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors">
+      <a href="{% url 'forms:cadastrar_termo' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors">
         <i class="fas fa-plus"></i> Sugerir Meu Primeiro Sinal
       </a>
     </div>

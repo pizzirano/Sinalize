@@ -3,7 +3,7 @@
 {% block title %}Painel de Moderação{% endblock %}
 
 {% block content %}
-<section class="max-w-6xl mx-auto space-y-8" x-data="{ tab: 'termos' }">
+<section class="max-w-[1800px] mx-auto space-y-8" x-data="{ tab: 'termos' }">
   <header class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-border pb-6">
     <div>
       <p class="text-xs uppercase tracking-widest text-primary font-bold">Administração</p>
@@ -14,75 +14,10 @@
     <p class="text-sm text-muted-foreground">{{ termos_pendentes.count }} termo{{ termos_pendentes|pluralize }} pendente{{ termos_pendentes|pluralize }} de moderação</p>
   </header>
 
-  <div class="grid gap-6 lg:grid-cols-2">
-    <section class="rounded-2xl border border-border bg-card p-6">
-      <h2 class="text-xl font-semibold text-foreground">Categorias pendentes</h2>
-      {% if categorias_pendentes %}
-        <div class="space-y-4 mt-4">
-          {% for cat in categorias_pendentes %}
-            <article class="rounded-2xl bg-surface border border-border p-4">
-              <div class="flex items-center gap-4">
-                {% if cat.c_imagem %}
-                  <img src="{{ cat.c_imagem.url }}" alt="{{ cat.nome_categoria }}" class="w-16 h-16 rounded-xl object-cover border border-border" />
-                {% else %}
-                  <div class="w-16 h-16 rounded-xl bg-secondary flex items-center justify-center border border-border">
-                    <i class="fas fa-folder-open text-secondary-foreground text-xl"></i>
-                  </div>
-                {% endif %}
-                <div>
-                  <h3 class="text-lg font-semibold text-foreground">{{ cat.nome_categoria }}</h3>
-                  <p class="text-sm text-muted-foreground">Domínio: {{ cat.dominio.nome_dominio }}</p>
-                </div>
-              </div>
-              <div class="mt-4 flex flex-wrap gap-2">
-                <form method="post" action="{% url 'moderation_action_categoria' cat.id_categoria 'aprovar' %}" class="inline-block" hx-post="{% url 'moderation_action_categoria' cat.id_categoria 'aprovar' %}" hx-target="closest article" hx-swap="outerHTML" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-                  {% csrf_token %}
-                  <button type="submit" class="px-3 py-2 rounded-xl bg-success text-primary-foreground text-xs font-semibold">✅ Aprovar categoria e subcategorias</button>
-                </form>
-                <form method="post" action="{% url 'moderation_action_categoria' cat.id_categoria 'rejeitar' %}" class="inline-block" hx-post="{% url 'moderation_action_categoria' cat.id_categoria 'rejeitar' %}" hx-target="closest article" hx-swap="outerHTML" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-                  {% csrf_token %}
-                  <button type="submit" class="px-3 py-2 rounded-xl bg-destructive text-destructive-foreground text-xs font-semibold">❌ Rejeitar categoria</button>
-                </form>
-              </div>
-            </article>
-          {% endfor %}
-        </div>
-      {% else %}
-        <p class="mt-4 text-sm text-muted-foreground">Nenhuma categoria pendente.</p>
-      {% endif %}
-    </section>
-
-    <section class="rounded-2xl border border-border bg-card p-6">
-      <h2 class="text-xl font-semibold text-foreground">Subcategorias pendentes</h2>
-      {% if subcategorias_pendentes %}
-        <div class="space-y-4 mt-4">
-          {% for sub in subcategorias_pendentes %}
-            <article class="rounded-2xl bg-surface border border-border p-4">
-              <h3 class="text-lg font-semibold text-foreground">{{ sub.nome_subcategoria }}</h3>
-              <p class="text-sm text-muted-foreground mt-1">Categoria: {{ sub.categoria.nome_categoria }}</p>
-              <div class="mt-4 flex flex-wrap gap-2">
-                <form method="post" action="{% url 'moderation_action_subcategoria' sub.id_subcategoria 'aprovar' %}" class="inline-block" hx-post="{% url 'moderation_action_subcategoria' sub.id_subcategoria 'aprovar' %}" hx-target="closest article" hx-swap="outerHTML" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-                  {% csrf_token %}
-                  <button type="submit" class="px-3 py-2 rounded-xl bg-success text-primary-foreground text-xs font-semibold">✅ Aprovar subcategoria</button>
-                </form>
-                <form method="post" action="{% url 'moderation_action_subcategoria' sub.id_subcategoria 'rejeitar' %}" class="inline-block" hx-post="{% url 'moderation_action_subcategoria' sub.id_subcategoria 'rejeitar' %}" hx-target="closest article" hx-swap="outerHTML" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-                  {% csrf_token %}
-                  <button type="submit" class="px-3 py-2 rounded-xl bg-destructive text-destructive-foreground text-xs font-semibold">❌ Rejeitar subcategoria</button>
-                </form>
-              </div>
-            </article>
-          {% endfor %}
-        </div>
-      {% else %}
-        <p class="mt-4 text-sm text-muted-foreground">Nenhuma subcategoria pendente.</p>
-      {% endif %}
-    </section>
-  </div>
-
   <!-- PENDING TERMS -->
   <div class="space-y-6">
     {% if termos_pendentes %}
-      <div class="grid md:grid-cols-2 gap-6">
+      <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
         {% for termo in termos_pendentes %}
           <article class="moderation-card bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col justify-between gap-6 transition-all duration-300">
             <div class="space-y-4">
@@ -145,14 +80,14 @@
 
             <!-- Ações do conjunto (termo + vídeos) - cada ação é um formulário separado -->
             <div class="border-t border-border pt-4 mt-auto space-y-4">
-              <form method="post" action="{% url 'moderation_action' 'termo' termo.id_termo 'aprovar' %}" class="inline-block" hx-post="{% url 'moderation_action' 'termo' termo.id_termo 'aprovar' %}" hx-target="closest .moderation-card" hx-swap="outerHTML">
+              <form method="post" action="{% url 'catalog:moderation_action' 'termo' termo.id_termo 'aprovar' %}" class="inline-block" hx-post="{% url 'catalog:moderation_action' 'termo' termo.id_termo 'aprovar' %}" hx-target="closest .moderation-card" hx-swap="outerHTML">
                 {% csrf_token %}
                 <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-success text-primary-foreground text-xs font-semibold hover:bg-success/90 transition-colors focus-visible:ring-2 focus-visible:ring-ring">
                   ✅ Aprovar termo e vídeos
                 </button>
               </form>
 
-              <form method="post" action="{% url 'moderation_action' 'termo' termo.id_termo 'rejeitar' %}" class="mt-2" hx-post="{% url 'moderation_action' 'termo' termo.id_termo 'rejeitar' %}" hx-target="closest .moderation-card" hx-swap="outerHTML">
+              <form method="post" action="{% url 'catalog:moderation_action' 'termo' termo.id_termo 'rejeitar' %}" class="mt-2" hx-post="{% url 'catalog:moderation_action' 'termo' termo.id_termo 'rejeitar' %}" hx-target="closest .moderation-card" hx-swap="outerHTML">
                 {% csrf_token %}
                 <textarea name="feedback" rows="2" class="w-full mt-1.5 rounded-xl p-2.5 bg-background border border-border text-foreground text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all" placeholder="Motivo da rejeição..."></textarea>
                 <div class="mt-2">
@@ -162,7 +97,7 @@
                 </div>
               </form>
 
-              <form method="post" action="{% url 'moderation_action' 'termo' termo.id_termo 'ajuste' %}" class="mt-2" hx-post="{% url 'moderation_action' 'termo' termo.id_termo 'ajuste' %}" hx-target="closest .moderation-card" hx-swap="outerHTML">
+              <form method="post" action="{% url 'catalog:moderation_action' 'termo' termo.id_termo 'ajuste' %}" class="mt-2" hx-post="{% url 'catalog:moderation_action' 'termo' termo.id_termo 'ajuste' %}" hx-target="closest .moderation-card" hx-swap="outerHTML">
                 {% csrf_token %}
                 <textarea name="feedback" rows="2" class="w-full mt-1.5 rounded-xl p-2.5 bg-background border border-border text-foreground text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all" placeholder="O que precisa ser ajustado..."></textarea>
                 <div class="mt-2">

@@ -26,6 +26,22 @@ services:
       - "traefik.http.routers.sinalize.entrypoints=web"
       - "traefik.http.services.sinalize.loadbalancer.server.port=8000"
 
+  media:
+    image: nginx:1.27-alpine
+    container_name: sinalize-media
+    restart: unless-stopped
+    volumes:
+      - ./data/web/media:/data/web/media:ro
+      - ./config/nginx/media.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - proxy-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sinalize-media.rule=Host(`sinalize.nodx.uk`) && PathPrefix(`/media/`)"
+      - "traefik.http.routers.sinalize-media.entrypoints=web"
+      - "traefik.http.routers.sinalize-media.priority=100"
+      - "traefik.http.services.sinalize-media.loadbalancer.server.port=80"
+
   psql:
     image: postgres:15-alpine
     container_name: sinalize-db
