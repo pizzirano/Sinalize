@@ -7,7 +7,7 @@
 
   {% if termo.t_imagem %}
   <div class="relative rounded-2xl overflow-hidden mb-6">
-    <img src="{{ termo.t_imagem.url }}" alt="{{ termo.nome_termo }}" class="w-full h-48 object-cover">
+    <img src="{{ termo.t_imagem.url }}" alt="{{ termo.nome_termo }}" width="1200" height="192" class="w-full h-48 object-cover aspect-[25/4]" decoding="async">
     <div class="absolute inset-0 bg-background/80 flex items-center justify-center">
       <h1 class="text-3xl font-bold text-foreground">{{ termo.nome_termo }}</h1>
     </div>

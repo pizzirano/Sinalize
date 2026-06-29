@@ -52,8 +52,9 @@
         <a
           href="{% url 'catalog:sinal_list' termo.id_termo %}"
           class="absolute inset-0 grid grid-rows-[220px_1fr] md:grid-rows-1 md:grid-cols-[minmax(280px,0.9fr)_minmax(0,1.1fr)] lg:grid-cols-[minmax(360px,0.95fr)_minmax(0,1.05fr)] transition-opacity duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring group"
-          :class="current === {{ forloop.counter0 }} ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"
-          :aria-hidden="current !== {{ forloop.counter0 }}"
+          :class="current === {{ forloop.counter0 }} ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none invisible'"
+          :aria-hidden="current !== {{ forloop.counter0 }} ? 'true' : 'false'"
+          :tabindex="current === {{ forloop.counter0 }} ? '0' : '-1'"
           aria-label="Ver sinais do termo {{ termo.nome_termo }}"
         >
           <div class="relative h-full min-h-[220px] overflow-hidden bg-background">
@@ -61,8 +62,10 @@
               <img
                 src="{{ termo.t_imagem.url }}"
                 alt="{{ termo.nome_termo }}"
-                class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                loading="lazy"
+                width="640"
+                height="360"
+                class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 aspect-[16/9]"
+                decoding="async"
               >
             {% else %}
               <div class="flex h-full w-full items-center justify-center bg-secondary text-secondary-foreground">
@@ -82,7 +85,7 @@
               </h3>
               {% if termo.descricao %}
                 <p class="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base line-clamp-3">
-                  {{ termo.descricao }}
+                   {{ termo.descricao }}
                 </p>
               {% endif %}
               <div class="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors group-hover:bg-primary/90">
@@ -106,7 +109,7 @@
             type="button"
             @click="prev()"
             aria-label="Slide anterior"
-            class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-background text-foreground transition-colors hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            class="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-background text-foreground transition-colors hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <i class="fas fa-chevron-left" aria-hidden="true"></i>
           </button>
@@ -114,22 +117,27 @@
             type="button"
             @click="next()"
             aria-label="Proximo slide"
-            class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-background text-foreground transition-colors hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            class="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-background text-foreground transition-colors hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <i class="fas fa-chevron-right" aria-hidden="true"></i>
           </button>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2" role="group" aria-label="Selecionar termo em destaque">
+        <div class="flex flex-wrap items-center gap-1" role="group" aria-label="Selecionar termo em destaque">
           {% for termo in termos_carrossel %}
             <button
               type="button"
               @click="go({{ forloop.counter0 }})"
-              :aria-pressed="current === {{ forloop.counter0 }}"
+              :aria-pressed="current === {{ forloop.counter0 }} ? 'true' : 'false'"
               aria-label="Ir para {{ termo.nome_termo }}"
-              class="h-2.5 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              :class="current === {{ forloop.counter0 }} ? 'w-8 bg-primary' : 'w-2.5 bg-muted-foreground/40 hover:bg-primary/60'"
-            ></button>
+              class="group flex h-11 w-11 items-center justify-center rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <span
+                class="block h-2.5 w-2.5 rounded-full"
+                :class="current === {{ forloop.counter0 }} ? 'bg-primary' : 'bg-muted-foreground/40 group-hover:bg-primary/60'"
+                :style="{ transform: current === {{ forloop.counter0 }} ? 'scaleX(3.2)' : 'scaleX(1)', transition: 'transform 300ms', transformOrigin: 'center' }"
+              ></span>
+            </button>
           {% endfor %}
         </div>
       </div>

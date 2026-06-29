@@ -19,11 +19,11 @@
     {% if termos_pendentes %}
       <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
         {% for termo in termos_pendentes %}
-          <article class="moderation-card bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col justify-between gap-6 transition-all duration-300">
+          <article class="moderation-card bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col justify-between gap-6 transition-shadow duration-300">
             <div class="space-y-4">
               <div class="flex items-start gap-4">
                 {% if termo.t_imagem %}
-                  <img src="{{ termo.t_imagem.url }}" alt="{{ termo.nome_termo }}" class="w-16 h-16 rounded-xl object-cover border border-border">
+                  <img src="{{ termo.t_imagem.url }}" alt="{{ termo.nome_termo }}" width="64" height="64" class="w-16 h-16 rounded-xl object-cover border border-border aspect-square" loading="lazy" decoding="async">
                 {% else %}
                   <div class="w-16 h-16 rounded-xl bg-secondary flex items-center justify-center border border-border shrink-0">
                     <i class="fas fa-sign-language text-secondary-foreground text-xl"></i>
@@ -89,7 +89,7 @@
 
               <form method="post" action="{% url 'catalog:moderation_action' 'termo' termo.id_termo 'rejeitar' %}" class="mt-2" hx-post="{% url 'catalog:moderation_action' 'termo' termo.id_termo 'rejeitar' %}" hx-target="closest .moderation-card" hx-swap="outerHTML">
                 {% csrf_token %}
-                <textarea name="feedback" rows="2" class="w-full mt-1.5 rounded-xl p-2.5 bg-background border border-border text-foreground text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all" placeholder="Motivo da rejeição..."></textarea>
+                <textarea name="feedback" rows="2" class="w-full mt-1.5 rounded-xl p-2.5 bg-background border border-border text-foreground text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors" placeholder="Motivo da rejeição..."></textarea>
                 <div class="mt-2">
                   <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-destructive text-destructive-foreground text-xs font-semibold hover:bg-destructive/90 transition-colors focus-visible:ring-2 focus-visible:ring-ring">
                     ❌ Rejeitar
@@ -99,7 +99,7 @@
 
               <form method="post" action="{% url 'catalog:moderation_action' 'termo' termo.id_termo 'ajuste' %}" class="mt-2" hx-post="{% url 'catalog:moderation_action' 'termo' termo.id_termo 'ajuste' %}" hx-target="closest .moderation-card" hx-swap="outerHTML">
                 {% csrf_token %}
-                <textarea name="feedback" rows="2" class="w-full mt-1.5 rounded-xl p-2.5 bg-background border border-border text-foreground text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all" placeholder="O que precisa ser ajustado..."></textarea>
+                <textarea name="feedback" rows="2" class="w-full mt-1.5 rounded-xl p-2.5 bg-background border border-border text-foreground text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors" placeholder="O que precisa ser ajustado..."></textarea>
                 <div class="mt-2">
                   <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-warning text-primary-foreground text-xs font-semibold hover:bg-warning/90 transition-colors focus-visible:ring-2 focus-visible:ring-ring">
                     💬 Solicitar ajuste
@@ -120,7 +120,6 @@
       </div>
     {% endif %}
   </div>
-
 
 </section>
 {% endblock %}

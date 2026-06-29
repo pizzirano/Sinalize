@@ -3,8 +3,8 @@
     <h2 class="text-xl font-semibold text-foreground">Categorias</h2>
     <div class="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
       {% for categoria in categorias_galeria %}
-        <a href="{% url 'catalog:termo_list' categoria.id_categoria %}" class="block bg-card rounded-2xl p-3 border border-border hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all" aria-label="Categoria {{ categoria.nome_categoria }}">
-          <img src="{{ categoria.c_imagem.url }}" alt="{{ categoria.nome_categoria }}" class="w-full h-32 object-cover rounded-lg mb-2" loading="lazy">
+        <a href="{% url 'catalog:termo_list' categoria.id_categoria %}" class="block bg-card rounded-2xl p-3 border border-border hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-shadow duration-300" aria-label="Categoria {{ categoria.nome_categoria }}">
+          <img src="{{ categoria.c_imagem.url }}" alt="{{ categoria.nome_categoria }}" width="240" height="128" class="w-full h-32 object-cover rounded-lg mb-2 aspect-[15/8]" loading="lazy" decoding="async">
           <div class="text-center text-sm font-medium text-foreground">{{ categoria.nome_categoria }}</div>
         </a>
       {% empty %}

@@ -3,7 +3,7 @@
     {% for termo in termos %}
       <a href="{% url 'catalog:sinal_list' termo.id_termo %}" class="flex items-center gap-4 p-4 hover:bg-surface transition-colors focus:outline-none focus:bg-surface">
         {% if termo.t_imagem %}
-          <img src="{{ termo.t_imagem.url }}" alt="{{ termo.nome_termo }}" class="w-12 h-12 rounded-lg object-cover shrink-0">
+          <img src="{{ termo.t_imagem.url }}" alt="{{ termo.nome_termo }}" width="48" height="48" class="w-12 h-12 rounded-lg object-cover shrink-0 aspect-square" loading="lazy" decoding="async">
         {% else %}
           <div class="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center shrink-0">
             <i class="fas fa-sign-language text-secondary-foreground"></i>
