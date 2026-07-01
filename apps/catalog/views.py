@@ -240,6 +240,16 @@ def termos_por_subcategoria(request, subcategoria_id):
 # ------------------------------
 # Busca Viva (HTMX)
 # ------------------------------
+@login_required
+def termo_options(request):
+    q = request.GET.get('q', '').strip()
+    filtro = Q(status='APPROVED') | Q(status='PENDING', created_by=request.user)
+    termos = Termo.objects.filter(filtro).order_by('nome_termo')
+    if q:
+        termos = termos.filter(nome_termo__icontains=q)
+    return render(request, 'catalog/partials/_termo_options.html', {'termos': termos})
+
+
 def live_search(request):
     query = request.GET.get('q', '').strip()
     termos = Termo.objects.none()
@@ -262,9 +272,13 @@ def moderation_dashboard(request):
         raise PermissionDenied("Apenas moderadores podem acessar o painel administrativo.")
 
     termos_pendentes = Termo.objects.filter(status='PENDING').select_related('created_by').order_by('-created_at')
+    videos_pendentes = Video.objects.filter(
+        status='PENDING', termo__status='APPROVED'
+    ).select_related('termo', 'uploaded_by').order_by('-id_video')
 
     return render(request, 'catalog/pages/moderation_dashboard.html', {
         'termos_pendentes': termos_pendentes,
+        'videos_pendentes': videos_pendentes,
     })
 
 
@@ -331,6 +345,12 @@ def moderation_action(request, object_type, object_id, action):
                 f'Termo "{termo.nome_termo}" e seus vídeos foram '
                 f'{"aprovados" if novo_status == "APPROVED" else "atualizados"}.'
             )
+        elif object_type == 'video':
+            video = get_object_or_404(Video, id_video=object_id)
+            video.status = novo_status
+            video.feedback = feedback
+            video.save(update_fields=['status', 'feedback'])
+            messages.success(request, f'Vídeo "{video.titulo}" atualizado com sucesso.')
         else:
             if request.headers.get('HX-Request') == 'true':
                 return HttpResponse("Requisição inválida.", status=400)

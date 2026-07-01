@@ -27,7 +27,7 @@
         </li>
         <li class="flex items-center">
           <span class="mx-2">/</span>
-          <a href="{% url 'catalog:termo_list' classificacao.subcategoria.categoria.id_categoria %}?sub={{ classificacao.subcategoria.id_subcategoria %}" class="hover:text-primary focus-visible:ring-2 focus-visible:ring-ring rounded">
+          <a href="{% url 'catalog:termo_list' classificacao.subcategoria.categoria.id_categoria %}?sub={{ classificacao.subcategoria.id_subcategoria }}" class="hover:text-primary focus-visible:ring-2 focus-visible:ring-ring rounded">
             {{ classificacao.subcategoria.nome_subcategoria }}
           </a>
         </li>

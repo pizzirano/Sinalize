@@ -43,7 +43,7 @@
             <div class="space-y-2 min-w-0 flex-1">
               <div class="flex flex-wrap items-center gap-2">
                 <h3 class="text-xl font-bold text-foreground truncate">{{ termo.nome_termo }}</h3>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                   {% if termo.status == 'APPROVED' %}bg-success/10 text-success border border-success/20
                   {% elif termo.status == 'PENDING' %}bg-warning/10 text-warning border border-warning/20
                   {% elif termo.status == 'AJUSTE' %}bg-accent/10 text-accent border border-accent/20
@@ -88,7 +88,43 @@
         </article>
       {% endfor %}
     </div>
-  {% else %}
+  {% endif %}
+
+  {% if videos_proprios %}
+    <section class="space-y-4 mt-4">
+      <h2 class="text-xl font-bold text-foreground border-b border-border pb-3">
+        Vídeos Enviados para Termos Existentes
+      </h2>
+      <div class="grid gap-4 xl:grid-cols-2">
+        {% for video in videos_proprios %}
+          <article class="bg-card border border-border rounded-2xl p-5 shadow-sm flex flex-col gap-3">
+            <div class="flex items-start justify-between gap-4">
+              <div class="space-y-0.5 min-w-0">
+                <p class="text-xs text-muted-foreground">Termo: <strong class="text-foreground">{{ video.termo.nome_termo }}</strong></p>
+                <h3 class="text-base font-bold text-foreground truncate">{{ video.titulo }}</h3>
+                <p class="text-xs text-muted-foreground">{{ video.get_tipo_video_display }}</p>
+              </div>
+              <span class="inline-flex shrink-0 items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                {% if video.status == 'APPROVED' %}bg-success/10 text-success border border-success/20
+                {% elif video.status == 'PENDING' %}bg-warning/10 text-warning border border-warning/20
+                {% elif video.status == 'AJUSTE' %}bg-accent/10 text-accent border border-accent/20
+                {% else %}bg-destructive/10 text-destructive border border-destructive/20{% endif %}">
+                {{ video.get_status_display }}
+              </span>
+            </div>
+            {% if video.feedback %}
+              <div class="rounded-xl border border-accent/20 bg-accent/5 p-3 text-xs text-accent">
+                <strong><i class="fas fa-comment-dots mr-1"></i> Feedback:</strong>
+                <p class="mt-1 italic">{{ video.feedback }}</p>
+              </div>
+            {% endif %}
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if not termos and not videos_proprios %}
     <div class="bg-surface border border-border rounded-2xl p-12 text-center text-muted-foreground space-y-4">
       <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-secondary">
         <i class="fas fa-folder-open text-secondary-foreground text-2xl"></i>

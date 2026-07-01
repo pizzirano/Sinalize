@@ -1,0 +1,4 @@
+<option value="">— Selecione um termo —</option>
+{% for termo in termos %}
+  <option value="{{ termo.id_termo }}">{{ termo.nome_termo }}</option>
+{% endfor %}

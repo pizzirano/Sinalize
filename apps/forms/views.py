@@ -4,15 +4,77 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from django.urls import reverse
+from django.db.models import Q
 from catalog.models import Termo, Video, Categoria, Subcategoria, Classificacao, Pertence, Dominio
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from .forms import TermoForm, VideoForm, CategoriaForm, CustomAuthenticationForm, CustomUserCreationForm
+
+
+@login_required
+def adicionar_videos_a_termo(request):
+    if request.method != 'POST':
+        return HttpResponse(status=405)
+
+    termo_id = request.POST.get('termo_id', '').strip()
+    print(f"[DIAG] adicionar_videos_a_termo: termo_id={termo_id!r}", flush=True)
+    print(f"[DIAG] POST keys: {list(request.POST.keys())}", flush=True)
+    print(f"[DIAG] FILES keys: {list(request.FILES.keys())}", flush=True)
+
+    if not termo_id:
+        return HttpResponseBadRequest('termo_id é obrigatório.')
+
+    termo = get_object_or_404(Termo, id_termo=termo_id)
+
+    pode_adicionar = (
+        termo.status == 'APPROVED' or
+        (termo.status == 'PENDING' and termo.created_by == request.user)
+    )
+    if not pode_adicionar:
+        return HttpResponseForbidden('Você não tem permissão para adicionar vídeos a este termo.')
+
+    VideoFormSet = modelformset_factory(Video, form=VideoForm, extra=1, can_delete=False)
+    formset = VideoFormSet(request.POST, request.FILES, queryset=Video.objects.none())
+
+    valid = formset.is_valid()
+    print(f"[DIAG] formset.is_valid()={valid}", flush=True)
+    if not valid:
+        print(f"[DIAG] formset.errors={formset.errors}", flush=True)
+        print(f"[DIAG] formset.non_form_errors()={formset.non_form_errors()}", flush=True)
+        for i, f in enumerate(formset):
+            print(f"[DIAG] form[{i}].errors={f.errors}", flush=True)
+            print(f"[DIAG] form[{i}].cleaned_data={getattr(f, 'cleaned_data', 'N/A')}", flush=True)
+
+    if valid:
+        for form in formset:
+            if form.cleaned_data and form.cleaned_data.get('video'):
+                video = form.save(commit=False)
+                video.termo = termo
+                video.uploaded_by = request.user
+                video.status = 'PENDING'
+                video.convertido = False
+                video.save()
+        messages.success(request, 'Vídeo(s) enviado(s) com sucesso! Aguarde a análise do administrador.')
+        return redirect('forms:my_submissions')
+
+    termo_form = TermoForm()
+    return render(request, 'forms/pages/signal_form.html', {
+        'termo_form': termo_form,
+        'formset': formset,
+        'is_add_to_existing': True,
+        'termo_selecionado': termo,
+    })
+
 
 @login_required
 def cadastrar_termo_e_videos(request):
     VideoFormSet = modelformset_factory(Video, form=VideoForm, extra=1, can_delete=False)
 
     if request.method == "POST":
+        modo = request.POST.get('modo', '')
+        print(f"[DIAG] cadastrar_termo_e_videos: modo={modo!r} termo_id={request.POST.get('termo_id','')!r}", flush=True)
+        if modo == 'existente':
+            return adicionar_videos_a_termo(request)
+
         termo_form = TermoForm(request.POST, request.FILES)
         formset = VideoFormSet(request.POST, request.FILES, queryset=Video.objects.none())
 
@@ -78,9 +140,17 @@ def cadastrar_termo_e_videos(request):
 
 @login_required
 def my_submissions(request):
-    termos = Termo.objects.filter(created_by=request.user).prefetch_related('videos').order_by('-created_at')
+    termos = Termo.objects.filter(
+        Q(created_by=request.user) | Q(videos__uploaded_by=request.user)
+    ).distinct().prefetch_related('videos').order_by('-created_at')
+    videos_proprios = Video.objects.filter(
+        uploaded_by=request.user, termo__status='APPROVED'
+    ).exclude(
+        termo__created_by=request.user
+    ).select_related('termo').order_by('-id_video')
     return render(request, 'forms/pages/my_submissions.html', {
         'termos': termos,
+        'videos_proprios': videos_proprios,
     })
 
 
